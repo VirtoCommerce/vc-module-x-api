@@ -36,7 +36,7 @@ namespace VirtoCommerce.Xapi.Data.Extensions
 
         public static IServiceCollection AddXCore(this IServiceCollection services, IGraphQLBuilder graphQlbuilder, IConfiguration configuration)
         {
-            graphQlbuilder.AddSchema(typeof(XCoreAssemblyMarker), typeof(XDataAssemblyMarker));
+            graphQlbuilder.AddSchema(typeof(CoreAssemblyMarker), typeof(DataAssemblyMarker));
 
             //Register custom GraphQL dependencies
             services.AddPermissionAuthorization();

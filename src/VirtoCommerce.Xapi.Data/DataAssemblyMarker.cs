@@ -1,6 +1,6 @@
 namespace VirtoCommerce.Xapi.Data
 {
-    public class XDataAssemblyMarker
+    public class DataAssemblyMarker
     {
     }
 }
