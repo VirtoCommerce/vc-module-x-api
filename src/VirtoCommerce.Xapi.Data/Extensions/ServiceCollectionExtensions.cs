@@ -2,14 +2,14 @@ using GraphQL.Introspection;
 using GraphQL.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using VirtoCommerce.Platform.Security.Services;
+using VirtoCommerce.Platform.Security.OpenIddict;
 using VirtoCommerce.Xapi.Core;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Services;
 using VirtoCommerce.Xapi.Data.Infrastructure;
 using VirtoCommerce.Xapi.Data.Services;
-using ContactSignInValidator = VirtoCommerce.Xapi.Data.Services.Security.ContactSignInValidator;
+using ContactSignInValidator = VirtoCommerce.Xapi.Data.Services.OpenIddict.ContactSignInValidator;
 using DynamicPropertyResolverService = VirtoCommerce.Xapi.Data.Services.DynamicPropertyResolverService;
 using DynamicPropertyUpdaterService = VirtoCommerce.Xapi.Data.Services.DynamicPropertyUpdaterService;
 using IGraphQLBuilder = GraphQL.Server.IGraphQLBuilder;
@@ -47,7 +47,7 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             services.AddTransient<IDynamicPropertyResolverService, DynamicPropertyResolverService>();
             services.AddTransient<IDynamicPropertyUpdaterService, DynamicPropertyUpdaterService>();
             services.AddTransient<IUserManagerCore, UserManagerCore>();
-            services.AddTransient<IUserSignInValidator, ContactSignInValidator>();
+            services.AddTransient<ITokenRequestValidator, ContactSignInValidator>();
 
             // provider for external fields
             services.AddSingleton<IExternalFieldProvider, ExternalFieldProvider>();

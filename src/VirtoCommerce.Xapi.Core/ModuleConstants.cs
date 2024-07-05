@@ -5,6 +5,11 @@ namespace VirtoCommerce.Xapi.Core
 {
     public static class ModuleConstants
     {
+        public static class Parameters
+        {
+            public const string StoreId = "storeId";
+        }
+
         public static class AnonymousUser
         {
             public static string UserName => "Anonymous";

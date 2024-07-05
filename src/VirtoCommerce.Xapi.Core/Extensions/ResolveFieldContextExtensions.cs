@@ -5,10 +5,11 @@ using System.Security.Claims;
 using GraphQL;
 using GraphQL.Execution;
 using VirtoCommerce.CoreModule.Core.Currency;
+using VirtoCommerce.CustomerModule.Core.Extensions;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Xapi.Core.Helpers;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Queries;
-using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
 {
@@ -62,13 +63,17 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
         public static bool IsAuthenticated(this IResolveFieldContext resolveContext)
         {
-            return resolveContext.GetCurrentPrincipal().Identity?.IsAuthenticated == true;
+            return resolveContext.GetCurrentPrincipal()?.Identity?.IsAuthenticated == true;
         }
 
         public static string GetCurrentUserId(this IResolveFieldContext resolveContext)
         {
-            var claimsPrincipal = GetCurrentPrincipal(resolveContext);
-            return claimsPrincipal?.FindFirstValue(ClaimTypes.NameIdentifier) ?? claimsPrincipal?.FindFirstValue("name") ?? ModuleConstants.AnonymousUser.UserName;
+            return resolveContext.GetCurrentPrincipal()?.GetCurrentUserId();
+        }
+
+        public static string GetCurrentOrganizationId(this IResolveFieldContext resolveContext)
+        {
+            return resolveContext.GetCurrentPrincipal()?.GetCurrentOrganizationId();
         }
 
         public static ClaimsPrincipal GetCurrentPrincipal(this IResolveFieldContext resolveContext)
