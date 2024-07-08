@@ -37,7 +37,7 @@ public static class SeoInfosExtensions
     private static SeoInfo GetBestMatchingSeoInfoInternal(IList<SeoInfo> seoInfos, string storeId,
         string defaultStoreLang, string cultureName, string slug, string permalink)
     {
-        if (storeId.IsNullOrEmpty() || cultureName.IsNullOrEmpty() || slug.IsNullOrEmpty())
+        if (storeId.IsNullOrEmpty() || cultureName.IsNullOrEmpty())
         {
             return null;
         }
