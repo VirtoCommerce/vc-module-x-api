@@ -1,3 +1,5 @@
+using System;
+
 namespace VirtoCommerce.Xapi.Core.Infrastructure
 {
     public sealed class Optional<T>
@@ -25,5 +27,13 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
         public T Value { get; set; }
 
         public bool IsSpecified { get; set; }
+
+        public void SetValue(Action<T> setValue)
+        {
+            if (IsSpecified)
+            {
+                setValue(Value);
+            }
+        }
     }
 }
