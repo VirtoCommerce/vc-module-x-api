@@ -11,10 +11,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
     {
         public static Currency GetCurrencyForLanguage(this IEnumerable<Currency> currencies, string currencyCode, string cultureName)
         {
-            if (currencies == null)
-            {
-                throw new ArgumentNullException(nameof(currencies));
-            }
+            ArgumentNullException.ThrowIfNull(currencies);
 
             var currency = currencies.FirstOrDefault(x => x.Code.EqualsInvariant(currencyCode));
             if (currency == null)

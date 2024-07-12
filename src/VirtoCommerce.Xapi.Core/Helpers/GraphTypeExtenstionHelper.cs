@@ -69,7 +69,7 @@ namespace VirtoCommerce.Xapi.Core.Helpers
             //EdgeType<ProductType>, ProductsConnectonType<ProductType>
             //Try first find the actual TNodeType  in the  AbstractTypeFactory
             var actualNodeType = GetActualType<TNodeType>();
-            var createMethodInfo = typeof(ConnectionBuilder<>).MakeGenericType(typeof(TSourceType)).GetMethods().FirstOrDefault(x => x.Name.EqualsInvariant(nameof(ConnectionBuilder.Create)) && x.GetGenericArguments().Count() == 3);
+            var createMethodInfo = typeof(ConnectionBuilder<>).MakeGenericType(typeof(TSourceType)).GetMethods().FirstOrDefault(x => x.Name.EqualsInvariant(nameof(ConnectionBuilder.Create)) && x.GetGenericArguments().Length == 3);
             if (createMethodInfo == null)
             {
                 throw new PlatformException("No suitable 'ConnectionBuilder.Create' method with three generic types found");

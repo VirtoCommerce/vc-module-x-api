@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using GraphQL;
 using GraphQL.Conversion;
 using GraphQL.Instrumentation;
@@ -90,12 +89,12 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             // Clean Query, Mutation and Subscription if they have no fields
             // to prevent GraphQL configuration errors.
 
-            if (!schema.Query.Fields.Any())
+            if (schema.Query.Fields.Count == 0)
             {
                 schema.Query = null;
             }
 
-            if (!schema.Mutation.Fields.Any())
+            if (schema.Mutation.Fields.Count == 0)
             {
                 schema.Mutation = null;
             }
@@ -111,6 +110,11 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
         public void RegisterType(IGraphType type)
         {
             _schema.Value.RegisterType(type);
+        }
+
+        public void RegisterType(Type type)
+        {
+            _schema.Value?.RegisterType(type);
         }
 
         public void RegisterType<T>() where T : IGraphType
@@ -130,12 +134,12 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
 
         public TType GetMetadata<TType>(string key, TType defaultValue = default)
         {
-            return Metadata.ContainsKey(key) ? (TType)Metadata[key] : defaultValue;
+            return Metadata.TryGetValue(key, out var value) ? (TType)value : defaultValue;
         }
 
         public TType GetMetadata<TType>(string key, Func<TType> defaultValueFactory)
         {
-            return Metadata.ContainsKey(key) ? (TType)Metadata[key] : defaultValueFactory();
+            return Metadata.TryGetValue(key, out var value) ? (TType)value : defaultValueFactory();
         }
 
         public bool HasMetadata(string key)
@@ -151,11 +155,6 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
         public void RegisterVisitor(Type type)
         {
             _schema.Value?.RegisterVisitor(type);
-        }
-
-        public void RegisterType(Type type)
-        {
-            _schema.Value?.RegisterType(type);
         }
 
         public void RegisterTypeMapping(Type clrType, Type graphType)

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using VirtoCommerce.SearchModule.Core.Model;
 
 namespace VirtoCommerce.Xapi.Core.Binding
@@ -12,9 +9,9 @@ namespace VirtoCommerce.Xapi.Core.Binding
         public object BindModel(SearchDocument searchDocument)
         {
             var fieldName = BindingInfo?.FieldName;
-            if (!string.IsNullOrEmpty(fieldName) && searchDocument.ContainsKey(fieldName))
+            if (!string.IsNullOrEmpty(fieldName) && searchDocument.TryGetValue(fieldName, out var value))
             {
-                return searchDocument[fieldName];
+                return value;
             }
             return null;
         }

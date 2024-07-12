@@ -9,10 +9,7 @@ namespace VirtoCommerce.Xapi.Core.Pipelines
     {
         public static GenericPipelineBuilder<TParameter> AddPipeline<TParameter>(this IServiceCollection services) where TParameter : class
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            ArgumentNullException.ThrowIfNull(services);
 
             services.TryAddSingleton<IMiddlewareResolver, ServiceProviderMiddlewareResolver>();
             services.TryAddSingleton<IGenericPipelineLauncher, GenericPipelineLauncher>();
@@ -25,15 +22,8 @@ namespace VirtoCommerce.Xapi.Core.Pipelines
 
         public static IServiceCollection AddPipeline<TParameter>(this IServiceCollection services, Action<GenericPipelineBuilder<TParameter>> configuration) where TParameter : class
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
-            if (configuration == null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
+            ArgumentNullException.ThrowIfNull(services);
+            ArgumentNullException.ThrowIfNull(configuration);
 
             configuration(services.AddPipeline<TParameter>());
 

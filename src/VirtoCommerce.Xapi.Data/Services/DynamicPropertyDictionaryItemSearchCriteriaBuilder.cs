@@ -4,7 +4,6 @@ using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.SearchModule.Core.Services;
 
-// todo: delete?
 namespace VirtoCommerce.Xapi.Data.Services
 {
     public class DynamicPropertyDictionaryItemSearchCriteriaBuilder

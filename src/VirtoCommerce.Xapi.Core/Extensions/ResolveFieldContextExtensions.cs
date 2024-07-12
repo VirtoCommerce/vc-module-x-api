@@ -26,10 +26,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         /// <exception cref="ArgumentNullException"></exception>
         public static T GetValue<T>(this IResolveFieldContext resolveContext, string key, T defaultValue)
         {
-            if (resolveContext == null)
-            {
-                throw new ArgumentNullException(nameof(resolveContext));
-            }
+            ArgumentNullException.ThrowIfNull(resolveContext);
 
             if (resolveContext.UserContext.TryGetValue(key, out var value))
             {
@@ -118,10 +115,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
         public static TResult GetValueForSource<TResult>(this IResolveFieldContext resolveContext)
         {
-            if (resolveContext == null)
-            {
-                throw new ArgumentNullException(nameof(resolveContext));
-            }
+            ArgumentNullException.ThrowIfNull(resolveContext);
 
             TResult result = default;
 
@@ -139,10 +133,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
         public static void SetCurrencies(this IResolveFieldContext context, IEnumerable<Currency> currencies, string cultureName)
         {
-            if (currencies == null)
-            {
-                throw new ArgumentNullException(nameof(currencies));
-            }
+            ArgumentNullException.ThrowIfNull(currencies);
 
             var currenciesWithCulture = currencies.Select(x => currencies.GetCurrencyForLanguage(x.Code, cultureName)).ToArray();
 
@@ -151,10 +142,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
         public static void SetCurrency(this IResolveFieldContext context, Currency currency)
         {
-            if (currency == null)
-            {
-                throw new ArgumentNullException(nameof(currency));
-            }
+            ArgumentNullException.ThrowIfNull(currency);
 
             context.UserContext["currencyCode"] = currency.Code;
         }

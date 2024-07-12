@@ -16,7 +16,7 @@ namespace VirtoCommerce.Xapi.Data.Services
     /// </summary>
     public class ExternalFieldProvider : IExternalFieldProvider
     {
-        public IDictionary<string, IList<FieldType>> Fields = new Dictionary<string, IList<FieldType>>();
+        public IDictionary<string, IList<FieldType>> Fields { get; set; } = new Dictionary<string, IList<FieldType>>();
 
         public FieldType AddField<TSourceType, TGraphType>(
             string typeName,

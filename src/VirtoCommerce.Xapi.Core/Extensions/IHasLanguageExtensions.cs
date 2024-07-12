@@ -18,10 +18,8 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         /// <returns>First matching item to the specified language</returns>
         public static T FirstBestMatchForLanguage<T>(this IEnumerable<T> hasLanguages, Func<T, string> langSelector, string language)
         {
-            if (hasLanguages == null)
-            {
-                throw new ArgumentNullException(nameof(hasLanguages));
-            }
+            ArgumentNullException.ThrowIfNull(hasLanguages);
+
             //Try find object for passed language event if it null
             var result = hasLanguages.FirstOrDefault(x => langSelector(x)?.EqualsInvariant(language) ?? langSelector(x) == language);
             if (result == null)
