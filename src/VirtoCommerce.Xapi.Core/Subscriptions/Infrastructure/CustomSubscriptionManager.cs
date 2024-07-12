@@ -30,12 +30,10 @@ namespace VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure
 
         public Task UnsubscribeAsync(string id)
         {
-            if (_subscriptionsCancellationSources.TryRemove(id, out var cancellationTokenSource))
+            if (_subscriptionsCancellationSources.TryRemove(id, out var cancellationTokenSource) &&
+                !cancellationTokenSource.IsCancellationRequested)
             {
-                if (!cancellationTokenSource.IsCancellationRequested)
-                {
-                    cancellationTokenSource.Cancel();
-                }
+                cancellationTokenSource.Cancel();
             }
 
             return _subscriptionManager.UnsubscribeAsync(id);

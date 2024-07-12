@@ -1,11 +1,11 @@
 using System.Linq;
 using GraphQL.Types;
 using MediatR;
+using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Queries;
 using VirtoCommerce.Xapi.Core.Schemas.ScalarTypes;
-using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.DynamicProperties;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
@@ -33,7 +33,10 @@ namespace VirtoCommerce.Xapi.Core.Schemas
             FieldAsync<DictionaryItemType>("dictionaryItem", "Associated dictionary item", resolve: async context =>
             {
                 var id = context.Source.ValueId;
-                if (id.IsNullOrEmpty()) return null;
+                if (id.IsNullOrEmpty())
+                {
+                    return null;
+                }
 
                 var items = await _dynamicPropertyDictionaryItemsService.GetDynamicPropertyDictionaryItemsAsync(new[] { id });
 
@@ -43,7 +46,10 @@ namespace VirtoCommerce.Xapi.Core.Schemas
             FieldAsync<DynamicPropertyType>("dynamicProperty", "Associated dynamic property", resolve: async context =>
             {
                 var id = context.Source.PropertyId;
-                if (id.IsNullOrEmpty()) return null;
+                if (id.IsNullOrEmpty())
+                {
+                    return null;
+                }
 
                 var query = context.GetDynamicPropertiesQuery<GetDynamicPropertyQuery>();
                 query.IdOrName = id;

@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using GraphQL;
-using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.SearchModule.Core.Model;
+using VirtoCommerce.Xapi.Core.Extensions;
 
 namespace VirtoCommerce.Xapi.Core.Index
 {
@@ -13,28 +13,30 @@ namespace VirtoCommerce.Xapi.Core.Index
         public static object MapTo(this TermFilter termFilter, object obj)
         {
             var propertyInfo = obj.GetType().GetProperty(termFilter.FieldName.ToPascalCase());
-            if (propertyInfo != null)
+            if (propertyInfo == null)
             {
-                object value = termFilter.Values;
-                if (value != null)
-                {
-                    if (propertyInfo.PropertyType.IsArray)
-                    {
-                        var elementType = propertyInfo.PropertyType.GetElementType();
-                        var actualValues = Array.CreateInstance(elementType, termFilter.Values.Count);
-                        for (var i = 0; i < termFilter.Values.Count; i++)
-                        {
-                            actualValues.SetValue(termFilter.Values[i].ChangeType(elementType), i);
-                        }
-                        value = actualValues;
-                    }
-                    else
-                    {
-                        value = termFilter.Values.FirstOrDefault().ChangeType(propertyInfo.PropertyType);
-                    }
-                }
-                propertyInfo.SetValue(obj, value, null);
+                return obj;
             }
+
+            object value = termFilter.Values;
+            if (value != null)
+            {
+                if (propertyInfo.PropertyType.IsArray)
+                {
+                    var elementType = propertyInfo.PropertyType.GetElementType();
+                    var actualValues = Array.CreateInstance(elementType, termFilter.Values.Count);
+                    for (var i = 0; i < termFilter.Values.Count; i++)
+                    {
+                        actualValues.SetValue(termFilter.Values[i].ChangeType(elementType), i);
+                    }
+                    value = actualValues;
+                }
+                else
+                {
+                    value = termFilter.Values.FirstOrDefault().ChangeType(propertyInfo.PropertyType);
+                }
+            }
+            propertyInfo.SetValue(obj, value, null);
             return obj;
         }
 

@@ -6,7 +6,10 @@ namespace VirtoCommerce.Xapi.Core.Extensions
     {
         public static string TrimStart(this string target, string trimString)
         {
-            if (string.IsNullOrEmpty(trimString)) return target;
+            if (string.IsNullOrEmpty(trimString))
+            {
+                return target;
+            }
 
             var result = target;
             if (result.StartsWith(trimString))
@@ -19,7 +22,10 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
         public static string TrimEnd(this string target, string trimString)
         {
-            if (string.IsNullOrEmpty(trimString)) return target;
+            if (string.IsNullOrEmpty(trimString))
+            {
+                return target;
+            }
 
             var result = target;
             if (result.EndsWith(trimString))

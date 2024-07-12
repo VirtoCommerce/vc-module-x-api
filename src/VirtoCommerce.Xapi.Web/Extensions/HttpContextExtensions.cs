@@ -22,12 +22,10 @@ namespace VirtoCommerce.Xapi.Web.Extensions
             };
 
             // Impersonate a user based on their VC account object id by passing that value along with the header VirtoCommerce-User-Name.
-            if (loginOnBehalfContext.Principal != null)
+            if (loginOnBehalfContext.Principal != null &&
+                !TryResolveTokenLoginOnBehalf(loginOnBehalfContext))
             {
-                if (!TryResolveTokenLoginOnBehalf(loginOnBehalfContext))
-                {
-                    await TryResolveLegacyLoginOnBehalfAsync(context, loginOnBehalfContext);
-                }
+                await TryResolveLegacyLoginOnBehalfAsync(context, loginOnBehalfContext);
             }
 
             var userContext = new GraphQLUserContext(loginOnBehalfContext.Principal);

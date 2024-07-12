@@ -33,16 +33,16 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
             if (resolveContext.UserContext.TryGetValue(key, out var value))
             {
-                return castValue(value, defaultValue);
+                return CastValue(value, defaultValue);
             }
 
             return defaultValue;
 
-            static T castValue(object value, T defaultValue)
+            static T CastValue(object value, T defaultValue)
             {
-                return value is ArgumentValue argumentValue ? (T)argumentValue.Value : castValueAsTyped(value, defaultValue);
+                return value is ArgumentValue argumentValue ? (T)argumentValue.Value : CastValueAsTyped(value, defaultValue);
 
-                static T castValueAsTyped(object value, T defaultValue)
+                static T CastValueAsTyped(object value, T defaultValue)
                 {
                     return value is T typedObject ? typedObject : defaultValue;
                 }

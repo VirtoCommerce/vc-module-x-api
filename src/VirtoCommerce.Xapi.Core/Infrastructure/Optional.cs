@@ -29,7 +29,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
         public bool IsSpecified { get; set; }
     }
 
-    public class Optional
+    public static class Optional
     {
         public static void SetValue<T>(Optional<T> optional, Action<T> setValue)
         {

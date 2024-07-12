@@ -36,15 +36,15 @@ namespace VirtoCommerce.Xapi.Web
             }
         }
 
-        public void Initialize(IServiceCollection services)
+        public void Initialize(IServiceCollection serviceCollection)
         {
-            services.AddApplicationInsightsTelemetryProcessor<IgnorePlainGraphQLTelemetryProcessor>();
+            serviceCollection.AddApplicationInsightsTelemetryProcessor<IgnorePlainGraphQLTelemetryProcessor>();
             // register custom executor with app insight wrapper
-            services.AddTransient(typeof(IGraphQLExecuter<>), typeof(CustomGraphQLExecuter<>));
-            services.AddSingleton<IDocumentExecuter, SubscriptionDocumentExecuter>();
+            serviceCollection.AddTransient(typeof(IGraphQLExecuter<>), typeof(CustomGraphQLExecuter<>));
+            serviceCollection.AddSingleton<IDocumentExecuter, SubscriptionDocumentExecuter>();
 
             //Register .NET GraphQL server
-            var graphQlBuilder = services.AddGraphQL(options =>
+            var graphQlBuilder = serviceCollection.AddGraphQL(options =>
             {
                 options.EnableMetrics = false;
             })
@@ -68,13 +68,13 @@ namespace VirtoCommerce.Xapi.Web
             }
 
             //Register xApi boundaries
-            services.AddXCore(graphQlBuilder, Configuration);
+            serviceCollection.AddXCore(graphQlBuilder, Configuration);
 
-            services.AddAutoMapper(ModuleInfo.Assembly);
+            serviceCollection.AddAutoMapper(ModuleInfo.Assembly);
 
-            services.Configure<GraphQLPlaygroundOptions>(Configuration.GetSection(GraphQLPlaygroundConfigKey));
-            services.Configure<GraphQLWebSocketOptions>(Configuration.GetSection(GraphQLWebSocketConfigKey));
-            services.Configure<StoresOptions>(Configuration.GetSection(StoresConfigKey));
+            serviceCollection.Configure<GraphQLPlaygroundOptions>(Configuration.GetSection(GraphQLPlaygroundConfigKey));
+            serviceCollection.Configure<GraphQLWebSocketOptions>(Configuration.GetSection(GraphQLWebSocketConfigKey));
+            serviceCollection.Configure<StoresOptions>(Configuration.GetSection(StoresConfigKey));
         }
 
         public void PostInitialize(IApplicationBuilder appBuilder)
