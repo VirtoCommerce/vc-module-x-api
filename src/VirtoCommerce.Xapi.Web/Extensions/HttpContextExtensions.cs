@@ -1,5 +1,6 @@
 using System;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,74 +13,83 @@ namespace VirtoCommerce.Xapi.Web.Extensions
 {
     public static class HttpContextExtensions
     {
-        public static GraphQLUserContext BuildGraphQLUserContext(this HttpContext context)
+        public static async Task<GraphQLUserContext> BuildGraphQLUserContextAsync(this HttpContext context)
         {
-            var principal = context.User;
-            var operatorUserName = default(string);
+            var loginOnBehalfContext = new LoginOnBehalfContext
+            {
+                Principal = context.User,
+                OperatorUserName = default
+            };
 
             // Impersonate a user based on their VC account object id by passing that value along with the header VirtoCommerce-User-Name.
-            if (principal != null)
+            if (loginOnBehalfContext.Principal != null)
             {
-                if (!TryResolveTokenLoginOnBehalf(principal, ref operatorUserName))
+                if (!TryResolveTokenLoginOnBehalf(loginOnBehalfContext))
                 {
-                    TryResolveLegacyLoginOnBehalf(context, ref principal, ref operatorUserName);
+                    await TryResolveLegacyLoginOnBehalfAsync(context, loginOnBehalfContext);
                 }
             }
 
-            var userContext = new GraphQLUserContext(principal);
+            var userContext = new GraphQLUserContext(loginOnBehalfContext.Principal);
 
-            if (!string.IsNullOrEmpty(operatorUserName))
+            if (!string.IsNullOrEmpty(loginOnBehalfContext.OperatorUserName))
             {
-                userContext.TryAdd("OperatorUserName", operatorUserName);
+                userContext.TryAdd("OperatorUserName", loginOnBehalfContext.OperatorUserName);
             }
 
             return userContext;
         }
 
-        private static bool TryResolveTokenLoginOnBehalf(ClaimsPrincipal principal, ref string operatorUserName)
+        private static bool TryResolveTokenLoginOnBehalf(LoginOnBehalfContext loginOnBehalfContext)
         {
-            operatorUserName = principal.FindFirstValue(PlatformConstants.Security.Claims.OperatorUserName);
+            loginOnBehalfContext.OperatorUserName = loginOnBehalfContext.Principal.FindFirstValue(PlatformConstants.Security.Claims.OperatorUserName);
 
-            return !string.IsNullOrEmpty(operatorUserName);
+            return !string.IsNullOrEmpty(loginOnBehalfContext.OperatorUserName);
         }
 
-        private static bool TryResolveLegacyLoginOnBehalf(HttpContext context, ref ClaimsPrincipal principal, ref string operatorUserName)
+        private static async Task<bool> TryResolveLegacyLoginOnBehalfAsync(HttpContext context, LoginOnBehalfContext loginOnBehalfContext)
         {
-            if (context.Request.Headers.TryGetValue("VirtoCommerce-User-Name", out var userNameFromHeader)
-                            && principal.IsInRole(PlatformConstants.Security.SystemRoles.Administrator))
+            if (!context.Request.Headers.TryGetValue("VirtoCommerce-User-Name", out var userNameFromHeader) ||
+                !loginOnBehalfContext.Principal.IsInRole(PlatformConstants.Security.SystemRoles.Administrator))
             {
-                if (userNameFromHeader == "Anonymous")
-                {
-                    var identity = new ClaimsIdentity();
-
-                    if (context.Request.Headers.TryGetValue("VirtoCommerce-Anonymous-User-Id", out var anonymousUserId))
-                    {
-                        identity.AddClaim(ClaimTypes.NameIdentifier, anonymousUserId);
-                    }
-
-                    principal = new ClaimsPrincipal(identity);
-                }
-                else
-                {
-                    var factory = context.RequestServices.GetService<Func<SignInManager<ApplicationUser>>>();
-                    var signInManager = factory();
-                    var user = signInManager.UserManager.FindByNameAsync(userNameFromHeader).GetAwaiter().GetResult();
-                    if (user != null)
-                    {
-                        principal = signInManager.CreateUserPrincipalAsync(user).GetAwaiter().GetResult();
-                    }
-
-                    // try to find LoginOnBehalf operator, if VirtoCommerce-Operator-User-Name header is present
-                    if (context.Request.Headers.TryGetValue("VirtoCommerce-Operator-User-Name", out var operatorUserNameHeader))
-                    {
-                        operatorUserName = operatorUserNameHeader;
-                    }
-                }
-
-                return true;
+                return false;
             }
 
-            return false;
+            if (userNameFromHeader == "Anonymous")
+            {
+                var identity = new ClaimsIdentity();
+
+                if (context.Request.Headers.TryGetValue("VirtoCommerce-Anonymous-User-Id", out var anonymousUserId))
+                {
+                    identity.AddClaim(ClaimTypes.NameIdentifier, anonymousUserId);
+                }
+
+                loginOnBehalfContext.Principal = new ClaimsPrincipal(identity);
+            }
+            else
+            {
+                var factory = context.RequestServices.GetService<Func<SignInManager<ApplicationUser>>>();
+                var signInManager = factory();
+                var user = await signInManager.UserManager.FindByNameAsync(userNameFromHeader);
+                if (user != null)
+                {
+                    loginOnBehalfContext.Principal = await signInManager.CreateUserPrincipalAsync(user);
+                }
+
+                // try to find LoginOnBehalf operator, if VirtoCommerce-Operator-User-Name header is present
+                if (context.Request.Headers.TryGetValue("VirtoCommerce-Operator-User-Name", out var operatorUserNameHeader))
+                {
+                    loginOnBehalfContext.OperatorUserName = operatorUserNameHeader;
+                }
+            }
+
+            return true;
+        }
+
+        private class LoginOnBehalfContext
+        {
+            public ClaimsPrincipal Principal { get; set; }
+            public string OperatorUserName { get; set; }
         }
     }
 }

@@ -54,7 +54,7 @@ namespace VirtoCommerce.Xapi.Web
                 options.ExposeExtensions = true;
                 options.ExposeExceptionStackTrace = true;
             })
-            .AddUserContextBuilder(context => context.BuildGraphQLUserContext())
+            .AddUserContextBuilder(async context => await context.BuildGraphQLUserContextAsync())
             .AddRelayGraphTypes()
             .AddCustomWebSockets()
             .AddDataLoader()
