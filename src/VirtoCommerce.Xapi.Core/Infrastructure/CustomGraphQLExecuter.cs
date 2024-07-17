@@ -50,7 +50,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
                 return await base.ExecuteAsync(operationName, query, variables, context, requestServices, cancellationToken);
             }
 
-            // prepare AppInsights telemerty
+            // prepare AppInsights telemetry
             var appInsightsOperationName = $"POST graphql/{operationName}";
 
             var requestTelemetry = new RequestTelemetry
@@ -72,20 +72,20 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
 
             if (requestTelemetry.Success == false)
             {
-                // pass an error responce code to trigger AppInsights operation failure state
+                // pass an error response code to trigger AppInsights operation failure state
                 requestTelemetry.ResponseCode = "500";
 
                 var exception = result.Errors.Count > 1
                     ? new AggregateException(result.Errors)
                     : result.Errors.FirstOrDefault() as Exception;
 
-                var exeptionTelemetry = new ExceptionTelemetry(exception);
+                var exceptionTelemetry = new ExceptionTelemetry(exception);
 
                 // link exception with the operation
-                exeptionTelemetry.Context.Operation.ParentId = requestTelemetry.Context.Operation.Id;
-                exeptionTelemetry.Context.Operation.Name = appInsightsOperationName;
+                exceptionTelemetry.Context.Operation.ParentId = requestTelemetry.Context.Operation.Id;
+                exceptionTelemetry.Context.Operation.Name = appInsightsOperationName;
 
-                _telemetryClient.TrackException(exeptionTelemetry);
+                _telemetryClient.TrackException(exceptionTelemetry);
             }
 
             return result;

@@ -9,9 +9,9 @@ namespace VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure
     {
         private readonly GraphQLWebSocketOptions _webSocketOptions;
 
-        public KeepAliveResolver(IOptions<GraphQLWebSocketOptions> webSoketOptions)
+        public KeepAliveResolver(IOptions<GraphQLWebSocketOptions> webSocketOptions)
         {
-            _webSocketOptions = webSoketOptions.Value;
+            _webSocketOptions = webSocketOptions.Value;
         }
 
         private static readonly OperationMessage _keepAliveMessage = new() { Type = MessageType.GQL_CONNECTION_KEEP_ALIVE };

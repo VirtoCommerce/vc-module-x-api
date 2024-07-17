@@ -53,7 +53,7 @@ namespace VirtoCommerce.Xapi.Data.Queries
         }
 
         /// <summary>
-        /// Return collection of DynamicPropertyEntites
+        /// Return collection of DynamicPropertyEntities
         /// </summary>
         public virtual async Task<SearchDynamicPropertiesResponse> Handle(SearchDynamicPropertiesQuery request, CancellationToken cancellationToken)
         {

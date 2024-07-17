@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure
 {
     /// <summary>
-    /// Supports cancellaton of 'keep-alive' message spamming for cancelled subscriptions
+    /// Supports cancellation of 'keep-alive' message spamming for cancelled subscriptions
     /// </summary>
     public class CustomSubscriptionManager(IGraphQLExecuter executer, ILoggerFactory loggerFactory) : ISubscriptionManager
     {

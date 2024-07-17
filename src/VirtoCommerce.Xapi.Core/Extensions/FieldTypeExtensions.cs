@@ -9,7 +9,7 @@ using VirtoCommerce.Xapi.Core.Infrastructure;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
 {
-    public static class FieldTypeExtenstions
+    public static class FieldTypeExtensions
     {
         public static FieldBuilder<TSourceType, TReturnType> Argument<TSourceType, TReturnType>(this FieldBuilder<TSourceType, TReturnType> fieldBuilder, Type type, string name)
         {
@@ -22,10 +22,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
             return fieldBuilder;
         }
-    }
 
-    public static class FieldTypeExtensions
-    {
         public static FieldBuilder<TSourceType, TReturnType> ResolveSynchronized<TSourceType, TReturnType>(
             this FieldBuilder<TSourceType, TReturnType> fieldBuilder,
             string resourceKeyPrefix,

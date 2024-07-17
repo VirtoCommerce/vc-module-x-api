@@ -15,7 +15,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
         public MoneyTypeTests() => _moneyType = new MoneyType();
 
         [Fact]
-        public void MoneyType_ShouldHavePropperFieldAmount()
+        public void MoneyType_ShouldHaveProperFieldAmount()
         {
             // Assert
             _moneyType.Fields.Should().HaveCount(7);

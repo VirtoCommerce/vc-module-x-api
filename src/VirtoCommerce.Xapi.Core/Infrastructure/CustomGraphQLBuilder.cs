@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace VirtoCommerce.Xapi.Core.Infrastructure
 {
     /// <summary>
-    /// Custom implementation of GraphQLBuilder to call GraphQL.Server extentions methods
+    /// Custom implementation of GraphQLBuilder to call GraphQL.Server extensions methods
     /// </summary>
     public sealed class CustomGraphQLBuilder : IGraphQLBuilder
     {

@@ -68,7 +68,7 @@ namespace VirtoCommerce.Xapi.Data.Services
                     }
                     else
                     {
-                        // remove locale for Dictonary values, they should not have it
+                        // remove locale for Dictionary values, they should not have it
                         newValue.Locale = null;
                     }
                 }
