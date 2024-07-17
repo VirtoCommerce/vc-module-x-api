@@ -19,8 +19,8 @@ namespace VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure
         IOptionsSnapshot<JwtBearerOptions> jwtBearerOptions)
         : IOperationMessageListener
     {
-        private const string ContextKey = "User";
-        private const string AuthorizationHeader = "Authorization";
+        private const string _contextKey = "User";
+        private const string _authorizationHeader = "Authorization";
 
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly IOptionsSnapshot<JwtBearerOptions> _jwtBearerOptions = jwtBearerOptions;
@@ -31,21 +31,21 @@ namespace VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure
             {
                 case MessageType.GQL_CONNECTION_INIT:
                     {
-                        if (context.Message.Payload is JObject payload && payload.ContainsKey(AuthorizationHeader))
+                        if (context.Message.Payload is JObject payload && payload.ContainsKey(_authorizationHeader))
                         {
-                            var authorization = payload.Value<string>(AuthorizationHeader);
+                            var authorization = payload.Value<string>(_authorizationHeader);
 
                             // set the ClaimsPrincipal for the HttpContext; authentication will take place against this object
                             var principal = await BuildClaimsPrincipal(authorization);
                             _httpContextAccessor.HttpContext.User = principal;
-                            context.TryAdd(ContextKey, _httpContextAccessor.HttpContext.User);
+                            context.TryAdd(_contextKey, _httpContextAccessor.HttpContext.User);
                         }
 
                         break;
                     }
 
                 default:
-                    context.TryAdd(ContextKey, _httpContextAccessor.HttpContext.User);
+                    context.TryAdd(_contextKey, _httpContextAccessor.HttpContext.User);
                     break;
             }
         }

@@ -13,8 +13,8 @@ namespace VirtoCommerce.Xapi.Tests.Services
 {
     public class DynamicPropertyUpdaterServiceTests
     {
-        private static readonly DateTime DateTimeUtc = new(2022, 2, 3, 1, 2, 3, DateTimeKind.Utc);
-        private static readonly string DateTimeIso8601UtcString = DateTimeUtc.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFFK", DateTimeFormatInfo.InvariantInfo);
+        private static readonly DateTime _dateTimeUtc = new(2022, 2, 3, 1, 2, 3, DateTimeKind.Utc);
+        private static readonly string _dateTimeIso8601UtcString = _dateTimeUtc.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFFK", DateTimeFormatInfo.InvariantInfo);
 
         public static readonly IEnumerable<object[]> ValuesMatchingValueType = new List<object[]>
         {
@@ -26,11 +26,11 @@ namespace VirtoCommerce.Xapi.Tests.Services
             new object[] { DynamicPropertyValueType.Decimal,   0,            0m           },
             new object[] { DynamicPropertyValueType.Decimal,   0m,           0m           },
             new object[] { DynamicPropertyValueType.Boolean,   true,         true         },
-            new object[] { DynamicPropertyValueType.DateTime,  DateTimeUtc,  DateTimeUtc  },
+            new object[] { DynamicPropertyValueType.DateTime,  _dateTimeUtc,  _dateTimeUtc  },
             // ISO 8601 string is a valid value for short/long text.
             // It will be converted to DateTime by scalar type and should be converted back as workaround 
-            new object[] { DynamicPropertyValueType.ShortText, DateTimeUtc,  DateTimeIso8601UtcString },
-            new object[] { DynamicPropertyValueType.LongText,  DateTimeUtc,  DateTimeIso8601UtcString },
+            new object[] { DynamicPropertyValueType.ShortText, _dateTimeUtc,  _dateTimeIso8601UtcString },
+            new object[] { DynamicPropertyValueType.LongText,  _dateTimeUtc,  _dateTimeIso8601UtcString },
         };
 
         public static readonly IEnumerable<object[]> ValuesNotMatchingValueType = new List<object[]>
@@ -41,7 +41,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
             new object[] { DynamicPropertyValueType.Decimal,   "test",                   typeof(InvalidOperationException) },
             new object[] { DynamicPropertyValueType.Boolean,   "test",                   typeof(InvalidOperationException) },
             new object[] { DynamicPropertyValueType.DateTime,  "test",                   typeof(FormatException) },
-            new object[] { DynamicPropertyValueType.DateTime,  DateTimeUtc.ToString(),   typeof(FormatException) },
+            new object[] { DynamicPropertyValueType.DateTime,  _dateTimeUtc.ToString(),   typeof(FormatException) },
         };
 
         [MemberData(nameof(ValuesMatchingValueType))]

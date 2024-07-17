@@ -19,8 +19,8 @@ namespace VirtoCommerce.Xapi.Tests.Services
             // Arrange
             var dynamicPropertySearchServiceMock = new Mock<IDynamicPropertySearchService>();
             dynamicPropertySearchServiceMock
-                .Setup(x => x.SearchAsync(It.Is<DynamicPropertySearchCriteria>(x => x.ObjectType == entity.ObjectType), It.IsAny<bool>()))
-                .Returns(Task.FromResult(new DynamicPropertySearchResult { Results = Properties }));
+                .Setup(x => x.SearchAsync(It.Is<DynamicPropertySearchCriteria>(y => y.ObjectType == entity.ObjectType), It.IsAny<bool>()))
+                .Returns(Task.FromResult(new DynamicPropertySearchResult { Results = _properties }));
 
             // Act
             var target = new DynamicPropertyResolverService(dynamicPropertySearchServiceMock.Object);
@@ -33,20 +33,20 @@ namespace VirtoCommerce.Xapi.Tests.Services
             }
         }
 
-        private static DynamicProperty Property1 = new DynamicProperty
+        private static readonly DynamicProperty _property1 = new DynamicProperty
         {
             Id = "PropertyId_1",
             Name = "PropertyName_1",
         };
 
-        private static DynamicProperty Property2 = new DynamicProperty
+        private static readonly DynamicProperty _property2 = new DynamicProperty
         {
             Id = "PropertyId_2",
             Name = "PropertyName_2",
         };
 
         // properties meta data
-        private static List<DynamicProperty> Properties = new List<DynamicProperty> { Property1, Property2 };
+        private static readonly List<DynamicProperty> _properties = new List<DynamicProperty> { _property1, _property2 };
 
         public static IEnumerable<object[]> GetPropertyData { get; } = new List<object[]>
         {
@@ -60,13 +60,13 @@ namespace VirtoCommerce.Xapi.Tests.Services
                 {
                     new DynamicPropertyObjectValue
                     {
-                        PropertyId = Property1.Id,
-                        PropertyName = Property1.Name
+                        PropertyId = _property1.Id,
+                        PropertyName = _property1.Name
                     },
                     new DynamicPropertyObjectValue
                     {
-                        PropertyId = Property2.Id,
-                        PropertyName = Property2.Name
+                        PropertyId = _property2.Id,
+                        PropertyName = _property2.Name
                     },
                 },
             },
@@ -83,7 +83,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
                         {
                             new DynamicPropertyObjectValue
                             {
-                                PropertyId = Property1.Id
+                                PropertyId = _property1.Id
                             }
                         }
                     },
@@ -93,7 +93,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
                         {
                             new DynamicPropertyObjectValue
                             {
-                                PropertyId = Property2.Id
+                                PropertyId = _property2.Id
                             }
                         }
                     },
@@ -103,13 +103,13 @@ namespace VirtoCommerce.Xapi.Tests.Services
                 {
                     new DynamicPropertyObjectValue
                     {
-                        PropertyId = Property1.Id,
-                        PropertyName = Property1.Name
+                        PropertyId = _property1.Id,
+                        PropertyName = _property1.Name
                     },
                     new DynamicPropertyObjectValue
                     {
-                        PropertyId = Property2.Id,
-                        PropertyName = Property2.Name
+                        PropertyId = _property2.Id,
+                        PropertyName = _property2.Name
                     },
                 },
             },
@@ -122,25 +122,25 @@ namespace VirtoCommerce.Xapi.Tests.Services
                 {
                     new DynamicObjectProperty
                     {
-                        Name = Property1.Name,
+                        Name = _property1.Name,
                         Values = new List<DynamicPropertyObjectValue>
                         {
                             new DynamicPropertyObjectValue
                             {
                                 PropertyId = Guid.NewGuid().ToString(),
-                                PropertyName = Property1.Name
+                                PropertyName = _property1.Name
                             }
                         }
                     },
                     new DynamicObjectProperty
                     {
-                        Name = Property2.Name,
+                        Name = _property2.Name,
                         Values = new List<DynamicPropertyObjectValue>
                         {
                             new DynamicPropertyObjectValue
                             {
                                 PropertyId = Guid.NewGuid().ToString(),
-                                PropertyName = Property2.Name
+                                PropertyName = _property2.Name
                             }
                         }
                     },
@@ -150,13 +150,13 @@ namespace VirtoCommerce.Xapi.Tests.Services
                 {
                     new DynamicPropertyObjectValue
                     {
-                        PropertyId = Property1.Id,
-                        PropertyName = Property1.Name
+                        PropertyId = _property1.Id,
+                        PropertyName = _property1.Name
                     },
                     new DynamicPropertyObjectValue
                     {
-                        PropertyId = Property2.Id,
-                        PropertyName = Property2.Name
+                        PropertyId = _property2.Id,
+                        PropertyName = _property2.Name
                     },
                 },
             },

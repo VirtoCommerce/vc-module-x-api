@@ -11,12 +11,12 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
 {
     public class AnyValueGraphTypeTests
     {
-        private const float DecimalMinAsFloat = DecimalMaxAsFloat * -1f;
-        private const float DecimalMaxAsFloat = 7.922816E+28f;
-        private const double DecimalMinAsDouble = DecimalMaxAsDouble * -1d;
-        private const double DecimalMaxAsDouble = 7.922816251426433E+28d;
-        private static readonly DateTime DateTimeUtc = new(2022, 2, 3, 1, 2, 3, DateTimeKind.Utc);
-        private static readonly string DateTimeIso8601UtcString = DateTimeUtc.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFFK", DateTimeFormatInfo.InvariantInfo);
+        private const float _decimalMinAsFloat = _decimalMaxAsFloat * -1f;
+        private const float _decimalMaxAsFloat = 7.922816E+28f;
+        private const double _decimalMinAsDouble = _decimalMaxAsDouble * -1d;
+        private const double _decimalMaxAsDouble = 7.922816251426433E+28d;
+        private static readonly DateTime _dateTimeUtc = new(2022, 2, 3, 1, 2, 3, DateTimeKind.Utc);
+        private static readonly string _dateTimeIso8601UtcString = _dateTimeUtc.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFFK", DateTimeFormatInfo.InvariantInfo);
 
         private readonly AnyValueGraphType _anyValueGraphType = new();
 
@@ -40,9 +40,9 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
             new object[] { new BigIntValue(            0),                           0,                  typeof(int)     },
             new object[] { new BigIntValue((BigInteger)decimal.MaxValue),            decimal.MaxValue,   typeof(decimal) },
             // Float
-            new object[] { new FloatValue(             DecimalMinAsDouble), (decimal)DecimalMinAsDouble, typeof(decimal) },
+            new object[] { new FloatValue(             _decimalMinAsDouble), (decimal)_decimalMinAsDouble, typeof(decimal) },
             new object[] { new FloatValue(             0d),                          0m,                 typeof(decimal) },
-            new object[] { new FloatValue(             DecimalMaxAsDouble), (decimal)DecimalMaxAsDouble, typeof(decimal) },
+            new object[] { new FloatValue(             _decimalMaxAsDouble), (decimal)_decimalMaxAsDouble, typeof(decimal) },
             // Decimal
             new object[] { new DecimalValue(           decimal.MinValue),            decimal.MinValue,   typeof(decimal) },
             new object[] { new DecimalValue(           0m),                          0m,                 typeof(decimal) },
@@ -51,7 +51,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
             new object[] { new BooleanValue(           false),                       false,              typeof(bool)    },
             new object[] { new BooleanValue(           true),                        true,               typeof(bool)    },
             // DateTime
-            new object[] { new StringValue(            DateTimeIso8601UtcString),    DateTimeUtc,        typeof(DateTime) },
+            new object[] { new StringValue(            _dateTimeIso8601UtcString),    _dateTimeUtc,        typeof(DateTime) },
             // String
             new object[] { new StringValue(            string.Empty),                string.Empty,       typeof(string)  },
             new object[] { new StringValue(            "test"),                      "test",             typeof(string)  },
@@ -102,13 +102,13 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
             new object[] {             0,                           0,                  typeof(int)     },
             new object[] { (BigInteger)decimal.MaxValue,            decimal.MaxValue,   typeof(decimal) },
             // float
-            new object[] {             DecimalMinAsFloat,  (decimal)DecimalMinAsFloat,  typeof(decimal) },
+            new object[] {             _decimalMinAsFloat,  (decimal)_decimalMinAsFloat,  typeof(decimal) },
             new object[] {             0f,                          0m,                 typeof(decimal) },
-            new object[] {             DecimalMaxAsFloat,  (decimal)DecimalMaxAsFloat,  typeof(decimal) },
+            new object[] {             _decimalMaxAsFloat,  (decimal)_decimalMaxAsFloat,  typeof(decimal) },
             // double
-            new object[] {             DecimalMinAsDouble, (decimal)DecimalMinAsDouble, typeof(decimal) },
+            new object[] {             _decimalMinAsDouble, (decimal)_decimalMinAsDouble, typeof(decimal) },
             new object[] {             0d,                          0m,                 typeof(decimal) },
-            new object[] {             DecimalMaxAsDouble, (decimal)DecimalMaxAsDouble, typeof(decimal) },
+            new object[] {             _decimalMaxAsDouble, (decimal)_decimalMaxAsDouble, typeof(decimal) },
             // decimal
             new object[] {             decimal.MinValue,            decimal.MinValue,   typeof(decimal) },
             new object[] {             0m,                          0m,                 typeof(decimal) },
@@ -117,7 +117,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
             new object[] {             false,                       false,              typeof(bool)    },
             new object[] {             true,                        true,               typeof(bool)    },
             // DateTime
-            new object[] {             DateTimeUtc,                 DateTimeUtc,        typeof(DateTime)},
+            new object[] {             _dateTimeUtc,                 _dateTimeUtc,        typeof(DateTime)},
             // string
             new object[] {             string.Empty,                string.Empty,       typeof(string)  },
             new object[] {             "test",                      "test",             typeof(string)  },

@@ -7,9 +7,9 @@ namespace VirtoCommerce.Xapi.Core.Pipelines
 {
     public class GenericPipeline<TParameter> : AsyncPipeline<TParameter> where TParameter : class
     {
-        public GenericPipeline(IOptions<GenericPipelineOptions<TParameter>> Options, IMiddlewareResolver MiddlewareResolver) : base(MiddlewareResolver)
+        public GenericPipeline(IOptions<GenericPipelineOptions<TParameter>> options, IMiddlewareResolver middlewareResolver) : base(middlewareResolver)
         {
-            Options.Value.Middlewares.Apply(Middleware => Add(Middleware));
+            options.Value.Middlewares.Apply(middleware => Add(middleware));
         }
 
     }

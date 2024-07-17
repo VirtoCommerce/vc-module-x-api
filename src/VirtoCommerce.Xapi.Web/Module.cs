@@ -24,15 +24,15 @@ namespace VirtoCommerce.Xapi.Web
         public ManifestModuleInfo ModuleInfo { get; set; }
         public IConfiguration Configuration { get; set; }
 
-        private const string GraphQLPlaygroundConfigKey = "VirtoCommerce:GraphQLPlayground";
-        private const string GraphQLWebSocketConfigKey = "VirtoCommerce:GraphQLWebSocket";
-        private const string StoresConfigKey = "VirtoCommerce:Stores";
+        private const string _graphQlPlaygroundConfigKey = "VirtoCommerce:GraphQLPlayground";
+        private const string _graphQlWebSocketConfigKey = "VirtoCommerce:GraphQLWebSocket";
+        private const string _storesConfigKey = "VirtoCommerce:Stores";
 
         private bool IsSchemaIntrospectionEnabled
         {
             get
             {
-                return Configuration.GetValue<bool>($"{GraphQLPlaygroundConfigKey}:{nameof(GraphQLPlaygroundOptions.Enable)}");
+                return Configuration.GetValue<bool>($"{_graphQlPlaygroundConfigKey}:{nameof(GraphQLPlaygroundOptions.Enable)}");
             }
         }
 
@@ -72,9 +72,9 @@ namespace VirtoCommerce.Xapi.Web
 
             serviceCollection.AddAutoMapper(ModuleInfo.Assembly);
 
-            serviceCollection.Configure<GraphQLPlaygroundOptions>(Configuration.GetSection(GraphQLPlaygroundConfigKey));
-            serviceCollection.Configure<GraphQLWebSocketOptions>(Configuration.GetSection(GraphQLWebSocketConfigKey));
-            serviceCollection.Configure<StoresOptions>(Configuration.GetSection(StoresConfigKey));
+            serviceCollection.Configure<GraphQLPlaygroundOptions>(Configuration.GetSection(_graphQlPlaygroundConfigKey));
+            serviceCollection.Configure<GraphQLWebSocketOptions>(Configuration.GetSection(_graphQlWebSocketConfigKey));
+            serviceCollection.Configure<StoresOptions>(Configuration.GetSection(_storesConfigKey));
         }
 
         public void PostInitialize(IApplicationBuilder appBuilder)
