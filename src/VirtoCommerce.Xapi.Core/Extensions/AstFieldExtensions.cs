@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using GraphQL;
@@ -10,12 +9,6 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 {
     public static class AstFieldExtensions
     {
-        [Obsolete("Use method with the 'context' argument")]
-        public static IEnumerable<string> GetAllNodesPaths(this IEnumerable<Field> fields)
-        {
-            return GetAllNodesPaths(fields, context: null);
-        }
-
         public static IEnumerable<string> GetAllNodesPaths(this IEnumerable<Field> fields, IResolveFieldContext context)
         {
             return fields.SelectMany(x => x.GetAllTreeNodesPaths(context)).Distinct();

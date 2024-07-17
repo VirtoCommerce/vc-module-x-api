@@ -25,12 +25,6 @@ namespace VirtoCommerce.Xapi.Data.Services
             return result;
         }
 
-        [Obsolete("Use CheckUserState(string userId, bool allowAnonymous)", DiagnosticId = "VC0005", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
-        public Task CheckUserState(string userId)
-        {
-            return CheckUserState(userId, allowAnonymous: true);
-        }
-
         public async Task CheckUserState(string userId, bool allowAnonymous)
         {
             var userManager = _userManagerFactory();

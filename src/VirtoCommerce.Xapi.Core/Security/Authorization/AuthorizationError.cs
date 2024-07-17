@@ -65,32 +65,5 @@ namespace VirtoCommerce.Xapi.Core.Security.Authorization
         {
             return new AuthorizationError($"User doesn't have the required permission '{permission}'.", Constants.ForbiddenCode);
         }
-
-        /// <summary>
-        /// Throws generic "Access denied" error
-        /// </summary>
-        [Obsolete("Use `throw AuthorizationError.Forbidden()`", DiagnosticId = "VC0005", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
-        public static void ThrowAccessDeniedError()
-        {
-            throw Forbidden();
-        }
-
-        /// <summary>
-        /// Throws "Password expired" error
-        /// </summary>
-        [Obsolete("Use `throw AuthorizationError.PasswordExpired()`", DiagnosticId = "VC0005", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
-        public static void ThrowPasswordExpiredError()
-        {
-            throw PasswordExpired();
-        }
-
-        /// <summary>
-        /// Throws "User locked" error
-        /// </summary>
-        [Obsolete("Use `throw AuthorizationError.UserLocked()`", DiagnosticId = "VC0005", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
-        public static void ThrowUserLockedError()
-        {
-            throw UserLocked();
-        }
     }
 }
