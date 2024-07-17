@@ -13,8 +13,8 @@ namespace VirtoCommerce.Xapi.Data.Services
 {
     public class LoadUserToEvalContextService : ILoadUserToEvalContextService
     {
-        protected readonly IMemberResolver _memberIdResolver;
-        protected readonly IMemberService _memberService;
+        private readonly IMemberResolver _memberIdResolver;
+        private readonly IMemberService _memberService;
 
         public LoadUserToEvalContextService(IMemberResolver memberIdResolver, IMemberService memberService)
         {

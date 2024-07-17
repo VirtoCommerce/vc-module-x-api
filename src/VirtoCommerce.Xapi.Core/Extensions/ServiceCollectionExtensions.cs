@@ -1,14 +1,11 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using GraphQL.Authorization;
 using GraphQL.Types;
-using GraphQL.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Xapi.Core.Infrastructure;
-using VirtoCommerce.Xapi.Core.Infrastructure.Authorization;
 using VirtoCommerce.Xapi.Core.Infrastructure.Internal;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
@@ -21,12 +18,6 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             services.AddSingleton<TSchemaType>();
 
             return new SchemaTypeBuilder<TSchemaType>(services);
-        }
-
-        public static void AddPermissionAuthorization(this IServiceCollection services)
-        {
-            services.TryAddSingleton<IAuthorizationEvaluator, PermissionAuthorizationEvaluator>();
-            services.AddTransient<IValidationRule, AuthorizationValidationRule>();
         }
 
         public static void AddSchemaBuilder<TSchemaBuilder>(this IServiceCollection services) where TSchemaBuilder : class, ISchemaBuilder

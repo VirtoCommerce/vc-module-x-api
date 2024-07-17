@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Helpers;
 using VirtoCommerce.Xapi.Core.Infrastructure;
-using VirtoCommerce.Xapi.Core.Infrastructure.Authorization;
+using VirtoCommerce.Xapi.Core.Security.Authorization;
 
 namespace VirtoCommerce.Xapi.Core.BaseQueries;
 

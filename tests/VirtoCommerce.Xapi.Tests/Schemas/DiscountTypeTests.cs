@@ -10,10 +10,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
 {
     public class DiscountTypeTests : MoqHelper
     {
-        private readonly DiscountType _discountType;
-
-        public DiscountTypeTests() => _discountType = new DiscountType();
-
+        private readonly DiscountType _discountType = new();
 
         [Fact]
         public void DiscountType_Coupon_ShouldResolve()

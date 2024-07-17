@@ -8,11 +8,10 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Platform.Security.OpenIddict;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
-using VirtoCommerce.Xapi.Core.OpenIddict;
 using ModuleConstants = VirtoCommerce.Xapi.Core.ModuleConstants;
 using StoreSettings = VirtoCommerce.StoreModule.Core.ModuleConstants.Settings;
 
-namespace VirtoCommerce.Xapi.Data.Services.OpenIddict
+namespace VirtoCommerce.Xapi.Data.Security.OpenIddict
 {
     public class ContactSignInValidator : ITokenRequestValidator
     {

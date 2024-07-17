@@ -10,9 +10,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
 {
     public class MoneyTypeTests : MoqHelper
     {
-        private readonly MoneyType _moneyType;
-
-        public MoneyTypeTests() => _moneyType = new MoneyType();
+        private readonly MoneyType _moneyType = new();
 
         [Fact]
         public void MoneyType_ShouldHaveProperFieldAmount()

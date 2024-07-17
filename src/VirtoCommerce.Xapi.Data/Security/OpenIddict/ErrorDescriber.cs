@@ -2,7 +2,7 @@ using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Security.OpenIddict;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace VirtoCommerce.Xapi.Core.OpenIddict
+namespace VirtoCommerce.Xapi.Data.Security.OpenIddict
 {
     public static class ErrorDescriber
     {

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.Platform.Security.Authorization;
 using AuthorizationResult = GraphQL.Authorization.AuthorizationResult;
 
-namespace VirtoCommerce.Xapi.Core.Infrastructure.Authorization
+namespace VirtoCommerce.Xapi.Data.Security.Authorization
 {
     public class PermissionAuthorizationEvaluator : GraphQL.Authorization.IAuthorizationEvaluator
     {

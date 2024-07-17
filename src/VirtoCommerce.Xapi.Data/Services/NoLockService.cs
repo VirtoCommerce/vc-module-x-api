@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 
-namespace VirtoCommerce.Xapi.Data.Infrastructure
+namespace VirtoCommerce.Xapi.Data.Services
 {
     public class NoLockService : IDistributedLockService
     {

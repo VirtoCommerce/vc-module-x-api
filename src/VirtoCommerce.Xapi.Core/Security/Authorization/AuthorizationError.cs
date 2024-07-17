@@ -3,7 +3,7 @@ using System.Collections;
 using GraphQL;
 using VirtoCommerce.Xapi.Core.Helpers;
 
-namespace VirtoCommerce.Xapi.Core.Infrastructure.Authorization
+namespace VirtoCommerce.Xapi.Core.Security.Authorization
 {
     /// <summary>
     /// Represents an authorization error
