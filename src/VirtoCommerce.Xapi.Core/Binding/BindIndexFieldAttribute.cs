@@ -14,7 +14,7 @@ namespace VirtoCommerce.Xapi.Core.Binding
             {
                 if (value != null && !typeof(IIndexModelBinder).IsAssignableFrom(value))
                 {
-                    throw new ArgumentException($"{ value.FullName }  must be is assignable from {typeof(IIndexModelBinder).FullName}");
+                    throw new ArgumentException($"{value.FullName}  must be is assignable from {typeof(IIndexModelBinder).FullName}");
                 }
 
                 _binderType = value;

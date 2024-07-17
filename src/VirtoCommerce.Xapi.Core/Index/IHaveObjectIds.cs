@@ -1,4 +1,4 @@
-﻿namespace VirtoCommerce.Xapi.Core.Index
+namespace VirtoCommerce.Xapi.Core.Index
 {
     public interface IHaveObjectIds
     {

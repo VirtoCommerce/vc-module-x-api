@@ -53,7 +53,7 @@ namespace VirtoCommerce.Xapi.Core.Binding
             }
             return result;
         }
-        
+
         private static BindingInfo GetBindingInfo(this Type type)
         {
             BindingInfo result = null;

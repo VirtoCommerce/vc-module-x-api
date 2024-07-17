@@ -32,11 +32,11 @@
   <owners>
     <owner>VirtoCommerce</owner>
   </owners>
-  
+
   <groups>
     <group>commerce</group>
   </groups>
-  
+
   <projectUrl>https://github.com/VirtoCommerce/vc-module-xapi</projectUrl>
   <iconUrl>Modules/$(VirtoCommerce.Xapi)/Content/logo.png</iconUrl>
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
