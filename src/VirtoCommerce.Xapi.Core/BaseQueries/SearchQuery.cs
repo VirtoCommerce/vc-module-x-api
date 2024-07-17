@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Types;
-using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Xapi.Core.Infrastructure;
+using static VirtoCommerce.Xapi.Core.ModuleConstants;
 
 namespace VirtoCommerce.Xapi.Core.BaseQueries;
 
@@ -28,7 +29,7 @@ public class SearchQuery<TResult> : Query<TResult>, ISearchQuery
         if (context is IResolveConnectionContext connectionContext)
         {
             Skip = int.TryParse(connectionContext.After, out var skip) ? skip : 0;
-            Take = connectionContext.First ?? connectionContext.PageSize ?? 20;
+            Take = connectionContext.First ?? connectionContext.PageSize ?? Connections.DefaultPageSize;
         }
     }
 

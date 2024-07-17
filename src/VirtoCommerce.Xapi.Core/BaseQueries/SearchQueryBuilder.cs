@@ -1,9 +1,10 @@
 using GraphQL.Types;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Xapi.Core.Helpers;
 using VirtoCommerce.Xapi.Core.Infrastructure;
-using VirtoCommerce.Platform.Core.Common;
+using static VirtoCommerce.Xapi.Core.ModuleConstants;
 
 namespace VirtoCommerce.Xapi.Core.BaseQueries;
 
@@ -13,7 +14,7 @@ public abstract class SearchQueryBuilder<TQuery, TResult, TItem, TItemGraphType>
     where TResult : GenericSearchResult<TItem>
     where TItemGraphType : IGraphType
 {
-    protected virtual int DefaultPageSize => 20;
+    protected virtual int DefaultPageSize => Connections.DefaultPageSize;
 
     protected SearchQueryBuilder(IMediator mediator, IAuthorizationService authorizationService)
         : base(mediator, authorizationService)

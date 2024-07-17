@@ -4,11 +4,12 @@ using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Types;
 using MediatR;
+using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Queries;
-using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.DynamicProperties;
+using static VirtoCommerce.Xapi.Core.ModuleConstants;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
@@ -44,7 +45,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
               .Argument<StringGraphType>("filter", "")
               .Argument<StringGraphType>("cultureName", "")
               .Argument<StringGraphType>("sort", "")
-              .PageSize(20)
+              .PageSize(Connections.DefaultPageSize)
               .ResolveAsync(async context =>
               {
                   return await ResolveConnectionAsync(mediator, context);
@@ -58,7 +59,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
             var query = context.GetDynamicPropertiesQuery<SearchDynamicPropertyDictionaryItemQuery>();
             query.PropertyId = context.Source.Id;
             query.Skip = skip;
-            query.Take = context.First ?? context.PageSize ?? 10;
+            query.Take = context.First ?? context.PageSize ?? Connections.DefaultPageSize;
             query.Sort = context.GetArgument<string>("sort");
             query.Filter = context.GetArgument<string>("filter");
 

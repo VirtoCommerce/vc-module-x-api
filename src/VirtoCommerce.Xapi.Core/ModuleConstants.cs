@@ -5,6 +5,11 @@ namespace VirtoCommerce.Xapi.Core
 {
     public static class ModuleConstants
     {
+        public static class Connections
+        {
+            public const int DefaultPageSize = 20;
+        }
+
         public static class Parameters
         {
             public const string StoreId = "storeId";

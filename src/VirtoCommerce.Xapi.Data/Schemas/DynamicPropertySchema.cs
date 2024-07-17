@@ -4,12 +4,13 @@ using GraphQL.Builders;
 using GraphQL.Resolvers;
 using GraphQL.Types;
 using MediatR;
+using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Helpers;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Queries;
 using VirtoCommerce.Xapi.Core.Schemas;
-using VirtoCommerce.Platform.Core.DynamicProperties;
+using static VirtoCommerce.Xapi.Core.ModuleConstants;
 
 namespace VirtoCommerce.Xapi.Data.Schemas
 {
@@ -54,7 +55,7 @@ namespace VirtoCommerce.Xapi.Data.Schemas
                 .Argument<StringGraphType>("filter", "This parameter applies a filter to the query results")
                 .Argument<StringGraphType>("sort", "The sort expression")
                 .Argument<StringGraphType>("objectType", "Object type of the dynamic property")
-                .PageSize(20);
+                .PageSize(Connections.DefaultPageSize);
 
             dynamicPropertiesConnectionBuilder.ResolveAsync(async context => await ResolveDynamicPropertiesConnectionAsync(_mediator, context));
 
@@ -67,7 +68,7 @@ namespace VirtoCommerce.Xapi.Data.Schemas
 
             var query = context.GetDynamicPropertiesQuery<SearchDynamicPropertiesQuery>();
             query.Skip = skip;
-            query.Take = context.First ?? context.PageSize ?? 10;
+            query.Take = context.First ?? context.PageSize ?? Connections.DefaultPageSize;
             query.Sort = context.GetArgument<string>("sort");
             query.Filter = context.GetArgument<string>("filter");
             query.ObjectType = context.GetArgument<string>("objectType");
