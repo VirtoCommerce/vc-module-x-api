@@ -89,7 +89,7 @@ namespace VirtoCommerce.Xapi.Tests.Helpers
             };
         }
 
-        public void AssertFiltersContainFilterByTypeName(IList<IFilter> filters, string filterName)
+        public static void AssertFiltersContainFilterByTypeName(IList<IFilter> filters, string filterName)
         {
             switch (filterName)
             {

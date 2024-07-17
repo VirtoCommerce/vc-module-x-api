@@ -84,7 +84,7 @@ namespace VirtoCommerce.Xapi.Web.Extensions
             return true;
         }
 
-        private class LoginOnBehalfContext
+        private sealed class LoginOnBehalfContext
         {
             public ClaimsPrincipal Principal { get; set; }
             public string OperatorUserName { get; set; }
