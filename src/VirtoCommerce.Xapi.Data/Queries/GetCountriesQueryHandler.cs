@@ -1,9 +1,9 @@
 using System.Threading;
 using System.Threading.Tasks;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Queries;
-using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.Xapi.Data.Queries
 {

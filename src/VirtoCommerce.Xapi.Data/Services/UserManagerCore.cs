@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Xapi.Core.Infrastructure.Authorization;
 using VirtoCommerce.Xapi.Core.Services;
-using VirtoCommerce.Platform.Core.Security;
 
 namespace VirtoCommerce.Xapi.Data.Services
 {

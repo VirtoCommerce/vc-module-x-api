@@ -1,8 +1,8 @@
 using System.Linq;
 using GraphQL.Types;
-using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
+using VirtoCommerce.Xapi.Core.Extensions;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {

@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Resolvers;
 using GraphQL.Types;
+using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Helpers;
-using VirtoCommerce.Platform.Core.Settings;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {

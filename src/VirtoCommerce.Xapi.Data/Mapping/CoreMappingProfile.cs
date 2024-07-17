@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using VirtoCommerce.CustomerModule.Core.Model;
-using VirtoCommerce.Xapi.Core.Index;
-using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.SearchModule.Core.Model;
+using VirtoCommerce.Xapi.Core.Index;
+using VirtoCommerce.Xapi.Core.Models;
 
 namespace VirtoCommerce.Xapi.Data.Mapping
 {

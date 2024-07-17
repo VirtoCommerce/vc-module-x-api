@@ -1,7 +1,7 @@
 using GraphQL.Types;
 using MediatR;
-using VirtoCommerce.Xapi.Core.Queries;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Xapi.Core.Queries;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {

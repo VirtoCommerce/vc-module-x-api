@@ -7,7 +7,6 @@ using VirtoCommerce.Xapi.Core;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Services;
-using VirtoCommerce.Xapi.Data.Infrastructure;
 using VirtoCommerce.Xapi.Data.Services;
 using ContactSignInValidator = VirtoCommerce.Xapi.Data.Services.OpenIddict.ContactSignInValidator;
 using DynamicPropertyResolverService = VirtoCommerce.Xapi.Data.Services.DynamicPropertyResolverService;

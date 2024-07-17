@@ -1,6 +1,6 @@
 using GraphQL.Types;
-using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Xapi.Core.Infrastructure;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
 {
