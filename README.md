@@ -1,8 +1,8 @@
-# X-Api
+# Experience API / X-Api
 
 [![CI status](https://github.com/VirtoCommerce/vc-module-x-api/workflows/Module%20CI/badge.svg?branch=dev)](https://github.com/VirtoCommerce/vc-module-x-api/actions?query=workflow%3A"Module+CI") [![Quality gate](https://sonarcloud.io/api/project_badges/measure?project=VirtoCommerce_vc-module-x-api&metric=alert_status&branch=dev)](https://sonarcloud.io/dashboard?id=VirtoCommerce_vc-module-x-api) [![Reliability rating](https://sonarcloud.io/api/project_badges/measure?project=VirtoCommerce_vc-module-x-api&metric=reliability_rating&branch=dev)](https://sonarcloud.io/dashboard?id=VirtoCommerce_vc-module-x-api) [![Security rating](https://sonarcloud.io/api/project_badges/measure?project=VirtoCommerce_vc-module-x-api&metric=security_rating&branch=dev)](https://sonarcloud.io/dashboard?id=VirtoCommerce_vc-module-x-api) [![Sqale rating](https://sonarcloud.io/api/project_badges/measure?project=VirtoCommerce_vc-module-x-api&metric=sqale_rating&branch=dev)](https://sonarcloud.io/dashboard?id=VirtoCommerce_vc-module-x-api)
 
-The XAPI module is the core business API component, central to handling general API functions and integrations within the VirtoCommerce platform. As part of our transition to a more composable architecture, the XAPI module is designed to provide a robust and flexible foundation for business GraphQL / API interactions, ensuring seamless integration and efficient API management.
+The Experience API (XAPI) module is the core business API component, central to handling general API functions and integrations within the VirtoCommerce platform. As part of our transition to a more composable architecture, the XAPI module is designed to provide a robust and flexible foundation for business GraphQL / API interactions, ensuring seamless integration and efficient API management.
 
 ## Architecture
 The primary function of the Experience API (xAPI) module is to isolate high-performance ecommerce business logic from client applications and data providers. This approach involves the following architectural components:
