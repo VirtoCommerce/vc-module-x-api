@@ -13,8 +13,8 @@
     <dependency id="VirtoCommerce.Tax" version="3.800.0" />
   </dependencies>
 
-  <title>Commerce Experience API</title>
-  <description>An intermediated layer between clients and enterprise services powered by GraphQL protocol</description>
+  <title>Core Experience API</title>
+  <description>Module represents a core functionality for GraphQL and other XAPI modules</description>
 
   <authors>
     <author>Eugeny Tatarincev</author>
