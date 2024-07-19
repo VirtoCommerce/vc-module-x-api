@@ -13,7 +13,7 @@ By decoupling business logic from client applications and data sources, the xAPI
 ## Features
 - [X-API](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/): Core business API module.
 - [X-Catalog](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Catalog/overview/): Manages catalog-related operations.
-- [X-Cart]([./docs/x-purchase-cart-reference.md]: Handles cart-related functionalities.
+- [X-Cart](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Cart/overview/): Handles cart-related functionalities.
 - [X-Orders](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Order/overview/): Manages order processing.
 - [X-UserProfile](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Profile/overview/): Handles My Customer and My Organization functionalities.
 and more ...
