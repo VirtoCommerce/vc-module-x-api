@@ -4,12 +4,12 @@
   <version>3.801.0</version>
   <version-tag></version-tag>
 
-  <platformVersion>3.845.0-alpha.12952-vcst-1431</platformVersion>
+  <platformVersion>3.845.0-alpha.12954-vcst-1431</platformVersion>
   <dependencies>
     <dependency id="VirtoCommerce.Core" version="3.807.0" />
     <dependency id="VirtoCommerce.Customer" version="3.811.0" />
     <dependency id="VirtoCommerce.Search" version="3.800.0" />
-    <dependency id="VirtoCommerce.Store" version="3.806.0-alpha.699-vcst-1431" />
+    <dependency id="VirtoCommerce.Store" version="3.806.0-alpha.701-vcst-1431" />
     <dependency id="VirtoCommerce.Tax" version="3.800.0" />
   </dependencies>
 
