@@ -5,6 +5,7 @@ using GraphQL.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using VirtoCommerce.Platform.Core.Security.ExternalSignIn;
 using VirtoCommerce.Platform.Security.OpenIddict;
 using VirtoCommerce.Xapi.Core;
 using VirtoCommerce.Xapi.Core.Extensions;
@@ -52,6 +53,8 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             services.AddTransient<IDynamicPropertyUpdaterService, DynamicPropertyUpdaterService>();
             services.AddTransient<IUserManagerCore, UserManagerCore>();
             services.AddTransient<ITokenRequestValidator, ContactSignInValidator>();
+            services.AddTransient<IExternalSignInValidator, ExternalSignInValidator>();
+            services.AddTransient<IExternalSignInUserBuilder, ExternalSignInUserBuilder>();
 
             // provider for external fields
             services.AddSingleton<IExternalFieldProvider, ExternalFieldProvider>();
