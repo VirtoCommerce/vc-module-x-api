@@ -38,7 +38,7 @@ namespace VirtoCommerce.Xapi.Web
 
         public void Initialize(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddApplicationInsightsTelemetryProcessor<IgnorePlainGraphQLTelemetryProcessor>();
+            serviceCollection.AddApplicationInsightsTelemetryProcessor<IgnorePlainCoreXapiGraphQLTelemetryProcessor>();
             // register custom executor with app insight wrapper
             serviceCollection.AddTransient(typeof(IGraphQLExecuter<>), typeof(CustomGraphQLExecuter<>));
             serviceCollection.AddSingleton<IDocumentExecuter, SubscriptionDocumentExecuter>();
