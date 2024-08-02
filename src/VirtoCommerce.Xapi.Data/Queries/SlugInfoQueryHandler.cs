@@ -42,7 +42,7 @@ namespace VirtoCommerce.Xapi.Data.Queries
             var currentCulture = request.CultureName ?? store.DefaultLanguage;
 
             var segments = request.Permalink.Split("/", StringSplitOptions.RemoveEmptyEntries);
-            var lastSegment = segments.Last();
+            var lastSegment = segments.LastOrDefault();
 
             var criteria = AbstractTypeFactory<SeoSearchCriteria>.TryCreateInstance();
             criteria.StoreId = store.Id;
