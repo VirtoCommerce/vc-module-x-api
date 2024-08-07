@@ -20,6 +20,7 @@ public class ExternalSignInUserBuilder(IMemberService memberService) : IExternal
             contact.FirstName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.GivenName);
             contact.LastName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Surname);
             contact.Emails = [user.Email];
+            contact.Status = "Approved"; // TODO: Get default external contact status from settings
 
             await memberService.SaveChangesAsync([contact]);
 
