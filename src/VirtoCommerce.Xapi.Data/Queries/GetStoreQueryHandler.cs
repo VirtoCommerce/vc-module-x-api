@@ -29,6 +29,7 @@ namespace VirtoCommerce.Xapi.Data.Queries
         private readonly IdentityOptions _identityOptions;
         private readonly GraphQLWebSocketOptions _webSocketOptions;
         private readonly StoresOptions _storeOptions;
+        private readonly IStoreAuthenticationService _storeAuthenticationService;
 
         public GetStoreQueryHandler(
             IStoreService storeService,
@@ -37,13 +38,15 @@ namespace VirtoCommerce.Xapi.Data.Queries
             ISettingsManager settingsManager,
             IOptions<IdentityOptions> identityOptions,
             IOptions<GraphQLWebSocketOptions> webSocketOptions,
-            IOptions<StoresOptions> storeOptions)
+            IOptions<StoresOptions> storeOptions,
+            IStoreAuthenticationService storeAuthenticationService)
 
         {
             _storeService = storeService;
             _storeSearchService = storeSearchService;
             _storeCurrencyResolver = storeCurrencyResolver;
             _settingsManager = settingsManager;
+            _storeAuthenticationService = storeAuthenticationService;
             _identityOptions = identityOptions.Value;
             _webSocketOptions = webSocketOptions.Value;
             _storeOptions = storeOptions.Value;
@@ -115,6 +118,11 @@ namespace VirtoCommerce.Xapi.Data.Queries
 
                     EnvironmentName = _settingsManager.GetValue<string>(ModuleConstants.Settings.General.EnvironmentName),
                     PasswordRequirements = _identityOptions.Password,
+
+                    AuthenticationTypes = (await _storeAuthenticationService.GetStoreSchemesAsync(store.Id))
+                        .Where(x => x.IsActive)
+                        .Select(x => x.Name)
+                        .ToList(),
 
                     Modules = ToModulesSettings(store.Settings)
                 };
