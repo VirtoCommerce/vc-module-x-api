@@ -6,10 +6,13 @@ using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Security.ExternalSignIn;
+using VirtoCommerce.Platform.Core.Settings;
+using VirtoCommerce.StoreModule.Core.Services;
+using CustomerSettings = VirtoCommerce.CustomerModule.Core.ModuleConstants.Settings.General;
 
 namespace VirtoCommerce.Xapi.Data.Services;
 
-public class ExternalSignInUserBuilder(IMemberService memberService) : IExternalSignInUserBuilder
+public class ExternalSignInUserBuilder(IStoreService storeService, IMemberService memberService) : IExternalSignInUserBuilder
 {
     public async Task BuildNewUser(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
     {
@@ -20,7 +23,12 @@ public class ExternalSignInUserBuilder(IMemberService memberService) : IExternal
             contact.FirstName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.GivenName);
             contact.LastName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Surname);
             contact.Emails = [user.Email];
-            contact.Status = "Approved"; // TODO: Get default external contact status from settings
+
+            if (!string.IsNullOrEmpty(user.StoreId))
+            {
+                var store = await storeService.GetNoCloneAsync(user.StoreId);
+                contact.Status = store?.Settings.GetValue<string>(CustomerSettings.ContactDefaultStatus);
+            }
 
             await memberService.SaveChangesAsync([contact]);
 
