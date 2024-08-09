@@ -8,11 +8,11 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
     /// <summary>
     /// AppInsights telemetry processor that skips default Graphql queries
     /// </summary>
-    public class IgnorePlainGraphQLTelemetryProcessor : ITelemetryProcessor
+    public class IgnorePlainCoreXapiGraphQLTelemetryProcessor : ITelemetryProcessor
     {
         private ITelemetryProcessor Next { get; set; }
 
-        public IgnorePlainGraphQLTelemetryProcessor(ITelemetryProcessor next)
+        public IgnorePlainCoreXapiGraphQLTelemetryProcessor(ITelemetryProcessor next)
         {
             Next = next;
         }
