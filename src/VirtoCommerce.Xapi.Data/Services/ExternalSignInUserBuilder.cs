@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -14,15 +15,16 @@ namespace VirtoCommerce.Xapi.Data.Services;
 
 public class ExternalSignInUserBuilder(IStoreService storeService, IMemberService memberService) : IExternalSignInUserBuilder
 {
-    public async Task BuildNewUser(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
+    public virtual async Task BuildNewUser(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
     {
         if (user.MemberId is null && user.UserType == UserType.Customer.ToString())
         {
             var contact = AbstractTypeFactory<Contact>.TryCreateInstance();
-            contact.Name = externalLoginInfo.Principal.FindFirstValue("name");
-            contact.FirstName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.GivenName);
-            contact.LastName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Surname);
-            contact.Emails = [user.Email];
+
+            contact.Name = ResolveContactName(user, externalLoginInfo);
+            contact.FirstName = ResolveContactFirstName(user, externalLoginInfo);
+            contact.LastName = ResolveContactLastName(user, externalLoginInfo);
+            contact.Emails = ResolveContactEmails(user, externalLoginInfo);
 
             if (!string.IsNullOrEmpty(user.StoreId))
             {
@@ -34,5 +36,25 @@ public class ExternalSignInUserBuilder(IStoreService storeService, IMemberServic
 
             user.MemberId = contact.Id;
         }
+    }
+
+    protected virtual string ResolveContactName(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
+    {
+        return externalLoginInfo.Principal.FindFirstValue("name");
+    }
+
+    protected virtual string ResolveContactFirstName(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
+    {
+        return externalLoginInfo.Principal.FindFirstValue(ClaimTypes.GivenName) ?? string.Empty;
+    }
+
+    protected virtual string ResolveContactLastName(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
+    {
+        return externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Surname) ?? string.Empty;
+    }
+
+    protected virtual IList<string> ResolveContactEmails(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
+    {
+        return [user.Email];
     }
 }
