@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -52,7 +53,7 @@ public class ExternalSignInUserBuilder(IStoreService storeService, IMemberServic
         return externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Surname) ?? string.Empty;
     }
 
-    protected virtual string[] ResolveContactEmails(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
+    protected virtual IList<string> ResolveContactEmails(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
     {
         return [user.Email];
     }
