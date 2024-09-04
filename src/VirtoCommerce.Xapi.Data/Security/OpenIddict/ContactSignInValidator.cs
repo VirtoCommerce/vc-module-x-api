@@ -91,7 +91,7 @@ namespace VirtoCommerce.Xapi.Data.Security.OpenIddict
             var storeId = context.Request.GetParameter(ModuleConstants.Parameters.StoreId)?.Value?.ToString();
 
             return string.IsNullOrEmpty(storeId)
-                ? null
+                ? Task.FromResult<Store>(null)
                 : _storeService.GetNoCloneAsync(storeId);
         }
 
