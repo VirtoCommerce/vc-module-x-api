@@ -11,6 +11,30 @@
     "XPurchase.IsSelectedForCheckout": {
       "title": "Default \"Selected for checkout\" state (XAPI)",
       "description": "For new line items and gifts. This setting is store level."
+    },
+    "Frontend.PageTitleWithStoreName": {
+      "title": "Show store name in page title",
+      "description": "Show store name in page title. Example: 'Home - StoreName'."
+    },
+    "Frontend.PageTitleStoreNameAlign": {
+      "title": "Store name position in page title",
+      "description": "Store name position in page title. Supported values: start, end."
+    },
+    "Frontend.PageTitleDivider": {
+      "title": "Page title divider",
+      "description": "Page title divider. Example: 'Home - StoreName'."
+    },
+    "Frontend.CatalogMenuLinkListName": {
+      "title": "Top level catalog linked list",
+      "description": "The name of the top level Catalog Linked List."
+    },
+    "Frontend.CatalogEmptyCategoriesEnabled": {
+      "title": "Display empty catetories",
+      "description": "It controls the request for retrieving categories without products"
+    },
+    "Frontend.SupportPhoneNumber": {
+      "title": "Support phone number",
+      "description": "The phone number in the 'Call us' section"
     }
   }
 }
