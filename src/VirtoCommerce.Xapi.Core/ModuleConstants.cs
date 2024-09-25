@@ -63,6 +63,7 @@ namespace VirtoCommerce.Xapi.Core
                     ValueType = SettingValueType.ShortText,
                     GroupName = "Virto Commerce Frontend",
                     DefaultValue = "start",
+                    AllowedValues = ["start", "end"],
                     IsPublic = true
                 };
 
