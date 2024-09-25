@@ -72,7 +72,7 @@ namespace VirtoCommerce.Xapi.Core
                     Name = "Frontend.PageTitleDivider",
                     ValueType = SettingValueType.ShortText,
                     GroupName = "Virto Commerce Frontend",
-                    DefaultValue = " · ",
+                    DefaultValue = string.Empty,
                     IsPublic = true
                 };
 
