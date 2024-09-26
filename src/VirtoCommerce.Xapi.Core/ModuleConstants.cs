@@ -48,6 +48,61 @@ namespace VirtoCommerce.Xapi.Core
                     DefaultValue = true
                 };
 
+                public static SettingDescriptor PageTitleWithStoreName { get; } = new SettingDescriptor
+                {
+                    Name = "Frontend.PageTitleWithStoreName",
+                    ValueType = SettingValueType.Boolean,
+                    GroupName = "Virto Commerce Frontend",
+                    DefaultValue = true,
+                    IsPublic = true
+                };
+
+                public static SettingDescriptor PageTitleStoreNameAlign { get; } = new SettingDescriptor
+                {
+                    Name = "Frontend.PageTitleStoreNameAlign",
+                    ValueType = SettingValueType.ShortText,
+                    GroupName = "Virto Commerce Frontend",
+                    DefaultValue = "start",
+                    AllowedValues = ["start", "end"],
+                    IsPublic = true
+                };
+
+                public static SettingDescriptor PageTitleDivider { get; } = new SettingDescriptor
+                {
+                    Name = "Frontend.PageTitleDivider",
+                    ValueType = SettingValueType.ShortText,
+                    GroupName = "Virto Commerce Frontend",
+                    DefaultValue = string.Empty,
+                    IsPublic = true
+                };
+
+                public static SettingDescriptor SupportPhoneNumber { get; } = new SettingDescriptor
+                {
+                    Name = "Frontend.SupportPhoneNumber",
+                    ValueType = SettingValueType.ShortText,
+                    GroupName = "Virto Commerce Frontend",
+                    DefaultValue = string.Empty,
+                    IsPublic = true
+                };
+
+                public static SettingDescriptor CatalogMenuLinkListName { get; } = new SettingDescriptor
+                {
+                    Name = "Frontend.CatalogMenuLinkListName",
+                    ValueType = SettingValueType.ShortText,
+                    GroupName = "Virto Commerce Frontend",
+                    DefaultValue = "catalog-menu",
+                    IsPublic = true
+                };
+
+                public static SettingDescriptor CatalogEmptyCategoriesEnabled { get; } = new SettingDescriptor
+                {
+                    Name = "Frontend.CatalogEmptyCategoriesEnabled",
+                    ValueType = SettingValueType.Boolean,
+                    GroupName = "Virto Commerce Frontend",
+                    DefaultValue = false,
+                    IsPublic = true
+                };
+
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
@@ -55,6 +110,12 @@ namespace VirtoCommerce.Xapi.Core
                         yield return EnvironmentName;
                         yield return CreateAnonymousOrder;
                         yield return IsSelectedForCheckout;
+                        yield return PageTitleWithStoreName;
+                        yield return PageTitleStoreNameAlign;
+                        yield return PageTitleDivider;
+                        yield return SupportPhoneNumber;
+                        yield return CatalogMenuLinkListName;
+                        yield return CatalogEmptyCategoriesEnabled;
                     }
                 }
             }
@@ -65,6 +126,13 @@ namespace VirtoCommerce.Xapi.Core
                 {
                     yield return General.CreateAnonymousOrder;
                     yield return General.IsSelectedForCheckout;
+                    yield return General.PageTitleWithStoreName;
+                    yield return General.PageTitleStoreNameAlign;
+                    yield return General.PageTitleDivider;
+                    yield return General.SupportPhoneNumber;
+                    yield return General.CatalogMenuLinkListName;
+                    yield return General.CatalogEmptyCategoriesEnabled;
+
                 }
             }
         }
