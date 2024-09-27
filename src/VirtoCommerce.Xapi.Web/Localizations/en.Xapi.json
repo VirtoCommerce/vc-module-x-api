@@ -26,10 +26,10 @@
     },
     "Frontend.CatalogMenuLinkListName": {
       "title": "Top level catalog linked list",
-      "description": "The name of the top level Catalog Linked List."
+      "description": "The name of the top-level Catalog Linked List."
     },
     "Frontend.CatalogEmptyCategoriesEnabled": {
-      "title": "Display empty catetories",
+      "title": "Display empty categories",
       "description": "It controls the request for retrieving categories without products"
     },
     "Frontend.SupportPhoneNumber": {
