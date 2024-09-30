@@ -105,7 +105,11 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         {
             response.Settings = new StoreSettings
             {
+#pragma warning disable VC0009
                 IsSpa = store.Settings.GetValue<bool>(StoreSettingGeneral.IsSpa),
+                QuotesEnabled = store.Settings.GetValue<bool>(new SettingDescriptor { Name = "Quotes.EnableQuotes" }),
+                SubscriptionEnabled = store.Settings.GetValue<bool>(new SettingDescriptor { Name = "Subscription.EnableSubscriptions" }),
+#pragma warning restore VC0009
                 TaxCalculationEnabled = store.Settings.GetValue<bool>(StoreSettingGeneral.TaxCalculationEnabled),
                 AnonymousUsersAllowed = store.Settings.GetValue<bool>(StoreSettingGeneral.AllowAnonymousUsers),
                 EmailVerificationEnabled = store.Settings.GetValue<bool>(StoreSettingGeneral.EmailVerificationEnabled),
@@ -114,8 +118,6 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
                 CreateAnonymousOrderEnabled = store.Settings.GetValue<bool>(ModuleConstants.Settings.General.CreateAnonymousOrder),
                 DefaultSelectedForCheckout = store.Settings.GetValue<bool>(ModuleConstants.Settings.General.IsSelectedForCheckout),
 
-                QuotesEnabled = store.Settings.GetValue<bool>(new SettingDescriptor { Name = "Quotes.EnableQuotes" }),
-                SubscriptionEnabled = store.Settings.GetValue<bool>(new SettingDescriptor { Name = "Subscription.EnableSubscriptions" }),
 
                 EnvironmentName = _settingsManager.GetValue<string>(ModuleConstants.Settings.General.EnvironmentName),
                 PasswordRequirements = _identityOptions.Password,
