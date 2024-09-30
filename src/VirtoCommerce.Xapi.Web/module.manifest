@@ -40,7 +40,7 @@
     <group>commerce</group>
   </groups>
 
-  <projectUrl>https://github.com/VirtoCommerce/vc-module-xapi</projectUrl>
+  <projectUrl>https://github.com/VirtoCommerce/vc-module-x-api</projectUrl>
   <iconUrl>Modules/$(VirtoCommerce.Xapi)/Content/logo.png</iconUrl>
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
 
