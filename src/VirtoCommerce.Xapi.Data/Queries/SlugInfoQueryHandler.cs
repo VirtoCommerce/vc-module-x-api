@@ -49,6 +49,7 @@ namespace VirtoCommerce.Xapi.Data.Queries
             criteria.LanguageCode = currentCulture;
             criteria.Permalink = request.Permalink;
             criteria.Slug = lastSegment;
+            criteria.UserId = request.UserId;
 
             result.EntityInfo = await GetBestMatchingSeoInfo(criteria, store);
 

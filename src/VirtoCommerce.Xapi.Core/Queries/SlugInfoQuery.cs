@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GraphQL;
 using GraphQL.Types;
 using VirtoCommerce.Xapi.Core.BaseQueries;
+using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Models;
 
 namespace VirtoCommerce.Xapi.Core.Queries
@@ -39,7 +40,7 @@ namespace VirtoCommerce.Xapi.Core.Queries
 #pragma warning restore VC0008
             Permalink = context.GetArgument<string>(nameof(Permalink));
             StoreId = context.GetArgument<string>(nameof(StoreId));
-            UserId = context.GetArgument<string>(nameof(UserId));
+            UserId = context.GetCurrentUserId();
             CultureName = context.GetArgument<string>(nameof(CultureName));
         }
     }
