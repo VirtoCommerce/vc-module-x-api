@@ -40,7 +40,7 @@ public class ExternalSignInUserBuilder(IStoreService storeService, IMemberServic
 
     protected virtual string ResolveContactName(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
     {
-        return externalLoginInfo.Principal.GetUserId();
+        return externalLoginInfo.Principal.FindFirstValue("name");
     }
 
     protected virtual string ResolveContactFirstName(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
