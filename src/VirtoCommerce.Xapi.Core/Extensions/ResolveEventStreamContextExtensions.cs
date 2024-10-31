@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Subscription;
-using VirtoCommerce.Platform.Core.Security;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
 {
@@ -10,7 +9,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         public static string GetCurrentUserId(this IResolveEventStreamContext resolveContext)
         {
             var claimsPrincipal = GetCurrentPrincipal(resolveContext);
-            return claimsPrincipal?.GetUserId() ?? ModuleConstants.AnonymousUser.UserName;
+            return claimsPrincipal?.GetCurrentUserId();
         }
 
         public static ClaimsPrincipal GetCurrentPrincipal(this IResolveEventStreamContext resolveContext)

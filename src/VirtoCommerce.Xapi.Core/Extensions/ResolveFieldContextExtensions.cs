@@ -7,11 +7,9 @@ using GraphQL.Execution;
 using VirtoCommerce.CoreModule.Core.Currency;
 using VirtoCommerce.CustomerModule.Core.Extensions;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Xapi.Core.Helpers;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Queries;
-using static VirtoCommerce.Xapi.Core.ModuleConstants;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
 {
@@ -67,7 +65,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
         public static string GetCurrentUserId(this IResolveFieldContext resolveContext)
         {
-            return resolveContext.GetCurrentPrincipal()?.GetUserId() ?? AnonymousUser.UserName;
+            return resolveContext.GetCurrentPrincipal()?.GetCurrentUserId();
         }
 
         public static string GetCurrentOrganizationId(this IResolveFieldContext resolveContext)
