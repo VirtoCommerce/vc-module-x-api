@@ -37,7 +37,7 @@ namespace VirtoCommerce.Xapi.Data.Services
         public Task CheckCurrentUserState(IResolveFieldContext context, bool allowAnonymous)
         {
             var principal = context.GetCurrentPrincipal();
-            var userId = principal?.GetCurrentUserId();
+            var userId = principal.GetCurrentUserId();
             var isExternalSignIn = principal.IsExternalSignIn();
 
             return CheckUserState(userId, allowAnonymous, isExternalSignIn);
