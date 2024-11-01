@@ -9,7 +9,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         public static string GetCurrentUserId(this IResolveEventStreamContext resolveContext)
         {
             var claimsPrincipal = GetCurrentPrincipal(resolveContext);
-            return claimsPrincipal?.FindFirstValue(ClaimTypes.NameIdentifier) ?? claimsPrincipal?.FindFirstValue("name") ?? ModuleConstants.AnonymousUser.UserName;
+            return claimsPrincipal?.GetCurrentUserId();
         }
 
         public static ClaimsPrincipal GetCurrentPrincipal(this IResolveEventStreamContext resolveContext)
