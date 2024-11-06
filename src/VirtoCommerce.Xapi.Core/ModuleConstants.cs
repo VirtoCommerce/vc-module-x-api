@@ -90,7 +90,7 @@ namespace VirtoCommerce.Xapi.Core
                     Name = "Frontend.CatalogMenuLinkListName",
                     ValueType = SettingValueType.ShortText,
                     GroupName = "Virto Commerce Frontend",
-                    DefaultValue = "catalog-menu",
+                    DefaultValue = string.Empty,
                     IsPublic = true
                 };
 
