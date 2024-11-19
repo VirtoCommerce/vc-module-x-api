@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.TaxModule.Core.Model;
-using VirtoCommerce.Xapi.Core;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Infrastructure.Validation;
@@ -90,8 +89,8 @@ namespace VirtoCommerce.Xapi.Web
 
             // settings
             var settingsRegistrar = serviceProvider.GetRequiredService<ISettingsRegistrar>();
-            settingsRegistrar.RegisterSettings(ModuleConstants.Settings.General.AllSettings, ModuleInfo.Id);
-            settingsRegistrar.RegisterSettingsForType(ModuleConstants.Settings.StoreLevelSettings, nameof(Store));
+            settingsRegistrar.RegisterSettings(Settings.General.AllSettings, ModuleInfo.Id);
+            settingsRegistrar.RegisterSettingsForType(Settings.StoreLevelSettings, nameof(Store));
         }
 
         public void Uninstall()
