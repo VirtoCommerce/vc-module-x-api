@@ -65,7 +65,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             var schema = CreateSchema(_services, _schemaFilter);
 
             var schemaBuilders = GetSchemaBuilders();
-            foreach (var builder in _schemaBuilders)
+            foreach (var builder in schemaBuilders)
             {
                 builder.Build(schema);
             }
