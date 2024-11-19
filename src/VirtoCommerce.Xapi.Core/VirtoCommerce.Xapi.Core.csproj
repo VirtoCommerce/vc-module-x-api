@@ -25,6 +25,7 @@
     <PackageReference Include="GraphQL" Version="4.6.0" />
     <PackageReference Include="GraphQL.Authorization" Version="4.0.0" />
     <PackageReference Include="GraphQL.Relay" Version="0.6.2" />
+    <PackageReference Include="GraphQL.Server.Ui.Playground" Version="5.0.2" />
     <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="5.0.2" />
     <PackageReference Include="GraphQL.Server.Transports.AspNetCore.NewtonsoftJson" Version="5.0.2" />
     <PackageReference Include="PipelineNet" Version="0.9.0" />

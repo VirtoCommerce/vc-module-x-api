@@ -5,6 +5,13 @@ namespace VirtoCommerce.Xapi.Core
 {
     public static class ModuleConstants
     {
+        public static class ConfigKeys
+        {
+            public const string GraphQlPlayground = "VirtoCommerce:GraphQLPlayground";
+            public const string GraphQlWebSocket = "VirtoCommerce:GraphQLWebSocket";
+            public const string Stores = "VirtoCommerce:Stores";
+        }
+
         public static class Connections
         {
             public const int DefaultPageSize = 20;
