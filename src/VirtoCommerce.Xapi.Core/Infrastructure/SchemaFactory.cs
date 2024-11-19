@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using GraphQL;
 using GraphQL.Conversion;
 using GraphQL.Instrumentation;
@@ -61,14 +62,9 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
 
         public ISchema GetSchema()
         {
-            var schema = new Schema(_services)
-            {
-                Query = new ObjectGraphType { Name = "Query" },
-                Mutation = new ObjectGraphType { Name = "Mutations" },
-                Subscription = new ObjectGraphType { Name = "Subscriptions" },
-                Filter = _schemaFilter,
-            };
+            var schema = CreateSchema(_services, _schemaFilter);
 
+            var schemaBuilders = GetSchemaBuilders();
             foreach (var builder in _schemaBuilders)
             {
                 builder.Build(schema);
@@ -99,7 +95,28 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
                 schema.Mutation = null;
             }
 
+            if (schema.Subscription.Fields.Count == 0)
+            {
+                schema.Subscription = null;
+            }
+
             return schema;
+        }
+
+        protected virtual Schema CreateSchema(IServiceProvider services, ISchemaFilter schemaFilter)
+        {
+            return new Schema(services)
+            {
+                Query = new ObjectGraphType { Name = "Query" },
+                Mutation = new ObjectGraphType { Name = "Mutations" },
+                Subscription = new ObjectGraphType { Name = "Subscriptions" },
+                Filter = schemaFilter,
+            };
+        }
+
+        protected virtual List<ISchemaBuilder> GetSchemaBuilders()
+        {
+            return _schemaBuilders.ToList();
         }
 
         public void Initialize()
