@@ -85,7 +85,7 @@ namespace VirtoCommerce.Xapi.Web
 
             // add http for Schema at default url /graphql
             // use GraphQL Playground at default URL /ui/playground
-            appBuilder.UseSchemaGraphQL<ISchema>(Configuration);
+            appBuilder.UseSchemaGraphQL<ISchema>(IsSchemaIntrospectionEnabled);
 
             // settings
             var settingsRegistrar = serviceProvider.GetRequiredService<ISettingsRegistrar>();

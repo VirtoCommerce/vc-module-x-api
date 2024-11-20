@@ -1,15 +1,12 @@
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
-using VirtoCommerce.Xapi.Core.Models;
-using static VirtoCommerce.Xapi.Core.ModuleConstants;
 
 namespace VirtoCommerce.Xapi.Core.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
-    public static IApplicationBuilder UseSchemaGraphQL<TSchema>(this IApplicationBuilder builder, IConfiguration configuration = null, string schemaPath = null)
+    public static IApplicationBuilder UseSchemaGraphQL<TSchema>(this IApplicationBuilder builder, bool schemaIntrospectionEnabled = true, string schemaPath = null)
         where TSchema : ISchema
     {
         var graphQlPath = "/graphql";
@@ -24,14 +21,8 @@ public static class ApplicationBuilderExtensions
             playgroundPath = $"{playgroundPath}/{schemaPath}";
         }
 
-        var isSchemaIntrospectionEnabled = false;
-        if (configuration != null)
-        {
-            isSchemaIntrospectionEnabled = configuration.GetValue<bool>($"{ConfigKeys.GraphQlPlayground}:{nameof(GraphQLPlaygroundOptions.Enable)}");
-        }
-
         builder.UseGraphQL<TSchema>(path: graphQlPath);
-        if (isSchemaIntrospectionEnabled)
+        if (schemaIntrospectionEnabled)
         {
             builder.UseGraphQLPlayground(new PlaygroundOptions
             {
