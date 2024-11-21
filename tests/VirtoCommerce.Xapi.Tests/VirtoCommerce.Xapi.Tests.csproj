@@ -19,13 +19,6 @@
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>
-
-  <!--Workaround for vulnerable transitive packages-->
-  <ItemGroup>
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\VirtoCommerce.Xapi.Core\VirtoCommerce.Xapi.Core.csproj" />
     <ProjectReference Include="..\..\src\VirtoCommerce.Xapi.Data\VirtoCommerce.Xapi.Data.csproj" />

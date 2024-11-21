@@ -12,10 +12,9 @@ namespace VirtoCommerce.Xapi.Core.Pipelines
             _serviceProvider = serviceProvider;
         }
 
-        public MiddlewareResolverResult Resolve(Type type)
+        public object Resolve(Type type)
         {
-            var result = _serviceProvider.GetService(type);
-            return new MiddlewareResolverResult { IsDisposable = true, Middleware = result };
+            return _serviceProvider.GetService(type);
         }
     }
 }
