@@ -26,15 +26,15 @@ public static class ApplicationBuilderExtensions
             graphQlPath = $"{graphQlPath}/{schemaPath}";
         }
 
-        var playgroundPath = "/ui/playground";
-        if (!string.IsNullOrEmpty(schemaPath))
-        {
-            playgroundPath = $"{playgroundPath}/{schemaPath}";
-        }
-
         builder.UseGraphQL<TSchema>(path: graphQlPath);
         if (schemaIntrospectionEnabled)
         {
+            var playgroundPath = "/ui/playground";
+            if (!string.IsNullOrEmpty(schemaPath))
+            {
+                playgroundPath = $"{playgroundPath}/{schemaPath}";
+            }
+
             builder.UseGraphQLPlayground(new PlaygroundOptions
             {
                 GraphQLEndPoint = graphQlPath,
