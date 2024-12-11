@@ -33,7 +33,7 @@ namespace VirtoCommerce.Xapi.Data.Schemas
                     new QueryArgument<StringGraphType> { Name = "objectType", Description = "Object type of the dynamic property" }
                 ),
                 Type = GraphTypeExtenstionHelper.GetActualType<DynamicPropertyType>(),
-                Resolver = new AsyncFieldResolver<object>(async context =>
+                Resolver = new FuncFieldResolver<object>(async context =>
                 {
                     context.CopyArgumentsToUserContext();
 

@@ -14,7 +14,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public virtual Task<INodeVisitor> ValidateAsync(ValidationContext context)
+        public virtual ValueTask<INodeVisitor> ValidateAsync(ValidationContext context)
         {
             var contentType = _httpContextAccessor?.HttpContext?.Request?.ContentType;
 

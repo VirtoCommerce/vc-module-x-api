@@ -1,51 +1,51 @@
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using Microsoft.Extensions.Logging;
+//using System.Collections;
+//using System.Collections.Concurrent;
+//using System.Collections.Generic;
+//using System.Threading;
+//using System.Threading.Tasks;
+//using GraphQL.Server.Transports.Subscriptions.Abstractions;
+//using Microsoft.Extensions.Logging;
 
-namespace VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure
-{
-    /// <summary>
-    /// Supports cancellation of 'keep-alive' message spamming for canceled subscriptions
-    /// </summary>
-    public class CustomSubscriptionManager(IGraphQLExecuter executer, ILoggerFactory loggerFactory) : ISubscriptionManager
-    {
-        private readonly SubscriptionManager _subscriptionManager = new SubscriptionManager(executer, loggerFactory);
+//namespace VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure
+//{
+//    /// <summary>
+//    /// Supports cancellation of 'keep-alive' message spamming for canceled subscriptions
+//    /// </summary>
+//    public class CustomSubscriptionManager(IGraphQLExecuter executer, ILoggerFactory loggerFactory) : ISubscriptionManager
+//    {
+//        private readonly SubscriptionManager _subscriptionManager = new SubscriptionManager(executer, loggerFactory);
 
-        private readonly ConcurrentDictionary<string, CancellationTokenSource> _subscriptionsCancellationSources = new();
+//        private readonly ConcurrentDictionary<string, CancellationTokenSource> _subscriptionsCancellationSources = new();
 
-        public CancellationTokenSource GetSubscriptionCancellationSource(string id)
-        {
-            return _subscriptionsCancellationSources.GetOrAdd(id, _ => new CancellationTokenSource());
-        }
+//        public CancellationTokenSource GetSubscriptionCancellationSource(string id)
+//        {
+//            return _subscriptionsCancellationSources.GetOrAdd(id, _ => new CancellationTokenSource());
+//        }
 
-        public Task SubscribeOrExecuteAsync(string id, OperationMessagePayload payload, MessageHandlingContext context)
-        {
-            return _subscriptionManager.SubscribeOrExecuteAsync(id, payload, context);
-        }
+//        public Task SubscribeOrExecuteAsync(string id, OperationMessagePayload payload, MessageHandlingContext context)
+//        {
+//            return _subscriptionManager.SubscribeOrExecuteAsync(id, payload, context);
+//        }
 
-        public Task UnsubscribeAsync(string id)
-        {
-            if (_subscriptionsCancellationSources.TryRemove(id, out var cancellationTokenSource) &&
-                !cancellationTokenSource.IsCancellationRequested)
-            {
-                cancellationTokenSource.Cancel();
-            }
+//        public Task UnsubscribeAsync(string id)
+//        {
+//            if (_subscriptionsCancellationSources.TryRemove(id, out var cancellationTokenSource) &&
+//                !cancellationTokenSource.IsCancellationRequested)
+//            {
+//                cancellationTokenSource.Cancel();
+//            }
 
-            return _subscriptionManager.UnsubscribeAsync(id);
-        }
+//            return _subscriptionManager.UnsubscribeAsync(id);
+//        }
 
-        public IEnumerator<Subscription> GetEnumerator()
-        {
-            return _subscriptionManager.GetEnumerator();
-        }
+//        public IEnumerator<Subscription> GetEnumerator()
+//        {
+//            return _subscriptionManager.GetEnumerator();
+//        }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-    }
-}
+//        IEnumerator IEnumerable.GetEnumerator()
+//        {
+//            return GetEnumerator();
+//        }
+//    }
+//}

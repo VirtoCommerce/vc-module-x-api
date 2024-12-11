@@ -1,4 +1,6 @@
+using GraphQL;
 using GraphQL.Authorization;
+using GraphQL.DI;
 using GraphQL.Introspection;
 using GraphQL.Types;
 using GraphQL.Validation;
@@ -16,7 +18,6 @@ using VirtoCommerce.Xapi.Data.Services;
 using ContactSignInValidator = VirtoCommerce.Xapi.Data.Security.OpenIddict.ContactSignInValidator;
 using DynamicPropertyResolverService = VirtoCommerce.Xapi.Data.Services.DynamicPropertyResolverService;
 using DynamicPropertyUpdaterService = VirtoCommerce.Xapi.Data.Services.DynamicPropertyUpdaterService;
-using IGraphQLBuilder = GraphQL.Server.IGraphQLBuilder;
 using UserManagerCore = VirtoCommerce.Xapi.Data.Services.UserManagerCore;
 
 namespace VirtoCommerce.Xapi.Data.Extensions
@@ -38,9 +39,35 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             return services;
         }
 
+        public static IServiceCollection AddXCore(this IServiceCollection services, IConfiguration configuration)
+        {
+            //Register custom GraphQL dependencies
+            services.AddTransient<IValidationRule, AuthorizationValidationRule>();
+            services.TryAddSingleton<IAuthorizationEvaluator, PermissionAuthorizationEvaluator>();
+
+            services.AddSingleton<ISchemaFilter, CustomSchemaFilter>();
+            services.AddSingleton<ISchema, SchemaFactory>();
+
+            services.AddTransient<IDynamicPropertyResolverService, DynamicPropertyResolverService>();
+            services.AddTransient<IDynamicPropertyUpdaterService, DynamicPropertyUpdaterService>();
+            services.AddTransient<IUserManagerCore, UserManagerCore>();
+            services.AddTransient<ITokenRequestValidator, ContactSignInValidator>();
+            services.AddTransient<IExternalSignInValidator, ExternalSignInValidator>();
+            services.AddTransient<IExternalSignInUserBuilder, ExternalSignInUserBuilder>();
+
+            // provider for external fields
+            services.AddSingleton<IExternalFieldProvider, ExternalFieldProvider>();
+
+            services.AddTransient<ILoadUserToEvalContextService, LoadUserToEvalContextService>();
+            services.AddDistributedLockService(configuration);
+
+            return services;
+        }
+
+
         public static IServiceCollection AddXCore(this IServiceCollection services, IGraphQLBuilder graphQlBuilder, IConfiguration configuration)
         {
-            graphQlBuilder.AddSchema(typeof(CoreAssemblyMarker), typeof(DataAssemblyMarker));
+            graphQlBuilder.AddSchema(services, typeof(CoreAssemblyMarker), typeof(DataAssemblyMarker));
 
             //Register custom GraphQL dependencies
             services.AddTransient<IValidationRule, AuthorizationValidationRule>();

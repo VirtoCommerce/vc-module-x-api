@@ -76,7 +76,7 @@ namespace VirtoCommerce.Xapi.Data.Services
                 Type = GraphTypeExtenstionHelper.GetActualComplexType<TGraphType>(),
                 Arguments = arguments,
                 Resolver = resolve != null
-                    ? new AsyncFieldResolver<TSourceType, object>(context =>
+                    ? new FuncFieldResolver<TSourceType, object>(context =>
                     {
                         context.CopyArgumentsToUserContext();
                         return resolve(context);
