@@ -53,10 +53,10 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                 Type = GraphTypeExtenstionHelper.GetActualComplexType<TGraphType>(),
                 Arguments = arguments,
                 Resolver = resolve != null
-                    ? new FuncFieldResolver<TSourceType, Task<object>>(context =>
+                    ? new FuncFieldResolver<TSourceType, object>(context =>
                     {
                         context.CopyArgumentsToUserContext();
-                        return resolve(context);
+                        return new ValueTask<object>(resolve(context));
                     })
                     : null
             });
