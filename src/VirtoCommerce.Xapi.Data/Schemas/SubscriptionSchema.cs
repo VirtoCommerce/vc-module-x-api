@@ -1,5 +1,5 @@
 using System;
-using System.Reactive.Linq;
+//using System.Reactive.Linq;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Resolvers;
@@ -40,7 +40,8 @@ namespace VirtoCommerce.Xapi.Data.Schemas
             }
 
             // reserved for future use
-            return Observable.Never<string>();
+            //return Observable.Never<string>();
+            return null;
         }
     }
 }

@@ -5,7 +5,7 @@ using VirtoCommerce.Xapi.Core.Schemas.ScalarTypes;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
-    public class InputDynamicPropertyValueType : InputObjectGraphType<DynamicPropertyValue>
+    public class InputDynamicPropertyValueType : ExtendableInputGraphType<DynamicPropertyValue>
     {
         public InputDynamicPropertyValueType()
         {

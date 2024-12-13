@@ -1,10 +1,9 @@
-using GraphQL.Types;
 using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Schemas.ScalarTypes;
 
 namespace VirtoCommerce.Xapi.Core.Schemas;
 
-public class ModuleSettingType : ObjectGraphType<ModuleSetting>
+public class ModuleSettingType : ExtendableGraphType<ModuleSetting>
 {
     public ModuleSettingType()
     {

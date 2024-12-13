@@ -3,7 +3,7 @@ using VirtoCommerce.CoreModule.Core.Currency;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
-    public class MoneyType : ObjectGraphType<Money>
+    public class MoneyType : ExtendableGraphType<Money>
     {
         public MoneyType()
         {

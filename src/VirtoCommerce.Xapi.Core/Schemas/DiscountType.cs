@@ -4,7 +4,7 @@ using VirtoCommerce.Xapi.Core.Extensions;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
-    public class DiscountType : ObjectGraphType<Discount>
+    public class DiscountType : ExtendableGraphType<Discount>
     {
         public DiscountType()
         {

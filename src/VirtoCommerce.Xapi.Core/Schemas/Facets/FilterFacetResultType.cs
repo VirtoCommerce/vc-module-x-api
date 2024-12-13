@@ -3,7 +3,7 @@ using VirtoCommerce.Xapi.Core.Models.Facets;
 
 namespace VirtoCommerce.Xapi.Core.Schemas.Facets
 {
-    public class FilterFacetResultType : ObjectGraphType<FilterFacetResult>
+    public class FilterFacetResultType : ExtendableGraphType<FilterFacetResult>
     {
         public FilterFacetResultType()
         {

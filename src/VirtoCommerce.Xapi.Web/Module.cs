@@ -1,9 +1,4 @@
 using GraphQL;
-using GraphQL.DataLoader;
-using GraphQL.MicrosoftDI;
-using GraphQL.NewtonsoftJson;
-using GraphQL.Server;
-using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Types;
 using GraphQL.Validation.Rules;
 using Microsoft.AspNetCore.Builder;
@@ -49,7 +44,8 @@ namespace VirtoCommerce.Xapi.Web
             serviceCollection.AddGraphQL(bulder =>
             {
                 bulder
-                    .AddHttpMiddleware<ISchema, GraphQLHttpMiddleware<ISchema>>()
+                    //.AddHttpMiddleware<ISchema, GraphQLHttpMiddleware<ISchema>>()
+                    //.AddCustomWebSockets() // disabled for now
                     .AddNewtonsoftJson()
                     .AddSchema(serviceCollection, typeof(CoreAssemblyMarker), typeof(DataAssemblyMarker))
                     .ConfigureExecutionOptions(options =>
@@ -59,10 +55,9 @@ namespace VirtoCommerce.Xapi.Web
                     .AddErrorInfoProvider(options =>
                     {
                         options.ExposeExtensions = true;
-                        options.ExposeExceptionStackTrace = true;
+                        options.ExposeExceptionDetails = true;
                     })
                     .AddUserContextBuilder(async context => await context.BuildGraphQLUserContextAsync())
-                    //.AddCustomWebSockets() // disabled for now
                     .AddDataLoader()
                     .AddCustomValidationRule<ContentTypeValidationRule>();
 

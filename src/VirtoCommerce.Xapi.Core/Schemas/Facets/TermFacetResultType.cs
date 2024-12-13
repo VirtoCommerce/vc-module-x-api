@@ -3,7 +3,7 @@ using VirtoCommerce.Xapi.Core.Models.Facets;
 
 namespace VirtoCommerce.Xapi.Core.Schemas.Facets
 {
-    public class TermFacetResultType : ObjectGraphType<TermFacetResult>
+    public class TermFacetResultType : ExtendableGraphType<TermFacetResult>
     {
         public TermFacetResultType()
         {

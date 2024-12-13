@@ -35,11 +35,11 @@ public static class ApplicationBuilderExtensions
                 playgroundPath = $"{playgroundPath}/{schemaPath}";
             }
 
-            builder.UseGraphQLPlayground(new PlaygroundOptions
-            {
-                GraphQLEndPoint = graphQlPath,
-            },
-            path: playgroundPath);
+            builder.UseGraphQLPlayground(playgroundPath,
+                new PlaygroundOptions
+                {
+                    GraphQLEndPoint = graphQlPath,
+                });
         }
 
         return builder;

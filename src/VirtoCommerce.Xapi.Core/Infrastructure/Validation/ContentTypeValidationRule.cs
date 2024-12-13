@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 
@@ -18,8 +17,8 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
         {
             var contentType = _httpContextAccessor?.HttpContext?.Request?.ContentType;
 
-            if (contentType == MediaType.JSON ||
-                contentType == MediaType.GRAPH_QL ||
+            if (contentType == "application/json" ||
+                contentType == "application/graphql" ||
                 (contentType == null && _httpContextAccessor?.HttpContext?.WebSockets?.IsWebSocketRequest == true))
             {
                 return default;

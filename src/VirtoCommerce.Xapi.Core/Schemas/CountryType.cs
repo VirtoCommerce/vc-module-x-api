@@ -5,7 +5,7 @@ using VirtoCommerce.Xapi.Core.Queries;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
-    public class CountryType : ObjectGraphType<Country>
+    public class CountryType : ExtendableGraphType<Country>
     {
         public CountryType(IMediator mediator)
         {
