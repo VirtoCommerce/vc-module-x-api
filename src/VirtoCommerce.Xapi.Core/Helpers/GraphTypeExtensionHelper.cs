@@ -8,7 +8,7 @@ using VirtoCommerce.Platform.Core.Exceptions;
 
 namespace VirtoCommerce.Xapi.Core.Helpers
 {
-    public static class GraphTypeExtenstionHelper
+    public static class GraphTypeExtensionHelper
     {
         /// <summary>
         /// Returns the actual (overridden) type for requested type
@@ -56,12 +56,12 @@ namespace VirtoCommerce.Xapi.Core.Helpers
             return GetActualType(outerGraphType);
         }
 
-        public static ConnectionBuilder<TSourceType> CreateConnection<TNodeType, TSourceType>() where TNodeType : IGraphType
+        public static ConnectionBuilder<TSourceType> CreateConnection<TNodeType, TSourceType>(string name) where TNodeType : IGraphType
         {
-            return CreateConnection<TNodeType, EdgeType<TNodeType>, ConnectionType<TNodeType>, TSourceType>();
+            return CreateConnection<TNodeType, EdgeType<TNodeType>, ConnectionType<TNodeType>, TSourceType>(name);
         }
 
-        public static ConnectionBuilder<TSourceType> CreateConnection<TNodeType, TEdgeType, TConnectionType, TSourceType>()
+        public static ConnectionBuilder<TSourceType> CreateConnection<TNodeType, TEdgeType, TConnectionType, TSourceType>(string name)
             where TNodeType : IGraphType
             where TEdgeType : EdgeType<TNodeType>
             where TConnectionType : ConnectionType<TNodeType, TEdgeType>
@@ -69,7 +69,11 @@ namespace VirtoCommerce.Xapi.Core.Helpers
             //EdgeType<ProductType>, ProductsConnectonType<ProductType>
             //Try first find the actual TNodeType  in the  AbstractTypeFactory
             var actualNodeType = GetActualType<TNodeType>();
-            var createMethodInfo = typeof(ConnectionBuilder<>).MakeGenericType(typeof(TSourceType)).GetMethods().FirstOrDefault(x => x.Name.EqualsInvariant(nameof(ConnectionBuilder.Create)) && x.GetGenericArguments().Length == 3);
+            var createMethodInfo = typeof(ConnectionBuilder<>).MakeGenericType(typeof(TSourceType)).GetMethods()
+                .FirstOrDefault(x => x.Name.EqualsInvariant(nameof(ConnectionBuilder.Create))
+                    && x.GetGenericArguments().Length == 3
+                    && x.GetParameters().Length == 1);
+
             if (createMethodInfo == null)
             {
                 throw new PlatformException("No suitable 'ConnectionBuilder.Create' method with three generic types found");
@@ -77,7 +81,10 @@ namespace VirtoCommerce.Xapi.Core.Helpers
 
             var genericEgdeType = typeof(TEdgeType).GetGenericTypeDefinition().MakeGenericType(new[] { actualNodeType });
             var genericConnectionType = typeof(TConnectionType).GetGenericTypeDefinition().MakeGenericType(new[] { actualNodeType });
-            var connectionBuilder = (ConnectionBuilder<TSourceType>)createMethodInfo.MakeGenericMethod(actualNodeType, genericEgdeType, genericConnectionType).Invoke(null, new[] { Type.Missing });
+            var connectionBuilder = (ConnectionBuilder<TSourceType>)createMethodInfo
+                .MakeGenericMethod(actualNodeType, genericEgdeType, genericConnectionType)
+                .Invoke(null, new[] { name });
+
             return connectionBuilder;
         }
     }

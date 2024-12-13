@@ -40,8 +40,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
             Field<NonNullGraphType<BooleanGraphType>>("isMultilingual", resolve: context => context.Source.IsMultilingual, description: "Is dynamic property value multilingual");
             Field<NonNullGraphType<BooleanGraphType>>("isRequired", resolve: context => context.Source.IsRequired, description: "Is dynamic property value required");
 
-            Connection<DictionaryItemType>()
-              .Name("dictionaryItems")
+            Connection<DictionaryItemType>(name: "dictionaryItems")
               .Argument<StringGraphType>("filter", "")
               .Argument<StringGraphType>("cultureName", "")
               .Argument<StringGraphType>("sort", "")

@@ -34,8 +34,7 @@ public abstract class RequestBuilder<TRequest, TResponse, TResponseGraphType> : 
     protected virtual FieldType GetFieldType()
     {
         var builder = FieldBuilder<object, TResponse>
-            .Create(GraphTypeExtenstionHelper.GetActualType<TResponseGraphType>())
-            .Name(Name)
+            .Create(Name, GraphTypeExtensionHelper.GetActualType<TResponseGraphType>())
             .ResolveAsync(async context =>
             {
                 var (_, response) = await Resolve(context);
