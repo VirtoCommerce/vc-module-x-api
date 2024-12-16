@@ -35,11 +35,14 @@ public static class ApplicationBuilderExtensions
                 playgroundPath = $"{playgroundPath}/{schemaPath}";
             }
 
+
+#pragma warning disable CS0618 // Type or member is obsolete
             builder.UseGraphQLPlayground(playgroundPath,
                 new PlaygroundOptions
                 {
                     GraphQLEndPoint = graphQlPath,
                 });
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         return builder;

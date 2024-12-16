@@ -7,7 +7,7 @@ using GraphQLParser.AST;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
 {
-    public class CustomKnownArgumentNames : IValidationRule
+    public class CustomKnownArgumentNames : ValidationRuleBase
     {
         private readonly INodeVisitor _nodeVisitor;
 
@@ -16,7 +16,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
             _nodeVisitor = new MatchingNodeVisitor<GraphQLArgument>(Validate);
         }
 
-        public virtual ValueTask<INodeVisitor> ValidateAsync(ValidationContext context) => new(_nodeVisitor);
+        public override ValueTask<INodeVisitor> GetPreNodeVisitorAsync(ValidationContext context) => new(_nodeVisitor);
 
         protected virtual void Validate(GraphQLArgument node, ValidationContext context)
         {

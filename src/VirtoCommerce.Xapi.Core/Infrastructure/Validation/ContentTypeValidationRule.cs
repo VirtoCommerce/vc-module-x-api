@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
 {
-    public class ContentTypeValidationRule : IValidationRule
+    public class ContentTypeValidationRule : ValidationRuleBase
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -12,6 +12,8 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
         {
             _httpContextAccessor = httpContextAccessor;
         }
+
+        public override ValueTask<INodeVisitor> GetPreNodeVisitorAsync(ValidationContext context) => ValidateAsync(context);
 
         public virtual ValueTask<INodeVisitor> ValidateAsync(ValidationContext context)
         {

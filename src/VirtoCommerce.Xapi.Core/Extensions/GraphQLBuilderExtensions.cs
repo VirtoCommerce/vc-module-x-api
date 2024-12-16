@@ -23,7 +23,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             if (oldRule != null)
             {
                 coreRules.Remove(oldRule);
-                builder.AddCustomValidationRule<TNewRule>();
+                builder.AddValidationRule<TNewRule>();
             }
 
             return builder;

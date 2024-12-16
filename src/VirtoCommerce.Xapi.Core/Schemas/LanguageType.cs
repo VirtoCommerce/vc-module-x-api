@@ -1,9 +1,8 @@
-using GraphQL.Types;
 using VirtoCommerce.CoreModule.Core.Common;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
-    public class LanguageType : ObjectGraphType<Language>
+    public class LanguageType : ExtendableGraphType<Language>
     {
         public LanguageType()
         {

@@ -1,9 +1,8 @@
-using GraphQL.Types;
 using VirtoCommerce.CoreModule.Core.Currency;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
-    public class CurrencyType : ObjectGraphType<Currency>
+    public class CurrencyType : ExtendableGraphType<Currency>
     {
         public CurrencyType()
         {

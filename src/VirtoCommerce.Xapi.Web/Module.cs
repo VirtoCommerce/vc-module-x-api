@@ -40,6 +40,10 @@ namespace VirtoCommerce.Xapi.Web
             //serviceCollection.AddTransient(typeof(IGraphQLExecuter<>), typeof(CustomGraphQLExecuter<>)); // need to check how to add AppInsight telemetry later
             //serviceCollection.AddSingleton<IDocumentExecuter, SubscriptionDocumentExecuter>(); // removed, need to check what to do with subscriptions later
 
+#pragma warning disable CS0618 // Type or member is obsolete
+            GlobalSwitches.UseLegacyTypeNaming = true;
+#pragma warning restore CS0618 // Type or member is obsolete
+
             //Register .NET GraphQL server
             serviceCollection.AddGraphQL(bulder =>
             {
@@ -48,6 +52,7 @@ namespace VirtoCommerce.Xapi.Web
                     //.AddCustomWebSockets() // disabled for now
                     .AddNewtonsoftJson()
                     .AddSchema(serviceCollection, typeof(CoreAssemblyMarker), typeof(DataAssemblyMarker))
+                    .AddPermissionAuthorization()
                     .ConfigureExecutionOptions(options =>
                     {
                         options.EnableMetrics = false;
@@ -59,7 +64,7 @@ namespace VirtoCommerce.Xapi.Web
                     })
                     .AddUserContextBuilder(async context => await context.BuildGraphQLUserContextAsync())
                     .AddDataLoader()
-                    .AddCustomValidationRule<ContentTypeValidationRule>();
+                    .AddValidationRule<ContentTypeValidationRule>();
 
                 if (!IsSchemaIntrospectionEnabled)
                 {

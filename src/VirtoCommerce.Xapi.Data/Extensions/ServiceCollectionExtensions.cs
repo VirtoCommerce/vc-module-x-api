@@ -42,8 +42,9 @@ namespace VirtoCommerce.Xapi.Data.Extensions
         public static IServiceCollection AddXCore(this IServiceCollection services, IConfiguration configuration)
         {
             //Register custom GraphQL dependencies
-            services.AddTransient<IValidationRule, AuthorizationValidationRule>();
-            services.TryAddSingleton<IAuthorizationEvaluator, PermissionAuthorizationEvaluator>();
+
+            //services.AddTransient<IValidationRule, AuthorizationValidationRule>();
+            //services.TryAddSingleton<IAuthorizationEvaluator, PermissionAuthorizationEvaluator>();
 
             services.AddSingleton<ISchemaFilter, CustomSchemaFilter>();
             services.AddSingleton<ISchema, SchemaFactory>();
