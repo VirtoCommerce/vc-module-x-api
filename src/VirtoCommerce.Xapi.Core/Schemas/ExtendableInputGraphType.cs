@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Resolvers;
@@ -6,6 +6,10 @@ using GraphQL.Types;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
+    public class ExtendableInputGraphType : ExtendableInputGraphType<object>
+    {
+    }
+
     public class ExtendableInputGraphType<TSourceType> : InputObjectGraphType<TSourceType>
     {
         public new FieldType Field<TGraphType>(
