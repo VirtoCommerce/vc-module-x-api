@@ -13,6 +13,7 @@ using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Infrastructure.Validation;
 using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Subscriptions;
+using VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure;
 using VirtoCommerce.Xapi.Data;
 using VirtoCommerce.Xapi.Data.Extensions;
 using VirtoCommerce.Xapi.Web.Extensions;
@@ -64,7 +65,8 @@ namespace VirtoCommerce.Xapi.Web
                     })
                     .AddUserContextBuilder(async context => await context.BuildGraphQLUserContextAsync())
                     .AddDataLoader()
-                    .AddValidationRule<ContentTypeValidationRule>();
+                    .AddValidationRule<ContentTypeValidationRule>()
+                    .AddWebSocketAuthentication<SubscriptionsUserContextResolver>();
 
                 if (!IsSchemaIntrospectionEnabled)
                 {
@@ -113,7 +115,7 @@ namespace VirtoCommerce.Xapi.Web
 
             // disable web sockets/subscription for now
             // this is required for websockets support
-            //appBuilder.UseWebSockets();
+            appBuilder.UseWebSockets();
 
             // use websocket middleware for ISchema at default path /graphql
             //appBuilder.UseGraphQLWebSockets<ISchema>();

@@ -2,6 +2,7 @@ using GraphQL;
 using GraphQL.Resolvers;
 using GraphQL.Types;
 using MediatR;
+using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Helpers;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Queries;
@@ -38,6 +39,8 @@ namespace VirtoCommerce.Xapi.Data.Schemas
                 Type = GraphTypeExtensionHelper.GetActualComplexType<NonNullGraphType<ListGraphType<NonNullGraphType<CountryType>>>>(),
                 Resolver = new FuncFieldResolver<object>(async context =>
                 {
+                    //var fields = context.SubFields.Values.GetAllNodesPaths(context).ToArray();
+
                     var result = await _mediator.Send(new GetCountriesQuery());
 
                     return result.Countries;

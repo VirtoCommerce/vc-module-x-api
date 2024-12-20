@@ -1,5 +1,5 @@
 using System;
-//using System.Reactive.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Resolvers;
@@ -33,15 +33,15 @@ namespace VirtoCommerce.Xapi.Data.Schemas
 
         private async ValueTask<IObservable<string>> Subscribe(IResolveFieldContext context)
         {
-            var authorizationResult = await authorizationService.AuthorizeAsync(context.GetCurrentPrincipal(), null, new PermissionAuthorizationRequirement(string.Empty));
+            var principal = context.GetCurrentPrincipal();
+            var authorizationResult = await authorizationService.AuthorizeAsync(principal, null, new PermissionAuthorizationRequirement(string.Empty));
             if (!authorizationResult.Succeeded)
             {
                 throw AuthorizationError.Forbidden();
             }
 
             // reserved for future use
-            //return Observable.Never<string>();
-            return null;
+            return Observable.Never<string>();
         }
     }
 }
