@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Models;
+using static VirtoCommerce.Xapi.Core.ModuleConstants;
 
 namespace VirtoCommerce.Xapi.Core.Extensions;
 
@@ -20,11 +21,9 @@ public static class ApplicationBuilderExtensions
     public static IApplicationBuilder UseSchemaGraphQL<TSchema>(this IApplicationBuilder builder, bool schemaIntrospectionEnabled = true, string schemaPath = null)
         where TSchema : ISchema
     {
-        var graphQlPath = "/graphql";
-        if (!string.IsNullOrEmpty(schemaPath))
-        {
-            graphQlPath = $"{graphQlPath}/{schemaPath}";
-        }
+        var graphQlPath = string.IsNullOrEmpty(schemaPath)
+            ? GraphQlPath
+            : $"{GraphQlPath}/{schemaPath}";
 
         builder.UseGraphQL<TSchema>(path: graphQlPath);
         if (schemaIntrospectionEnabled)

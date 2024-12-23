@@ -10,9 +10,12 @@ using VirtoCommerce.Platform.Security.OpenIddict;
 using VirtoCommerce.Xapi.Core;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure;
+using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Services;
+using VirtoCommerce.Xapi.Data.Security;
 using VirtoCommerce.Xapi.Data.Security.Authorization;
 using VirtoCommerce.Xapi.Data.Services;
+using static VirtoCommerce.Xapi.Core.ModuleConstants;
 using ContactSignInValidator = VirtoCommerce.Xapi.Data.Security.OpenIddict.ContactSignInValidator;
 using DynamicPropertyResolverService = VirtoCommerce.Xapi.Data.Services.DynamicPropertyResolverService;
 using DynamicPropertyUpdaterService = VirtoCommerce.Xapi.Data.Services.DynamicPropertyUpdaterService;
@@ -23,6 +26,14 @@ namespace VirtoCommerce.Xapi.Data.Extensions
 {
     public static class ServiceCollectionExtensions
     {
+        public static IServiceCollection AddAuthenticationFilter(this IServiceCollection serviceCollection, IConfiguration configuration)
+        {
+            serviceCollection.AddOptions<GraphQLOptions>().Bind(configuration.GetSection(ConfigKeys.GraphQl)).ValidateDataAnnotations();
+            serviceCollection.AddScoped<AuthenticationFilterMiddleware>();
+
+            return serviceCollection;
+        }
+
         public static IServiceCollection AddDistributedLockService(this IServiceCollection services, IConfiguration configuration)
         {
             var redisConnectionString = configuration.GetConnectionString("RedisConnectionString");
