@@ -25,7 +25,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
             // combine fragment nodes and other children nodes
             var combinedNodes = GetCombinedChildrenNodes(node, context);
-            if (combinedNodes.Any())
+            if (combinedNodes.Count != 0)
             {
                 var childrenPaths = combinedNodes.Where(n => context != null && ShouldIncludeNode(n, context))
                     .SelectMany(n => n.GetAllTreeNodesPaths(context, path));
