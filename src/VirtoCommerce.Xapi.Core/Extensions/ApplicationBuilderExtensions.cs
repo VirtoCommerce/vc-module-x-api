@@ -37,8 +37,7 @@ public static class ApplicationBuilderExtensions
                 KeepAliveTimeout = TimeSpan.FromSeconds(10),  // pass the desired keep-alive timeout
                 KeepAliveMode = KeepAliveMode.Interval,
             }
-            // set the supported sub-protocols to only include the graphql-ws sub-protocol
-            //options.WebSockets.SupportedWebSocketSubProtocols = ["graphql-ws"];
+            // can set supported sub-protocols to only include desired protocols with options.WebSockets.SupportedWebSocketSubProtocols = ["graphql-ws"];
         });
 
         if (schemaIntrospectionEnabled)
