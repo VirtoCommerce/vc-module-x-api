@@ -49,8 +49,7 @@ namespace VirtoCommerce.Xapi.Web
             serviceCollection.AddGraphQL(bulder =>
             {
                 bulder
-                    //.AddHttpMiddleware<ISchema, GraphQLHttpMiddleware<ISchema>>()
-                    //.AddCustomWebSockets() // disabled for now
+                    //.AddHttpMiddleware<ISchema, GraphQLHttpMiddleware<ISchema>>() // how to do AI telemetry here?
                     .AddNewtonsoftJson()
                     .AddSchema(serviceCollection, typeof(CoreAssemblyMarker), typeof(DataAssemblyMarker))
                     .AddPermissionAuthorization()
@@ -67,6 +66,7 @@ namespace VirtoCommerce.Xapi.Web
                     .AddDataLoader()
                     .AddValidationRule<ContentTypeValidationRule>()
                     .AddWebSocketAuthentication<SubscriptionsUserContextResolver>();
+                //.AddCustomWebSockets() // disabled for now, rewrite later
 
                 if (!IsSchemaIntrospectionEnabled)
                 {

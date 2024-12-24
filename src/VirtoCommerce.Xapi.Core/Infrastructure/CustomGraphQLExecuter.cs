@@ -1,94 +1,127 @@
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Threading;
-//using System.Threading.Tasks;
-//using GraphQL;
-//using GraphQL.Execution;
-//using GraphQL.Server;
-//using GraphQL.Types;
-//using GraphQL.Validation;
-//using Microsoft.ApplicationInsights;
-//using Microsoft.ApplicationInsights.DataContracts;
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Http.Extensions;
-//using Microsoft.Extensions.DependencyInjection;
-//using Microsoft.Extensions.Options;
-//using VirtoCommerce.Platform.Core.Common;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using GraphQL;
+using GraphQL.Server.Transports.AspNetCore;
+using GraphQL.Transport;
+using GraphQL.Types;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-//namespace VirtoCommerce.Xapi.Core.Infrastructure
-//{
-//    /// <summary>
-//    /// Wrapper for the default GraphQL query executor with AppInsights logging
-//    /// </summary>
-//    public sealed class CustomGraphQLExecuter<TSchema> : DefaultGraphQLExecuter<TSchema>
-//        where TSchema : ISchema
-//    {
-//        private readonly TelemetryClient _telemetryClient;
-//        private readonly IHttpContextAccessor _httpContextAccessor;
+namespace VirtoCommerce.Xapi.Core.Infrastructure
+{
+    public class GraphQLHttpMiddlewareWithLogs<TSchema> : GraphQLHttpMiddleware<TSchema>
+        where TSchema : ISchema
+    {
+        private readonly ILogger _logger;
 
-//        public CustomGraphQLExecuter(
-//            TSchema schema,
-//            IDocumentExecuter documentExecuter,
-//            IOptions<GraphQLOptions> options,
-//            IEnumerable<IDocumentExecutionListener> listeners,
-//            IEnumerable<IValidationRule> validationRules,
-//            IHttpContextAccessor httpContextAccessor,
-//            IServiceProvider serviceProvider)
-//            : base(schema, documentExecuter, options, listeners, validationRules)
-//        {
-//            _telemetryClient = serviceProvider.GetService<TelemetryClient>();
-//            _httpContextAccessor = httpContextAccessor;
-//        }
+        public GraphQLHttpMiddlewareWithLogs(
+            RequestDelegate next,
+            IGraphQLTextSerializer serializer,
+            IDocumentExecuter<TSchema> documentExecuter,
+            IServiceScopeFactory serviceScopeFactory,
+            GraphQLHttpMiddlewareOptions options,
+            IHostApplicationLifetime hostApplicationLifetime,
+            ILogger<GraphQLHttpMiddleware<TSchema>> logger)
+            : base(next, serializer, documentExecuter, serviceScopeFactory, options, hostApplicationLifetime)
+        {
+            _logger = logger;
+        }
 
-//        public override async Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken = default)
-//        {
-//            // process Playground schema introspection queries without AppInsights logging
-//            if (_telemetryClient == null ||
-//                operationName == "IntrospectionQuery")
-//            {
-//                return await base.ExecuteAsync(operationName, query, variables, context, requestServices, cancellationToken);
-//            }
+        protected override async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest request, IServiceProvider serviceProvider, IDictionary<string, object> userContext)
+        {
+            var timer = Stopwatch.StartNew();
+            var result = await base.ExecuteRequestAsync(context, request, serviceProvider, userContext);
 
-//            // prepare AppInsights telemetry
-//            var appInsightsOperationName = $"POST graphql/{operationName}";
+            if (result.Errors != null)
+            {
+                _logger.LogError("GraphQL execution completed in {Elapsed} with error(s): {Errors}", timer.Elapsed, result.Errors);
+            }
+            else
+            {
+                _logger.LogTrace("GraphQL execution successfully completed in {Elapsed}", timer.Elapsed);
+            }
 
-//            var requestTelemetry = new RequestTelemetry
-//            {
-//                Name = appInsightsOperationName,
-//                Url = new Uri(_httpContextAccessor.HttpContext.Request.GetEncodedUrl()),
-//            };
-//            //Replace   W3C Trace Context id generation  https://www.w3.org/TR/trace-context/ to unique value
-//            requestTelemetry.Context.Operation.Id = Guid.NewGuid().ToString("N");
-//            requestTelemetry.Context.Operation.Name = appInsightsOperationName;
-//            requestTelemetry.Properties["Type"] = "GraphQL";
+            return result;
+        }
+    }
 
-//            using var operation = _telemetryClient.StartOperation(requestTelemetry);
+    /*
+    /// <summary>
+    /// Wrapper for the default GraphQL query executor with AppInsights logging
+    /// </summary>
+    public sealed class CustomGraphQLExecuter<TSchema> : DefaultGraphQLExecuter<TSchema>
+        where TSchema : ISchema
+    {
+        private readonly TelemetryClient _telemetryClient;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-//            // execute GraphQL query
-//            var result = await base.ExecuteAsync(operationName, query, variables, context, requestServices, cancellationToken);
+        public CustomGraphQLExecuter(
+            TSchema schema,
+            IDocumentExecuter documentExecuter,
+            IOptions<GraphQLOptions> options,
+            IEnumerable<IDocumentExecutionListener> listeners,
+            IEnumerable<IValidationRule> validationRules,
+            IHttpContextAccessor httpContextAccessor,
+            IServiceProvider serviceProvider)
+            : base(schema, documentExecuter, options, listeners, validationRules)
+        {
+            _telemetryClient = serviceProvider.GetService<TelemetryClient>();
+            _httpContextAccessor = httpContextAccessor;
+        }
 
-//            requestTelemetry.Success = result.Errors.IsNullOrEmpty();
+        public override async Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken = default)
+        {
+            // process Playground schema introspection queries without AppInsights logging
+            if (_telemetryClient == null ||
+                operationName == "IntrospectionQuery")
+            {
+                return await base.ExecuteAsync(operationName, query, variables, context, requestServices, cancellationToken);
+            }
 
-//            if (requestTelemetry.Success == false)
-//            {
-//                // pass an error response code to trigger AppInsights operation failure state
-//                requestTelemetry.ResponseCode = "500";
+            // prepare AppInsights telemetry
+            var appInsightsOperationName = $"POST graphql/{operationName}";
 
-//                var exception = result.Errors.Count > 1
-//                    ? new AggregateException(result.Errors)
-//                    : result.Errors.FirstOrDefault() as Exception;
+            var requestTelemetry = new RequestTelemetry
+            {
+                Name = appInsightsOperationName,
+                Url = new Uri(_httpContextAccessor.HttpContext.Request.GetEncodedUrl()),
+            };
+            //Replace   W3C Trace Context id generation  https://www.w3.org/TR/trace-context/ to unique value
+            requestTelemetry.Context.Operation.Id = Guid.NewGuid().ToString("N");
+            requestTelemetry.Context.Operation.Name = appInsightsOperationName;
+            requestTelemetry.Properties["Type"] = "GraphQL";
 
-//                var exceptionTelemetry = new ExceptionTelemetry(exception);
+            using var operation = _telemetryClient.StartOperation(requestTelemetry);
 
-//                // link exception with the operation
-//                exceptionTelemetry.Context.Operation.ParentId = requestTelemetry.Context.Operation.Id;
-//                exceptionTelemetry.Context.Operation.Name = appInsightsOperationName;
+            // execute GraphQL query
+            var result = await base.ExecuteAsync(operationName, query, variables, context, requestServices, cancellationToken);
 
-//                _telemetryClient.TrackException(exceptionTelemetry);
-//            }
+            requestTelemetry.Success = result.Errors.IsNullOrEmpty();
 
-//            return result;
-//        }
-//    }
-//}
+            if (requestTelemetry.Success == false)
+            {
+                // pass an error response code to trigger AppInsights operation failure state
+                requestTelemetry.ResponseCode = "500";
+
+                var exception = result.Errors.Count > 1
+                    ? new AggregateException(result.Errors)
+                    : result.Errors.FirstOrDefault() as Exception;
+
+                var exceptionTelemetry = new ExceptionTelemetry(exception);
+
+                // link exception with the operation
+                exceptionTelemetry.Context.Operation.ParentId = requestTelemetry.Context.Operation.Id;
+                exceptionTelemetry.Context.Operation.Name = appInsightsOperationName;
+
+                _telemetryClient.TrackException(exceptionTelemetry);
+            }
+
+            return result;
+        }
+    }
+    */
+}

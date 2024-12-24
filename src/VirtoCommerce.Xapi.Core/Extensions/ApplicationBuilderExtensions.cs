@@ -1,3 +1,6 @@
+using System;
+using GraphQL.Server.Transports.AspNetCore;
+using GraphQL.Server.Transports.AspNetCore.WebSockets;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
@@ -26,7 +29,18 @@ public static class ApplicationBuilderExtensions
             graphQlPath = $"{graphQlPath}/{schemaPath}";
         }
 
-        builder.UseGraphQL<TSchema>(path: graphQlPath);
+        builder.UseGraphQL<GraphQLHttpMiddlewareWithLogs<TSchema>>(path: graphQlPath, new GraphQLHttpMiddlewareOptions()
+        {
+            // configure keep-alive packets
+            WebSockets = new GraphQLWebSocketOptions()
+            {
+                KeepAliveTimeout = TimeSpan.FromSeconds(10),  // pass the desired keep-alive timeout
+                KeepAliveMode = KeepAliveMode.Interval,
+            }
+            // set the supported sub-protocols to only include the graphql-ws sub-protocol
+            //options.WebSockets.SupportedWebSocketSubProtocols = ["graphql-ws"];
+        });
+
         if (schemaIntrospectionEnabled)
         {
             var playgroundPath = "/ui/playground";
@@ -35,14 +49,41 @@ public static class ApplicationBuilderExtensions
                 playgroundPath = $"{playgroundPath}/{schemaPath}";
             }
 
-
 #pragma warning disable CS0618 // Type or member is obsolete
+            // UI Playground
             builder.UseGraphQLPlayground(playgroundPath,
                 new PlaygroundOptions
                 {
                     GraphQLEndPoint = graphQlPath,
+                    SubscriptionsEndPoint = graphQlPath,
                 });
 #pragma warning restore CS0618 // Type or member is obsolete
+
+            // GraphiQL
+            var graphiqlPath = "/ui/graphiql";
+            builder.UseGraphQLGraphiQL(path: graphiqlPath,
+                new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
+                {
+                    GraphQLEndPoint = graphQlPath,         // url of GraphQL endpoint
+                    SubscriptionsEndPoint = graphQlPath,   // url of GraphQL endpoint
+                });
+
+            // Altair
+            var altairPath = "/ui/altair";
+            builder.UseGraphQLAltair(path: altairPath,
+                new GraphQL.Server.Ui.Altair.AltairOptions
+                {
+                    GraphQLEndPoint = graphQlPath,         // url of GraphQL endpoint
+                    SubscriptionsEndPoint = graphQlPath,   // url of GraphQL endpoint
+                });
+
+            // Voyager
+            var voyagerPath = "/ui/voyager";
+            builder.UseGraphQLVoyager(voyagerPath,
+                new GraphQL.Server.Ui.Voyager.VoyagerOptions
+                {
+                    GraphQLEndPoint = graphQlPath,         // url of GraphQL endpoint
+                });
         }
 
         return builder;
