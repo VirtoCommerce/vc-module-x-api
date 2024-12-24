@@ -17,7 +17,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
 
         public Task<bool> AllowType(IGraphType type) => _isAllowed;
 
-        public Task<bool> AllowDirective(DirectiveGraphType directive) => _isAllowed;
+        public Task<bool> AllowDirective(Directive directive) => _isAllowed;
 
         public Task<bool> AllowArgument(IFieldType field, QueryArgument argument) => _isAllowed;
 

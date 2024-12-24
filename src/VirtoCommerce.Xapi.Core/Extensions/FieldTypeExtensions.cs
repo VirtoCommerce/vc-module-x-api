@@ -52,7 +52,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             IDistributedLockService distributedLockService,
             Func<IResolveFieldContext<TSourceType>, Task<TReturnType>> resolve)
         {
-            async Task<TReturnType> ResolveWrapperAsync(IResolveFieldContext<TSourceType> context)
+            async ValueTask<TReturnType> ResolveWrapperAsync(IResolveFieldContext<TSourceType> context)
             {
                 // Find resource key in context
                 var resourceKey = GetResourceKey(context, resourceKeyPrefix, resourceKeyProperty);
@@ -62,7 +62,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                     : await distributedLockService.ExecuteAsync(resourceKey, async () => await resolve(context));
             }
 
-            fieldBuilder.FieldType.Resolver = new AsyncFieldResolver<TSourceType, TReturnType>(ResolveWrapperAsync);
+            fieldBuilder.FieldType.Resolver = new FuncFieldResolver<TSourceType, TReturnType>(ResolveWrapperAsync);
 
             return fieldBuilder;
         }

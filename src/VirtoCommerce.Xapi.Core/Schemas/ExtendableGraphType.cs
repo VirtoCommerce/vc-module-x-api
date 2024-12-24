@@ -12,6 +12,48 @@ namespace VirtoCommerce.Xapi.Core.Schemas
 {
     public class ExtendableGraphType<TSourceType> : ObjectGraphType<TSourceType>
     {
+        public new FieldType Field<TGraphType>(
+            string name,
+            string description = null,
+            QueryArguments arguments = null,
+            Func<IResolveFieldContext<TSourceType>, object> resolve = null,
+            string deprecationReason = null)
+            where TGraphType : IGraphType
+        {
+            return AddField(new FieldType
+            {
+                Name = name,
+                Description = description,
+                DeprecationReason = deprecationReason,
+                Type = typeof(TGraphType),
+                Arguments = arguments,
+                Resolver = resolve != null
+                    ? new FuncFieldResolver<TSourceType, object>(resolve)
+                    : null
+            });
+        }
+
+        public new FieldType FieldAsync<TGraphType>(
+            string name,
+            string description = null,
+            QueryArguments arguments = null,
+            Func<IResolveFieldContext<TSourceType>, Task<object>> resolve = null,
+            string deprecationReason = null)
+            where TGraphType : IGraphType
+        {
+            return AddField(new FieldType
+            {
+                Name = name,
+                Description = description,
+                DeprecationReason = deprecationReason,
+                Type = typeof(TGraphType),
+                Arguments = arguments,
+                Resolver = resolve != null
+                    ? new FuncFieldResolver<TSourceType, object>(context => new ValueTask<object>(resolve(context)))
+                    : null
+            });
+        }
+
         public FieldType ExtendableField<TGraphType>(
             string name,
             string description = null,
@@ -25,7 +67,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                 Name = name,
                 Description = description,
                 DeprecationReason = deprecationReason,
-                Type = GraphTypeExtenstionHelper.GetActualComplexType<TGraphType>(),
+                Type = GraphTypeExtensionHelper.GetActualComplexType<TGraphType>(),
                 Arguments = arguments,
                 Resolver = resolve != null
                     ? new FuncFieldResolver<TSourceType, object>(context =>
@@ -50,13 +92,13 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                 Name = name,
                 Description = description,
                 DeprecationReason = deprecationReason,
-                Type = GraphTypeExtenstionHelper.GetActualComplexType<TGraphType>(),
+                Type = GraphTypeExtensionHelper.GetActualComplexType<TGraphType>(),
                 Arguments = arguments,
                 Resolver = resolve != null
-                    ? new FuncFieldResolver<TSourceType, Task<object>>(context =>
+                    ? new FuncFieldResolver<TSourceType, object>(context =>
                     {
                         context.CopyArgumentsToUserContext();
-                        return resolve(context);
+                        return new ValueTask<object>(resolve(context));
                     })
                     : null
             });

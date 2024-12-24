@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Types;
+using VirtoCommerce.Xapi.Core.Schemas;
 using Xunit;
 
 namespace VirtoCommerce.Xapi.Tests
@@ -13,7 +14,7 @@ namespace VirtoCommerce.Xapi.Tests
         {
             public string Name { get; set; }
         }
-        public class FooType : ObjectGraphType<Foo>
+        public class FooType : ExtendableGraphType<Foo>
         {
             public FooType()
             {
@@ -26,7 +27,7 @@ namespace VirtoCommerce.Xapi.Tests
         public class FooType2 : FooType
         {
         }
-        public class RootQuery : ObjectGraphType<object>
+        public class RootQuery : ExtendableGraphType<object>
         {
             public RootQuery()
             {

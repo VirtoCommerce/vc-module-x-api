@@ -1,9 +1,8 @@
-using GraphQL.Types;
 using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
-    public class KeyValueType : ObjectGraphType<KeyValue>
+    public class KeyValueType : ExtendableGraphType<KeyValue>
     {
         public KeyValueType()
         {

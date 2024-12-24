@@ -23,8 +23,7 @@ public abstract class SearchQueryBuilder<TQuery, TResult, TItem, TItemGraphType>
 
     protected override FieldType GetFieldType()
     {
-        var builder = GraphTypeExtenstionHelper.CreateConnection<TItemGraphType, object>()
-            .Name(Name)
+        var builder = GraphTypeExtensionHelper.CreateConnection<TItemGraphType, object>(Name)
             .PageSize(DefaultPageSize);
 
         ConfigureArguments(builder.FieldType);

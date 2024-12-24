@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
-using GraphQL.Language.AST;
+using GraphQLParser.AST;
 using VirtoCommerce.Xapi.Core.Schemas.ScalarTypes;
 using Xunit;
 
@@ -28,35 +28,35 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
         {
             //                 IValue                  Value                         Expected result     Expected result type
             // Int
-            new object[] { new IntValue(               int.MinValue),                int.MinValue,       typeof(int)     },
-            new object[] { new IntValue(               0),                           0,                  typeof(int)     },
-            new object[] { new IntValue(               int.MaxValue),                int.MaxValue,       typeof(int)     },
+            new object[] { new GraphQLIntValue(               int.MinValue),                int.MinValue,       typeof(int)     },
+            new object[] { new GraphQLIntValue(               0),                           0,                  typeof(int)     },
+            new object[] { new GraphQLIntValue(               int.MaxValue),                int.MaxValue,       typeof(int)     },
             // Long
-            new object[] { new LongValue(              long.MinValue),      (decimal)long.MinValue,      typeof(decimal) },
-            new object[] { new LongValue(              0L),                          0,                  typeof(int)     },
-            new object[] { new LongValue(              long.MaxValue),      (decimal)long.MaxValue,      typeof(decimal) },
+            new object[] { new GraphQLIntValue(              long.MinValue),      (decimal)long.MinValue,       typeof(decimal) },
+            new object[] { new GraphQLIntValue(              0L),                          0,                   typeof(int)     },
+            new object[] { new GraphQLIntValue(              long.MaxValue),      (decimal)long.MaxValue,       typeof(decimal) },
             // BigInt
-            new object[] { new BigIntValue((BigInteger)decimal.MinValue),            decimal.MinValue,   typeof(decimal) },
-            new object[] { new BigIntValue(            0),                           0,                  typeof(int)     },
-            new object[] { new BigIntValue((BigInteger)decimal.MaxValue),            decimal.MaxValue,   typeof(decimal) },
+            new object[] { new GraphQLIntValue((BigInteger)decimal.MinValue),            decimal.MinValue,      typeof(decimal) },
+            new object[] { new GraphQLIntValue(            0),                           0,                     typeof(int)     },
+            new object[] { new GraphQLIntValue((BigInteger)decimal.MaxValue),            decimal.MaxValue,      typeof(decimal) },
             // Float
-            new object[] { new FloatValue(             _decimalMinAsDouble), (decimal)_decimalMinAsDouble, typeof(decimal) },
-            new object[] { new FloatValue(             0d),                          0m,                 typeof(decimal) },
-            new object[] { new FloatValue(             _decimalMaxAsDouble), (decimal)_decimalMaxAsDouble, typeof(decimal) },
+            new object[] { new GraphQLFloatValue(             _decimalMinAsDouble), (decimal)_decimalMinAsDouble, typeof(decimal) },
+            new object[] { new GraphQLFloatValue(             0d),                          0m,                 typeof(decimal) },
+            new object[] { new GraphQLFloatValue(             _decimalMaxAsDouble), (decimal)_decimalMaxAsDouble, typeof(decimal) },
             // Decimal
-            new object[] { new DecimalValue(           decimal.MinValue),            decimal.MinValue,   typeof(decimal) },
-            new object[] { new DecimalValue(           0m),                          0m,                 typeof(decimal) },
-            new object[] { new DecimalValue(           decimal.MaxValue),            decimal.MaxValue,   typeof(decimal) },
+            new object[] { new GraphQLFloatValue(           decimal.MinValue),            decimal.MinValue,   typeof(decimal) },
+            new object[] { new GraphQLFloatValue(           0m),                          0m,                 typeof(decimal) },
+            new object[] { new GraphQLFloatValue(           decimal.MaxValue),            decimal.MaxValue,   typeof(decimal) },
             // Boolean
-            new object[] { new BooleanValue(           false),                       false,              typeof(bool)    },
-            new object[] { new BooleanValue(           true),                        true,               typeof(bool)    },
+            new object[] { new GraphQLFalseBooleanValue(),                              false,              typeof(bool)    },
+            new object[] { new GraphQLTrueBooleanValue(),                               true,               typeof(bool)    },
             // DateTime
-            new object[] { new StringValue(            _dateTimeIso8601UtcString),    _dateTimeUtc,        typeof(DateTime) },
+            new object[] { new GraphQLStringValue(            _dateTimeIso8601UtcString),    _dateTimeUtc,        typeof(DateTime) },
             // String
-            new object[] { new StringValue(            string.Empty),                string.Empty,       typeof(string)  },
-            new object[] { new StringValue(            "test"),                      "test",             typeof(string)  },
+            new object[] { new GraphQLStringValue(            string.Empty),                string.Empty,       typeof(string)  },
+            new object[] { new GraphQLStringValue(            "test"),                      "test",             typeof(string)  },
             // Null
-            new object[] { new NullValue(),                                          null,               null            },
+            new object[] { new GraphQLNullValue(),                                          null,               null            },
         };
 
         public static IEnumerable<object[]> CanParseLiteralInvalidData => ParseLiteralInvalidData.Select(x => new[] { x.First() }).ToArray();
@@ -64,12 +64,11 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
         public static IEnumerable<object[]> ParseLiteralInvalidData => new List<object[]>
         {
             //                 IValue                  Value                                            Expected exception type
-            new object[] { new ListValue(           new[] { new StringValue("test") }),                 typeof(InvalidOperationException) },
-            new object[] { new ObjectValue(new[] { new ObjectField("test", new StringValue("test")) }), typeof(InvalidOperationException) },
-            new object[] { new BigIntValue((BigInteger)decimal.MinValue - BigInteger.One),              typeof(OverflowException)         },
-            new object[] { new BigIntValue((BigInteger)decimal.MaxValue + BigInteger.One),              typeof(OverflowException)         },
-            new object[] { new FloatValue(     (double)decimal.MinValue),                               typeof(OverflowException)         },
-            new object[] { new FloatValue(     (double)decimal.MaxValue),                               typeof(OverflowException)         }
+            new object[] { new GraphQLListValue() { Values = [new GraphQLStringValue("test")] },                    typeof(InvalidOperationException) },
+            new object[] { new GraphQLObjectValue()
+                { Fields = [new GraphQLObjectField(new GraphQLName("test"), new GraphQLStringValue("test"))] },     typeof(InvalidOperationException) },
+            new object[] { new GraphQLIntValue((BigInteger)decimal.MinValue - BigInteger.One),                      typeof(OverflowException)         },
+            new object[] { new GraphQLIntValue((BigInteger)decimal.MaxValue + BigInteger.One),                      typeof(OverflowException)         },
         };
 
         public static IEnumerable<object[]> CanParseValueValidData => ParseValueValidData.Select(x => new[] { x.First() }).ToArray();
@@ -141,7 +140,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
 
         [MemberData(nameof(CanParseLiteralValidData))]
         [Theory]
-        public void CanParseLiteral_ValidValues_ReturnsTrue(IValue value)
+        public void CanParseLiteral_ValidValues_ReturnsTrue(GraphQLValue value)
         {
             // Act
             var result = _anyValueGraphType.CanParseLiteral(value);
@@ -152,7 +151,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
 
         [MemberData(nameof(CanParseLiteralInvalidData))]
         [Theory]
-        public void CanParseLiteral_InvalidValues_ReturnsFalse(IValue value)
+        public void CanParseLiteral_InvalidValues_ReturnsFalse(GraphQLValue value)
         {
             // Act
             var result = _anyValueGraphType.CanParseLiteral(value);
@@ -163,7 +162,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
 
         [MemberData(nameof(ParseLiteralValidData))]
         [Theory]
-        public void ParseLiteral_ValidValues_Parsed(IValue value, object expectedResult, Type expectedResultType)
+        public void ParseLiteral_ValidValues_Parsed(GraphQLValue value, object expectedResult, Type expectedResultType)
         {
             // Act
             var result = _anyValueGraphType.ParseLiteral(value);
@@ -175,7 +174,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
 
         [MemberData(nameof(ParseLiteralInvalidData))]
         [Theory]
-        public void ParseLiteral_InvalidValues_ThrowException(IValue value, Type exceptionType)
+        public void ParseLiteral_InvalidValues_ThrowException(GraphQLValue value, Type exceptionType)
         {
             // Act
             var action = () => _anyValueGraphType.ParseLiteral(value);

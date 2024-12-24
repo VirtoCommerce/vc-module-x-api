@@ -1,9 +1,8 @@
-using GraphQL.Types;
 using VirtoCommerce.CoreModule.Core.Seo;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
-    public class SeoInfoType : ObjectGraphType<SeoInfo>
+    public class SeoInfoType : ExtendableGraphType<SeoInfo>
     {
         public SeoInfoType()
         {

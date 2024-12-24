@@ -1,9 +1,8 @@
-using GraphQL.Types;
 using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
-    public class CountryRegionType : ObjectGraphType<CountryRegion>
+    public class CountryRegionType : ExtendableGraphType<CountryRegion>
     {
         public CountryRegionType()
         {
