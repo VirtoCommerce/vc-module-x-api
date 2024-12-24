@@ -1,22 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Transport;
 using GraphQL.Types;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure
 {
     public class GraphQLHttpMiddlewareWithLogs<TSchema> : GraphQLHttpMiddleware<TSchema>
         where TSchema : ISchema
     {
-        private readonly ILogger _logger;
+        private readonly TelemetryClient _telemetryClient;
 
         public GraphQLHttpMiddlewareWithLogs(
             RequestDelegate next,
@@ -25,81 +28,37 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             IServiceScopeFactory serviceScopeFactory,
             GraphQLHttpMiddlewareOptions options,
             IHostApplicationLifetime hostApplicationLifetime,
-            ILogger<GraphQLHttpMiddleware<TSchema>> logger)
+            TelemetryClient telemetryClient)
             : base(next, serializer, documentExecuter, serviceScopeFactory, options, hostApplicationLifetime)
         {
-            _logger = logger;
+            _telemetryClient = telemetryClient;
         }
 
         protected override async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest request, IServiceProvider serviceProvider, IDictionary<string, object> userContext)
         {
-            var timer = Stopwatch.StartNew();
-            var result = await base.ExecuteRequestAsync(context, request, serviceProvider, userContext);
-
-            if (result.Errors != null)
-            {
-                _logger.LogError("GraphQL execution completed in {Elapsed} with error(s): {Errors}", timer.Elapsed, result.Errors);
-            }
-            else
-            {
-                _logger.LogTrace("GraphQL execution successfully completed in {Elapsed}", timer.Elapsed);
-            }
-
-            return result;
-        }
-    }
-
-    /*
-    /// <summary>
-    /// Wrapper for the default GraphQL query executor with AppInsights logging
-    /// </summary>
-    public sealed class CustomGraphQLExecuter<TSchema> : DefaultGraphQLExecuter<TSchema>
-        where TSchema : ISchema
-    {
-        private readonly TelemetryClient _telemetryClient;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public CustomGraphQLExecuter(
-            TSchema schema,
-            IDocumentExecuter documentExecuter,
-            IOptions<GraphQLOptions> options,
-            IEnumerable<IDocumentExecutionListener> listeners,
-            IEnumerable<IValidationRule> validationRules,
-            IHttpContextAccessor httpContextAccessor,
-            IServiceProvider serviceProvider)
-            : base(schema, documentExecuter, options, listeners, validationRules)
-        {
-            _telemetryClient = serviceProvider.GetService<TelemetryClient>();
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        public override async Task<ExecutionResult> ExecuteAsync(string operationName, string query, Inputs variables, IDictionary<string, object> context, IServiceProvider requestServices, CancellationToken cancellationToken = default)
-        {
             // process Playground schema introspection queries without AppInsights logging
-            if (_telemetryClient == null ||
-                operationName == "IntrospectionQuery")
+            if (_telemetryClient == null || request.OperationName == "IntrospectionQuery")
             {
-                return await base.ExecuteAsync(operationName, query, variables, context, requestServices, cancellationToken);
+                return await base.ExecuteRequestAsync(context, request, serviceProvider, userContext);
             }
 
             // prepare AppInsights telemetry
-            var appInsightsOperationName = $"POST graphql/{operationName}";
+            var appInsightsOperationName = $"POST graphql/{request.OperationName}";
 
             var requestTelemetry = new RequestTelemetry
             {
                 Name = appInsightsOperationName,
-                Url = new Uri(_httpContextAccessor.HttpContext.Request.GetEncodedUrl()),
+                Url = new Uri(context.Request.GetEncodedUrl()),
             };
-            //Replace   W3C Trace Context id generation  https://www.w3.org/TR/trace-context/ to unique value
+
+            //Replace W3C Trace Context id generation https://www.w3.org/TR/trace-context/ to unique value
             requestTelemetry.Context.Operation.Id = Guid.NewGuid().ToString("N");
             requestTelemetry.Context.Operation.Name = appInsightsOperationName;
             requestTelemetry.Properties["Type"] = "GraphQL";
-
             using var operation = _telemetryClient.StartOperation(requestTelemetry);
 
             // execute GraphQL query
-            var result = await base.ExecuteAsync(operationName, query, variables, context, requestServices, cancellationToken);
-
+            var result = await base.ExecuteRequestAsync(context, request, serviceProvider, userContext);
             requestTelemetry.Success = result.Errors.IsNullOrEmpty();
 
             if (requestTelemetry.Success == false)
@@ -123,5 +82,4 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             return result;
         }
     }
-    */
 }

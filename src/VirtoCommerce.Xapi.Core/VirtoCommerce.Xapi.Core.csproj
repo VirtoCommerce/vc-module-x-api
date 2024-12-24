@@ -25,7 +25,6 @@
     <PackageReference Include="GraphQL.Server.Ui.Playground" Version="8.2.0" />
     <PackageReference Include="GraphQL.Server.Ui.GraphiQL" Version="8.2.0" />
     <PackageReference Include="GraphQL.Server.Ui.Altair" Version="8.2.0" />
-    <PackageReference Include="GraphQL.Server.Ui.Voyager" Version="8.2.0" />
 
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />

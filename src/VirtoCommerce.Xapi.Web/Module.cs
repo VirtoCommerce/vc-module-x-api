@@ -38,9 +38,6 @@ namespace VirtoCommerce.Xapi.Web
         {
             serviceCollection.AddApplicationInsightsTelemetryProcessor<IgnorePlainCoreXapiGraphQLTelemetryProcessor>();
 
-            //serviceCollection.AddTransient(typeof(IGraphQLExecuter<>), typeof(CustomGraphQLExecuter<>)); // need to check how to add AppInsight telemetry later
-            //serviceCollection.AddSingleton<IDocumentExecuter, SubscriptionDocumentExecuter>(); // removed, need to check what to do with subscriptions later
-
 #pragma warning disable CS0618 // Type or member is obsolete
             GlobalSwitches.UseLegacyTypeNaming = true;
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -49,7 +46,6 @@ namespace VirtoCommerce.Xapi.Web
             serviceCollection.AddGraphQL(bulder =>
             {
                 bulder
-                    //.AddHttpMiddleware<ISchema, GraphQLHttpMiddleware<ISchema>>() // how to do AI telemetry here?
                     .AddNewtonsoftJson()
                     .AddSchema(serviceCollection, typeof(CoreAssemblyMarker), typeof(DataAssemblyMarker))
                     .AddPermissionAuthorization()
@@ -66,7 +62,6 @@ namespace VirtoCommerce.Xapi.Web
                     .AddDataLoader()
                     .AddValidationRule<ContentTypeValidationRule>()
                     .AddWebSocketAuthentication<SubscriptionsUserContextResolver>();
-                //.AddCustomWebSockets() // disabled for now, rewrite later
 
                 if (!IsSchemaIntrospectionEnabled)
                 {
@@ -76,28 +71,6 @@ namespace VirtoCommerce.Xapi.Web
                 }
             });
 
-            //var graphQlBuilder = serviceCollection.AddGraphQL(options =>
-            //{
-            //    options.EnableMetrics = false;
-            //})
-            //.AddNewtonsoftJson(deserializerSettings => { }, serializerSettings => { })
-            //.AddErrorInfoProvider(options =>
-            //{
-            //    options.ExposeExtensions = true;
-            //    options.ExposeExceptionStackTrace = true;
-            //})
-            //.AddUserContextBuilder(async context => await context.BuildGraphQLUserContextAsync())
-            //.AddRelayGraphTypes() // removed
-            //.AddCustomWebSockets()
-            //.AddDataLoader()
-            //.AddCustomValidationRule<ContentTypeValidationRule>();
-
-            //if (!IsSchemaIntrospectionEnabled)
-            //{
-            //    graphQlBuilder.ReplaceValidationRule<KnownTypeNames, CustomKnownTypeNames>();
-            //    graphQlBuilder.ReplaceValidationRule<FieldsOnCorrectType, CustomFieldsOnCorrectType>();
-            //    graphQlBuilder.ReplaceValidationRule<KnownArgumentNames, CustomKnownArgumentNames>();
-            //}
 
             //Register xApi boundaries
             serviceCollection.AddXCore(Configuration);
@@ -116,9 +89,6 @@ namespace VirtoCommerce.Xapi.Web
             // disable web sockets/subscription for now
             // this is required for websockets support
             appBuilder.UseWebSockets();
-
-            // use websocket middleware for ISchema at default path /graphql
-            //appBuilder.UseGraphQLWebSockets<ISchema>();
 
             // add http for Schema at default url /graphql
             // use GraphQL Playground at default URL /ui/playground

@@ -53,20 +53,5 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
             return builder;
         }
-
-        ///// <summary>
-        ///// Add required services for GraphQL web sockets with custom IWebSocketConnectionFactory implementation
-        ///// </summary>
-        //public static IGraphQLBuilder AddCustomWebSockets(this IGraphQLBuilder builder)
-        //{
-        //    builder.Services
-        //        .Register(typeof(IWebSocketConnectionFactory<>), typeof(CustomWebSocketConnectionFactory<>), ServiceLifetime.Transient)
-        //        .Register<IOperationMessageListener, LogMessagesListener>(ServiceLifetime.Transient)
-        //        .Register<IOperationMessageListener, ProtocolMessageListener>(ServiceLifetime.Transient)
-        //        .Register<IOperationMessageListener, KeepAliveResolver>(ServiceLifetime.Transient)
-        //        .Register<IOperationMessageListener, SubscriptionsUserContextResolver>(ServiceLifetime.Transient);
-
-        //    return builder;
-        //}
     }
 }

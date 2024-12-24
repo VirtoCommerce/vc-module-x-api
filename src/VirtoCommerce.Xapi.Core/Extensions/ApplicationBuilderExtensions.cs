@@ -76,14 +76,6 @@ public static class ApplicationBuilderExtensions
                     GraphQLEndPoint = graphQlPath,         // url of GraphQL endpoint
                     SubscriptionsEndPoint = graphQlPath,   // url of GraphQL endpoint
                 });
-
-            // Voyager
-            var voyagerPath = "/ui/voyager";
-            builder.UseGraphQLVoyager(voyagerPath,
-                new GraphQL.Server.Ui.Voyager.VoyagerOptions
-                {
-                    GraphQLEndPoint = graphQlPath,         // url of GraphQL endpoint
-                });
         }
 
         return builder;
