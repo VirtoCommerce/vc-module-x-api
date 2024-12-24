@@ -21,7 +21,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
 
             if (contentType == "application/json" ||
                 contentType == "application/graphql" ||
-                (contentType == null && _httpContextAccessor?.HttpContext?.WebSockets?.IsWebSocketRequest == true))
+                (contentType == null && _httpContextAccessor.HttpContext?.WebSockets?.IsWebSocketRequest == true))
             {
                 return default;
             }

@@ -44,9 +44,6 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             services.AddTransient<IExternalSignInValidator, ExternalSignInValidator>();
             services.AddTransient<IExternalSignInUserBuilder, ExternalSignInUserBuilder>();
 
-            // provider for external fields
-            services.AddSingleton<IExternalFieldProvider, ExternalFieldProvider>();
-
             services.AddTransient<ILoadUserToEvalContextService, LoadUserToEvalContextService>();
             services.AddDistributedLockService(configuration);
 

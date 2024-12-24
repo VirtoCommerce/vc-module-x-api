@@ -40,7 +40,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             }
         }
 
-        private static IEnumerable<ASTNode> GetCombinedChildrenNodes(ASTNode node, IResolveFieldContext context)
+        private static List<ASTNode> GetCombinedChildrenNodes(ASTNode node, IResolveFieldContext context)
         {
             var combinedNodes = new List<ASTNode>();
 
