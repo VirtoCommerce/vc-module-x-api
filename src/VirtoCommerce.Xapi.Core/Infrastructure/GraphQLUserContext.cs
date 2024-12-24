@@ -3,7 +3,7 @@ using System.Security.Claims;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure
 {
-    public class GraphQLUserContext : Dictionary<string, object> //, IProvideClaimsPrincipal
+    public class GraphQLUserContext : Dictionary<string, object>
     {
         public GraphQLUserContext(ClaimsPrincipal user)
         {

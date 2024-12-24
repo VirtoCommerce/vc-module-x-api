@@ -39,10 +39,11 @@ namespace VirtoCommerce.Xapi.Web
             serviceCollection.AddApplicationInsightsTelemetryProcessor<IgnorePlainCoreXapiGraphQLTelemetryProcessor>();
 
 #pragma warning disable CS0618 // Type or member is obsolete
+            // Use legacy type naming for backward compatibility
             GlobalSwitches.UseLegacyTypeNaming = true;
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            //Register .NET GraphQL server
+            // Register .NET GraphQL server
             serviceCollection.AddGraphQL(bulder =>
             {
                 bulder
@@ -86,7 +87,6 @@ namespace VirtoCommerce.Xapi.Web
         {
             var serviceProvider = appBuilder.ApplicationServices;
 
-            // disable web sockets/subscription for now
             // this is required for websockets support
             appBuilder.UseWebSockets();
 
