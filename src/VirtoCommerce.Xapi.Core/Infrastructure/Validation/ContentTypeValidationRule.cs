@@ -17,11 +17,11 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
 
         public virtual ValueTask<INodeVisitor> ValidateAsync(ValidationContext context)
         {
-            var contentType = _httpContextAccessor?.HttpContext?.Request?.ContentType;
+            var contentType = HttpContext?.Request?.ContentType;
 
             if (contentType == "application/json" ||
                 contentType == "application/graphql" ||
-                (contentType == null && _httpContextAccessor.HttpContext?.WebSockets?.IsWebSocketRequest == true))
+                (contentType == null && IsWebSocketRequest))
             {
                 return default;
             }
@@ -29,5 +29,9 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
             context.ReportError(new ValidationError(string.Empty, string.Empty, "Non-supported media type."));
             return default;
         }
+
+        private HttpContext HttpContext => _httpContextAccessor?.HttpContext;
+
+        private bool IsWebSocketRequest => HttpContext?.WebSockets?.IsWebSocketRequest == true;
     }
 }
