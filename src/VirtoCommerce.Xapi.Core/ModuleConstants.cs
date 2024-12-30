@@ -5,8 +5,11 @@ namespace VirtoCommerce.Xapi.Core
 {
     public static class ModuleConstants
     {
+        public static string GraphQlPath => "/graphql";
+
         public static class ConfigKeys
         {
+            public const string GraphQl = "VirtoCommerce:GraphQL";
             public const string GraphQlPlayground = "VirtoCommerce:GraphQLPlayground";
             public const string GraphQlWebSocket = "VirtoCommerce:GraphQLWebSocket";
             public const string Stores = "VirtoCommerce:Stores";
