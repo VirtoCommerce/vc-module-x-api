@@ -44,6 +44,16 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             return builder;
         }
 
+        public static IGraphQLBuilder AddSchema(this IGraphQLBuilder builder, IServiceCollection services, Type assemblyMarker)
+        {
+            builder.AddGraphTypes(assemblyMarker.Assembly);
+            services.AddMediatR(assemblyMarker);
+            services.AddAutoMapper(assemblyMarker);
+            services.AddSchemaBuilders(assemblyMarker);
+
+            return builder;
+        }
+
         public static IGraphQLBuilder AddSchema(this IGraphQLBuilder builder, IServiceCollection services, Type coreAssemblyMarker, Type dataAssemblyMarker)
         {
             builder.AddGraphTypes(coreAssemblyMarker.Assembly);
