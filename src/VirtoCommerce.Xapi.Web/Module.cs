@@ -81,11 +81,15 @@ namespace VirtoCommerce.Xapi.Web
             serviceCollection.Configure<GraphQLPlaygroundOptions>(Configuration.GetSection(ConfigKeys.GraphQlPlayground));
             serviceCollection.Configure<GraphQLWebSocketOptions>(Configuration.GetSection(ConfigKeys.GraphQlWebSocket));
             serviceCollection.Configure<StoresOptions>(Configuration.GetSection(ConfigKeys.Stores));
+
+            serviceCollection.AddAuthenticationFilter(Configuration);
         }
 
         public void PostInitialize(IApplicationBuilder appBuilder)
         {
             var serviceProvider = appBuilder.ApplicationServices;
+
+            appBuilder.UseAuthenticationFilter();
 
             // this is required for websockets support
             appBuilder.UseWebSockets();
