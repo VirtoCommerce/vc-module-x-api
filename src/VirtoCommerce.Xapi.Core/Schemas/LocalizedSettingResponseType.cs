@@ -10,7 +10,7 @@ public class LocalizedSettingResponseType : ExtendableGraphType<LocalizedSetting
 {
     public LocalizedSettingResponseType()
     {
-        Field<ListGraphType<KeyValueType>>(nameof(LocalizedSettingResponse.Items).ToCamelCase(), resolve: context =>
-            context.Source.Items?.Select(x => new KeyValue { Key = x.Key, Value = x.Value }));
+        Field<ListGraphType<KeyValueType>>(nameof(LocalizedSettingResponse.Items).ToCamelCase())
+            .Resolve(context => context.Source.Items?.Select(x => new KeyValue { Key = x.Key, Value = x.Value }));
     }
 }

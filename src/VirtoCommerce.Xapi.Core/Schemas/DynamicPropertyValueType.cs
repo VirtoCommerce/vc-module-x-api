@@ -17,20 +17,20 @@ namespace VirtoCommerce.Xapi.Core.Schemas
         {
             _dynamicPropertyDictionaryItemsService = dynamicPropertyDictionaryItemsService;
 
-            Field<StringGraphType>("name",
-                "Property name",
-                resolve: context => context.Source.PropertyName);
-            Field<NonNullGraphType<StringGraphType>>(nameof(DynamicPropertyObjectValue.ValueType),
-                "Value type",
-                resolve: context => context.Source.ValueType.ToString());
-            Field<NonNullGraphType<DynamicPropertyValueTypeEnum>>("dynamicPropertyValueType",
-                "Value type",
-                resolve: context => context.Source.ValueType);
-            Field<DynamicPropertyValueGraphType>(nameof(DynamicPropertyObjectValue.Value),
-                "Property value",
-                resolve: context => context.Source.Value);
+            Field<StringGraphType>("name")
+                .Description("Property name")
+                .Resolve(context => context.Source.PropertyName);
+            Field<NonNullGraphType<StringGraphType>>(nameof(DynamicPropertyObjectValue.ValueType))
+                .Description("Value type")
+                .Resolve(context => context.Source.ValueType.ToString());
+            Field<NonNullGraphType<DynamicPropertyValueTypeEnum>>("dynamicPropertyValueType")
+                .Description("Value type")
+                .Resolve(context => context.Source.ValueType);
+            Field<DynamicPropertyValueGraphType>(nameof(DynamicPropertyObjectValue.Value))
+                .Description("Property value")
+                .Resolve(context => context.Source.Value);
 
-            FieldAsync<DictionaryItemType>("dictionaryItem", "Associated dictionary item", resolve: async context =>
+            Field<DictionaryItemType>("dictionaryItem").Description("Associated dictionary item").ResolveAsync(async context =>
             {
                 var id = context.Source.ValueId;
                 if (id.IsNullOrEmpty())
@@ -38,12 +38,12 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                     return null;
                 }
 
-                var items = await _dynamicPropertyDictionaryItemsService.GetDynamicPropertyDictionaryItemsAsync(new[] { id });
+                var items = await _dynamicPropertyDictionaryItemsService.GetDynamicPropertyDictionaryItemsAsync([id]);
 
                 return items.FirstOrDefault();
             });
 
-            FieldAsync<DynamicPropertyType>("dynamicProperty", "Associated dynamic property", resolve: async context =>
+            Field<DynamicPropertyType>("dynamicProperty").Description("Associated dynamic property").ResolveAsync(async context =>
             {
                 var id = context.Source.PropertyId;
                 if (id.IsNullOrEmpty())

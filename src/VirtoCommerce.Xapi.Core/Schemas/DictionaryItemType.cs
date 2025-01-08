@@ -12,13 +12,13 @@ namespace VirtoCommerce.Xapi.Core.Schemas
         {
             Field(x => x.Id, nullable: false).Description("Id");
             Field(x => x.Name, nullable: false).Description("Name");
-            Field<StringGraphType>("label",
-                "Localized dictionary item value",
-                resolve: context =>
-            {
-                var culture = context.GetValue<string>("cultureName");
-                return context.Source.DisplayNames.FirstOrDefault(x => culture.IsNullOrEmpty() || x.Locale.EqualsInvariant(culture))?.Name;
-            });
+            Field<StringGraphType>("label")
+                .Description("Localized dictionary item value")
+                .Resolve(context =>
+                {
+                    var culture = context.GetValue<string>("cultureName");
+                    return context.Source.DisplayNames.FirstOrDefault(x => culture.IsNullOrEmpty() || x.Locale.EqualsInvariant(culture))?.Name;
+                });
         }
     }
 }

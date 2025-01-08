@@ -18,27 +18,28 @@ namespace VirtoCommerce.Xapi.Core.Schemas
         public DynamicPropertyType(IMediator mediator)
         {
             Field(x => x.Id, nullable: false).Description("Id");
-            Field<NonNullGraphType<StringGraphType>>("Name", resolve: context => context.Source.Name);
+            Field<NonNullGraphType<StringGraphType>>("Name").Resolve(context => context.Source.Name);
             Field(x => x.ObjectType, nullable: false).Description("Object type");
-            Field<StringGraphType>("label",
-                "Localized property name",
-                resolve: context =>
-            {
-                var culture = context.GetValue<string>("cultureName");
-                return context.Source.DisplayNames.FirstOrDefault(x => culture.IsNullOrEmpty() || x.Locale.EqualsInvariant(culture))?.Name;
-            });
+            Field<StringGraphType>("label")
+                .Description("Localized property name")
+                .Resolve(context =>
+                {
+                    var culture = context.GetValue<string>("cultureName");
+                    return context.Source.DisplayNames.FirstOrDefault(x => culture.IsNullOrEmpty() || x.Locale.EqualsInvariant(culture))?.Name;
+                });
             Field(x => x.DisplayOrder, nullable: true).Description("The order for the dynamic property to display");
-            Field<NonNullGraphType<StringGraphType>>(nameof(DynamicProperty.ValueType),
-                "Value type",
-                deprecationReason: "Use dynamicPropertyValueType instead",
-                resolve: context => context.Source.ValueType.ToString());
-            Field<NonNullGraphType<DynamicPropertyValueTypeEnum>>("dynamicPropertyValueType",
-                "Value type",
-                resolve: context => context.Source.ValueType);
-            Field<NonNullGraphType<BooleanGraphType>>("isArray", resolve: context => context.Source.IsArray, description: "Is dynamic property value an array");
-            Field<NonNullGraphType<BooleanGraphType>>("isDictionary", resolve: context => context.Source.IsDictionary, description: "Is dynamic property value a dictionary");
-            Field<NonNullGraphType<BooleanGraphType>>("isMultilingual", resolve: context => context.Source.IsMultilingual, description: "Is dynamic property value multilingual");
-            Field<NonNullGraphType<BooleanGraphType>>("isRequired", resolve: context => context.Source.IsRequired, description: "Is dynamic property value required");
+            Field<NonNullGraphType<StringGraphType>>(nameof(DynamicProperty.ValueType))
+                .Description("Value type")
+                .DeprecationReason("Use dynamicPropertyValueType instead")
+                .Resolve(context => context.Source.ValueType.ToString());
+            Field<NonNullGraphType<DynamicPropertyValueTypeEnum>>("dynamicPropertyValueType")
+                .Description("Value type")
+                .Resolve(context => context.Source.ValueType.ToString());
+
+            Field<NonNullGraphType<BooleanGraphType>>("isArray").Resolve(context => context.Source.IsArray).Description("Is dynamic property value an array");
+            Field<NonNullGraphType<BooleanGraphType>>("isDictionary").Resolve(context => context.Source.IsDictionary).Description("Is dynamic property value a dictionary");
+            Field<NonNullGraphType<BooleanGraphType>>("isMultilingual").Resolve(context => context.Source.IsMultilingual).Description("Is dynamic property value multilingual");
+            Field<NonNullGraphType<BooleanGraphType>>("isRequired").Resolve(context => context.Source.IsRequired).Description("Is dynamic property value required");
 
             Connection<DictionaryItemType>(name: "dictionaryItems")
               .Argument<StringGraphType>("filter", "")
@@ -53,7 +54,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
 
         private static async Task<object> ResolveConnectionAsync(IMediator mediator, IResolveConnectionContext<DynamicProperty> context)
         {
-            int.TryParse(context.After, out var skip);
+            _ = int.TryParse(context.After, out var skip);
 
             var query = context.GetDynamicPropertiesQuery<SearchDynamicPropertyDictionaryItemQuery>();
             query.PropertyId = context.Source.Id;

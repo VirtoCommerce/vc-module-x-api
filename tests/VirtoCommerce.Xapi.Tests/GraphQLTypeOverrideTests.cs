@@ -21,7 +21,7 @@ namespace VirtoCommerce.Xapi.Tests
                 Name = "Foo";
                 Field(x => x.Name);
                 //This nested field cause 'A loop has been detected while registering schema types.' exception in GraphTypesLookup.AddTypeWithLoopCheck
-                Field<FooType>("parent", resolve: (ctx) => new Foo());
+                Field<FooType>("parent").Resolve((ctx) => new Foo());
             }
         }
         public class FooType2 : FooType
@@ -31,10 +31,8 @@ namespace VirtoCommerce.Xapi.Tests
         {
             public RootQuery()
             {
-                Field<FooType>(
-                    "foo",
-                    resolve: context => new FooType() { }
-                );
+                Field<FooType>("foo")
+                    .Resolve(context => new FooType() { });
             }
         }
         public class MySchema : Schema

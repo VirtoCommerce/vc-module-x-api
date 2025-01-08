@@ -8,6 +8,6 @@ public class ModuleSettingType : ExtendableGraphType<ModuleSetting>
     public ModuleSettingType()
     {
         Field(x => x.Name, nullable: false);
-        Field<ModuleSettingValueGraphType>("value", resolve: x => x.Source.Value);
+        Field<ModuleSettingValueGraphType>("value").Resolve(x => x.Source.Value);
     }
 }

@@ -12,48 +12,6 @@ namespace VirtoCommerce.Xapi.Core.Schemas
 {
     public class ExtendableGraphType<TSourceType> : ObjectGraphType<TSourceType>
     {
-        public new FieldType Field<TGraphType>(
-            string name,
-            string description = null,
-            QueryArguments arguments = null,
-            Func<IResolveFieldContext<TSourceType>, object> resolve = null,
-            string deprecationReason = null)
-            where TGraphType : IGraphType
-        {
-            return AddField(new FieldType
-            {
-                Name = name,
-                Description = description,
-                DeprecationReason = deprecationReason,
-                Type = typeof(TGraphType),
-                Arguments = arguments,
-                Resolver = resolve != null
-                    ? new FuncFieldResolver<TSourceType, object>(resolve)
-                    : null
-            });
-        }
-
-        public new FieldType FieldAsync<TGraphType>(
-            string name,
-            string description = null,
-            QueryArguments arguments = null,
-            Func<IResolveFieldContext<TSourceType>, Task<object>> resolve = null,
-            string deprecationReason = null)
-            where TGraphType : IGraphType
-        {
-            return AddField(new FieldType
-            {
-                Name = name,
-                Description = description,
-                DeprecationReason = deprecationReason,
-                Type = typeof(TGraphType),
-                Arguments = arguments,
-                Resolver = resolve != null
-                    ? new FuncFieldResolver<TSourceType, object>(context => new ValueTask<object>(resolve(context)))
-                    : null
-            });
-        }
-
         public FieldType ExtendableField<TGraphType>(
             string name,
             string description = null,
@@ -115,13 +73,17 @@ namespace VirtoCommerce.Xapi.Core.Schemas
 
             if (nullable)
             {
-                Field<StringGraphType>(localizedFieldName, resolve: context =>
-                    localizableSettingService.TranslateAsync(getValue(context.Source), descriptor.Name, context.GetCultureName()));
+                Field<StringGraphType>(localizedFieldName).ResolveAsync(async context =>
+                {
+                    return await localizableSettingService.TranslateAsync(getValue(context.Source), descriptor.Name, context.GetCultureName());
+                });
             }
             else
             {
-                Field<NonNullGraphType<StringGraphType>>(localizedFieldName, resolve: context =>
-                    localizableSettingService.TranslateAsync(getValue(context.Source), descriptor.Name, context.GetCultureName()));
+                Field<NonNullGraphType<StringGraphType>>(localizedFieldName).ResolveAsync(async context =>
+                {
+                    return await localizableSettingService.TranslateAsync(getValue(context.Source), descriptor.Name, context.GetCultureName());
+                });
             }
         }
     }

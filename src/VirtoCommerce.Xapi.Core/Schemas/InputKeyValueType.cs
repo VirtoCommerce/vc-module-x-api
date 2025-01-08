@@ -1,8 +1,9 @@
+using GraphQL.Types;
 using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
-    public class InputKeyValueType : ExtendableInputGraphType<KeyValue>
+    public class InputKeyValueType : InputObjectGraphType<KeyValue>
     {
         public InputKeyValueType()
         {
