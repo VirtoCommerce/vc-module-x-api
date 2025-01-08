@@ -34,7 +34,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                 .Resolve(context => context.Source.ValueType.ToString());
             Field<NonNullGraphType<DynamicPropertyValueTypeEnum>>("dynamicPropertyValueType")
                 .Description("Value type")
-                .Resolve(context => context.Source.ValueType.ToString());
+                .Resolve(context => context.Source.ValueType);
 
             Field<NonNullGraphType<BooleanGraphType>>("isArray").Resolve(context => context.Source.IsArray).Description("Is dynamic property value an array");
             Field<NonNullGraphType<BooleanGraphType>>("isDictionary").Resolve(context => context.Source.IsDictionary).Description("Is dynamic property value a dictionary");
