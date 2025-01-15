@@ -1,0 +1,8 @@
+{
+  "settings": {
+    "XOrder.CreateAnonymousOrderEnabled": {
+      "title": "Permitir que usuários anônimos criem pedidos (xAPI)",
+      "description": "Esta configuração é a nível de loja."
+    }
+  }
+}

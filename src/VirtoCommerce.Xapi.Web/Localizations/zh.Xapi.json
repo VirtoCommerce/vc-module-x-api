@@ -1,0 +1,8 @@
+{
+  "settings": {
+    "XOrder.CreateAnonymousOrderEnabled": {
+      "title": "允许匿名用户创建订单 (xAPI)",
+      "description": "此设置为商店级别"
+    }
+  }
+}
