@@ -2,7 +2,7 @@
   "settings": {
     "XOrder.CreateAnonymousOrderEnabled": {
       "title": "Разрешить анонимным пользователям создавать заказы (xAPI)",
-      "description": "Эта настройка действует на уровне магазина."
+      "description": "Эта настройка действует на уровне магазина"
     }
   }
 }

@@ -6,7 +6,7 @@
     },
     "XOrder.CreateAnonymousOrderEnabled": {
       "title": "Allow anonymous users to create orders (XAPI)",
-      "description": "This setting is store level."
+      "description": "This setting is store level"
     },
     "XPurchase.IsSelectedForCheckout": {
       "title": "Default \"Selected for checkout\" state (XAPI)",
