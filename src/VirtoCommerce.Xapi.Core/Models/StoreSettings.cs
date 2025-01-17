@@ -23,10 +23,12 @@ namespace VirtoCommerce.Xapi.Core.Models
 
         public bool EmailVerificationRequired { get; set; }
 
+        [Obsolete("Use XOrder.CreateAnonymousOrderEnabled public property instead", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
         public bool CreateAnonymousOrderEnabled { get; set; }
 
         public string SeoLinkType { get; set; }
 
+        [Obsolete("Use XPurchase.IsSelectedForCheckout public property instead", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
         public bool DefaultSelectedForCheckout { get; set; }
 
         public string EnvironmentName { get; set; }

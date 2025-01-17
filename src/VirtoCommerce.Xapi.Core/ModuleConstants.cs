@@ -42,22 +42,6 @@ namespace VirtoCommerce.Xapi.Core
                     DefaultValue = string.Empty,
                 };
 
-                public static SettingDescriptor CreateAnonymousOrder { get; } = new SettingDescriptor
-                {
-                    Name = "XOrder.CreateAnonymousOrderEnabled",
-                    ValueType = SettingValueType.Boolean,
-                    GroupName = "Orders|General",
-                    DefaultValue = true
-                };
-
-                public static SettingDescriptor IsSelectedForCheckout { get; } = new SettingDescriptor
-                {
-                    Name = "XPurchase.IsSelectedForCheckout",
-                    ValueType = SettingValueType.Boolean,
-                    GroupName = "Cart|General",
-                    DefaultValue = true
-                };
-
                 public static SettingDescriptor PageTitleWithStoreName { get; } = new SettingDescriptor
                 {
                     Name = "Frontend.PageTitleWithStoreName",
@@ -118,8 +102,6 @@ namespace VirtoCommerce.Xapi.Core
                     get
                     {
                         yield return EnvironmentName;
-                        yield return CreateAnonymousOrder;
-                        yield return IsSelectedForCheckout;
                         yield return PageTitleWithStoreName;
                         yield return PageTitleStoreNameAlign;
                         yield return PageTitleDivider;
@@ -134,8 +116,6 @@ namespace VirtoCommerce.Xapi.Core
             {
                 get
                 {
-                    yield return General.CreateAnonymousOrder;
-                    yield return General.IsSelectedForCheckout;
                     yield return General.PageTitleWithStoreName;
                     yield return General.PageTitleStoreNameAlign;
                     yield return General.PageTitleDivider;
