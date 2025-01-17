@@ -28,10 +28,6 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                     return context.Source.DisplayNames.FirstOrDefault(x => culture.IsNullOrEmpty() || x.Locale.EqualsInvariant(culture))?.Name;
                 });
             Field(x => x.DisplayOrder, nullable: true).Description("The order for the dynamic property to display");
-            Field<NonNullGraphType<StringGraphType>>(nameof(DynamicProperty.ValueType))
-                .Description("Value type")
-                .DeprecationReason("Use dynamicPropertyValueType instead")
-                .Resolve(context => context.Source.ValueType.ToString());
             Field<NonNullGraphType<DynamicPropertyValueTypeEnum>>("dynamicPropertyValueType")
                 .Description("Value type")
                 .Resolve(context => context.Source.ValueType);
