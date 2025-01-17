@@ -41,6 +41,7 @@ namespace VirtoCommerce.Xapi.Web
 #pragma warning disable CS0618 // Type or member is obsolete
             // Use legacy type naming for backward compatibility
             GlobalSwitches.UseLegacyTypeNaming = true;
+            GlobalSwitches.InferFieldNullabilityFromNRTAnnotations = false;
 #pragma warning restore CS0618 // Type or member is obsolete
 
             // Register .NET GraphQL server
