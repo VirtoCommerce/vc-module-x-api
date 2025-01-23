@@ -1,4 +1,3 @@
-using System;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.WebSockets;
 using GraphQL.Server.Ui.Playground;
@@ -28,13 +27,14 @@ public static class ApplicationBuilderExtensions
             ? GraphQlPath
             : $"{GraphQlPath}/{schemaPath}";
 
+        var webSocketOptions = builder.ApplicationServices.GetService<IOptions<Subscriptions.GraphQLWebSocketOptions>>();
+
         builder.UseGraphQL<GraphQLHttpMiddlewareWithLogs<TSchema>>(path: graphQlPath, new GraphQLHttpMiddlewareOptions()
         {
             // configure keep-alive packets
             WebSockets = new GraphQLWebSocketOptions()
             {
-                KeepAliveTimeout = TimeSpan.FromSeconds(10),  // pass the desired keep-alive timeout
-                KeepAliveMode = KeepAliveMode.Interval,
+                KeepAliveTimeout = webSocketOptions.Value.KeepAliveInterval,
             }
         });
 
@@ -60,15 +60,6 @@ public static class ApplicationBuilderExtensions
             var graphiqlPath = "/ui/graphiql";
             builder.UseGraphQLGraphiQL(path: graphiqlPath,
                 new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
-                {
-                    GraphQLEndPoint = graphQlPath,         // url of GraphQL endpoint
-                    SubscriptionsEndPoint = graphQlPath,   // url of GraphQL endpoint
-                });
-
-            // Altair
-            var altairPath = "/ui/altair";
-            builder.UseGraphQLAltair(path: altairPath,
-                new GraphQL.Server.Ui.Altair.AltairOptions
                 {
                     GraphQLEndPoint = graphQlPath,         // url of GraphQL endpoint
                     SubscriptionsEndPoint = graphQlPath,   // url of GraphQL endpoint
