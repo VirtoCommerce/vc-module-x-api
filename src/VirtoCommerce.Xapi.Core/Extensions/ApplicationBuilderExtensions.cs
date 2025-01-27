@@ -1,6 +1,5 @@
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.WebSockets;
-using GraphQL.Server.Ui.Playground;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,22 +39,6 @@ public static class ApplicationBuilderExtensions
 
         if (schemaIntrospectionEnabled)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var playgroundPath = "/ui/playground";
-            if (!string.IsNullOrEmpty(schemaPath))
-            {
-                playgroundPath = $"{playgroundPath}/{schemaPath}";
-            }
-
-            // UI Playground
-            builder.UseGraphQLPlayground(playgroundPath,
-                new PlaygroundOptions
-                {
-                    GraphQLEndPoint = graphQlPath,
-                    SubscriptionsEndPoint = graphQlPath,
-                });
-#pragma warning restore CS0618 // Type or member is obsolete
-
             // GraphiQL
             var graphiqlPath = "/ui/graphiql";
             if (!string.IsNullOrEmpty(schemaPath))
