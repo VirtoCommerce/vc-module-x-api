@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using GraphQL;
 using GraphQL.DataLoader;
 using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.Xapi.Core.Models;

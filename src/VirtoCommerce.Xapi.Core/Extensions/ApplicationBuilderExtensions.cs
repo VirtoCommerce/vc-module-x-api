@@ -1,4 +1,5 @@
-using GraphQL.Server.Ui.Playground;
+using GraphQL.Server.Transports.AspNetCore;
+using GraphQL.Server.Transports.AspNetCore.WebSockets;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,20 +26,32 @@ public static class ApplicationBuilderExtensions
             ? GraphQlPath
             : $"{GraphQlPath}/{schemaPath}";
 
-        builder.UseGraphQL<TSchema>(path: graphQlPath);
+        var webSocketOptions = builder.ApplicationServices.GetService<IOptions<Subscriptions.GraphQLWebSocketOptions>>();
+
+        builder.UseGraphQL<GraphQLHttpMiddlewareWithLogs<TSchema>>(path: graphQlPath, new GraphQLHttpMiddlewareOptions()
+        {
+            // configure keep-alive packets
+            WebSockets = new GraphQLWebSocketOptions()
+            {
+                KeepAliveTimeout = webSocketOptions.Value.KeepAliveInterval,
+            }
+        });
+
         if (schemaIntrospectionEnabled)
         {
-            var playgroundPath = "/ui/playground";
+            // GraphiQL
+            var graphiqlPath = "/ui/graphiql";
             if (!string.IsNullOrEmpty(schemaPath))
             {
-                playgroundPath = $"{playgroundPath}/{schemaPath}";
+                graphiqlPath = $"{graphiqlPath}/{schemaPath}";
             }
 
-            builder.UseGraphQLPlayground(new PlaygroundOptions
-            {
-                GraphQLEndPoint = graphQlPath,
-            },
-            path: playgroundPath);
+            builder.UseGraphQLGraphiQL(path: graphiqlPath,
+                new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
+                {
+                    GraphQLEndPoint = graphQlPath,
+                    SubscriptionsEndPoint = graphQlPath,
+                });
         }
 
         return builder;

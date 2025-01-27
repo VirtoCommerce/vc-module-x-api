@@ -1,32 +1,29 @@
 using System;
 using System.Threading.Tasks;
-using GraphQL.Language.AST;
 using GraphQL.Types;
 using GraphQL.Validation;
 using GraphQL.Validation.Errors;
+using GraphQLParser.AST;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
 {
-    public class CustomKnownArgumentNames : IValidationRule
+    public class CustomKnownArgumentNames : ValidationRuleBase
     {
         private readonly INodeVisitor _nodeVisitor;
 
         public CustomKnownArgumentNames()
         {
-            _nodeVisitor = new NodeVisitors(new MatchingNodeVisitor<Argument>(Validate));
+            _nodeVisitor = new MatchingNodeVisitor<GraphQLArgument>(Validate);
         }
 
-        public virtual Task<INodeVisitor> ValidateAsync(ValidationContext context)
-        {
-            return Task.FromResult(_nodeVisitor);
-        }
+        public override ValueTask<INodeVisitor> GetPreNodeVisitorAsync(ValidationContext context) => new(_nodeVisitor);
 
-        protected virtual void Validate(Argument node, ValidationContext context)
+        protected virtual void Validate(GraphQLArgument node, ValidationContext context)
         {
             var argument = context.TypeInfo.GetAncestor(2);
             switch (argument)
             {
-                case Field:
+                case GraphQLField:
                     {
                         var field = context.TypeInfo.GetFieldDef();
                         if (field != null)
@@ -34,7 +31,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
                             var fieldArgument = field.Arguments?.Find(node.Name);
                             if (fieldArgument == null)
                             {
-                                var fieldClone = new FieldType { Name = field.Name };
+                                var fieldClone = new FieldType { Name = field.Name }; // clone without arguments
                                 var parentType = context.TypeInfo.GetParentType() ?? throw new InvalidOperationException("Parent type must not be null.");
                                 context.ReportError(new KnownArgumentNamesError(context, node, fieldClone, parentType));
                             }
@@ -43,7 +40,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
                         break;
                     }
 
-                case Directive:
+                case GraphQLDirective:
                     {
                         var directive = context.TypeInfo.GetDirective();
                         if (directive != null)
@@ -51,7 +48,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure.Validation
                             var directiveArgument = directive.Arguments?.Find(node.Name);
                             if (directiveArgument == null)
                             {
-                                var directiveClone = new DirectiveGraphType(directive.Name, directive.Locations);
+                                var directiveClone = new Directive(directive.Name, directive.Locations); // clone without arguments
                                 context.ReportError(new KnownArgumentNamesError(context, node, directiveClone));
                             }
                         }

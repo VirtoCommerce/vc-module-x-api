@@ -1,9 +1,8 @@
-using GraphQL.Types;
 using VirtoCommerce.Xapi.Core.Models;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
-    public class GraphQLSettingsType : ObjectGraphType<GraphQLSettings>
+    public class GraphQLSettingsType : ExtendableGraphType<GraphQLSettings>
     {
         public GraphQLSettingsType()
         {

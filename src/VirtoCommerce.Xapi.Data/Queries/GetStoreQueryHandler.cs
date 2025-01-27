@@ -110,14 +110,15 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
                 QuotesEnabled = store.Settings.GetValue<bool>(new SettingDescriptor { Name = "Quotes.EnableQuotes" }),
                 SubscriptionEnabled = store.Settings.GetValue<bool>(new SettingDescriptor { Name = "Subscription.EnableSubscriptions" }),
 #pragma warning restore VC0009
+#pragma warning disable VC0010
+                CreateAnonymousOrderEnabled = store.Settings.GetValue<bool>(new SettingDescriptor { Name = "XOrder.CreateAnonymousOrderEnabled" }),
+                DefaultSelectedForCheckout = store.Settings.GetValue<bool>(new SettingDescriptor { Name = "XPurchase.IsSelectedForCheckout" }),
+#pragma warning restore VC0010
                 TaxCalculationEnabled = store.Settings.GetValue<bool>(StoreSettingGeneral.TaxCalculationEnabled),
                 AnonymousUsersAllowed = store.Settings.GetValue<bool>(StoreSettingGeneral.AllowAnonymousUsers),
                 EmailVerificationEnabled = store.Settings.GetValue<bool>(StoreSettingGeneral.EmailVerificationEnabled),
                 EmailVerificationRequired = store.Settings.GetValue<bool>(StoreSettingGeneral.EmailVerificationRequired),
                 SeoLinkType = store.Settings.GetValue<string>(StoreSettingSeo.SeoLinksType),
-                CreateAnonymousOrderEnabled = store.Settings.GetValue<bool>(ModuleConstants.Settings.General.CreateAnonymousOrder),
-                DefaultSelectedForCheckout = store.Settings.GetValue<bool>(ModuleConstants.Settings.General.IsSelectedForCheckout),
-
 
                 EnvironmentName = _settingsManager.GetValue<string>(ModuleConstants.Settings.General.EnvironmentName),
                 PasswordRequirements = _identityOptions.Password,

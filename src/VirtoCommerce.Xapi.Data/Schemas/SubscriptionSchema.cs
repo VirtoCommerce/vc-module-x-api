@@ -3,7 +3,6 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Resolvers;
-using GraphQL.Subscription;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.Platform.Security.Authorization;
@@ -17,12 +16,12 @@ namespace VirtoCommerce.Xapi.Data.Schemas
     {
         public void Build(ISchema schema)
         {
-            var pingType = new EventStreamFieldType
+            var pingType = new FieldType
             {
                 Name = "ping",
                 Type = typeof(StringGraphType),
                 Resolver = new FuncFieldResolver<string>(Resolve),
-                AsyncSubscriber = new AsyncEventStreamResolver<string>(Subscribe),
+                StreamResolver = new SourceStreamResolver<string>(Subscribe),
             };
             schema.Subscription.AddField(pingType);
         }
@@ -32,9 +31,10 @@ namespace VirtoCommerce.Xapi.Data.Schemas
             return context.Source as string;
         }
 
-        private async Task<IObservable<string>> Subscribe(IResolveEventStreamContext context)
+        private async ValueTask<IObservable<string>> Subscribe(IResolveFieldContext context)
         {
-            var authorizationResult = await authorizationService.AuthorizeAsync(context.GetCurrentPrincipal(), null, new PermissionAuthorizationRequirement(string.Empty));
+            var principal = context.GetCurrentPrincipal();
+            var authorizationResult = await authorizationService.AuthorizeAsync(principal, null, new PermissionAuthorizationRequirement(string.Empty));
             if (!authorizationResult.Succeeded)
             {
                 throw AuthorizationError.Forbidden();

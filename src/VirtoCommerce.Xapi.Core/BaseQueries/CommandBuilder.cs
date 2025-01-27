@@ -29,7 +29,7 @@ public abstract class CommandBuilder<TCommand, TResult, TCommandGraphType, TResu
 
     protected override IEnumerable<QueryArgument> GetArguments()
     {
-        var type = GraphTypeExtenstionHelper.GetActualComplexType<NonNullGraphType<TCommandGraphType>>();
+        var type = GraphTypeExtensionHelper.GetActualComplexType<NonNullGraphType<TCommandGraphType>>();
 
         yield return new QueryArgument(type) { Name = _argumentName };
     }

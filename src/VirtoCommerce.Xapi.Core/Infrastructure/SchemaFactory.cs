@@ -60,6 +60,8 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
 
         public Dictionary<string, object> Metadata => new Dictionary<string, object>();
 
+        public IMetadataReader MetadataReader => this;
+
         public ISchema GetSchema()
         {
             var schema = CreateSchema(_services, _schemaFilter);

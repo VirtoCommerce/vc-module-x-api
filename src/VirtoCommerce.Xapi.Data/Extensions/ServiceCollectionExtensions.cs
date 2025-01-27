@@ -1,14 +1,9 @@
-using GraphQL.Authorization;
 using GraphQL.Introspection;
 using GraphQL.Types;
-using GraphQL.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using VirtoCommerce.Platform.Core.Security.ExternalSignIn;
 using VirtoCommerce.Platform.Security.OpenIddict;
-using VirtoCommerce.Xapi.Core;
-using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Services;
@@ -19,7 +14,6 @@ using static VirtoCommerce.Xapi.Core.ModuleConstants;
 using ContactSignInValidator = VirtoCommerce.Xapi.Data.Security.OpenIddict.ContactSignInValidator;
 using DynamicPropertyResolverService = VirtoCommerce.Xapi.Data.Services.DynamicPropertyResolverService;
 using DynamicPropertyUpdaterService = VirtoCommerce.Xapi.Data.Services.DynamicPropertyUpdaterService;
-using IGraphQLBuilder = GraphQL.Server.IGraphQLBuilder;
 using UserManagerCore = VirtoCommerce.Xapi.Data.Services.UserManagerCore;
 
 namespace VirtoCommerce.Xapi.Data.Extensions
@@ -49,14 +43,9 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             return services;
         }
 
-        public static IServiceCollection AddXCore(this IServiceCollection services, IGraphQLBuilder graphQlBuilder, IConfiguration configuration)
+        public static IServiceCollection AddXCore(this IServiceCollection services, IConfiguration configuration)
         {
-            graphQlBuilder.AddSchema(typeof(CoreAssemblyMarker), typeof(DataAssemblyMarker));
-
             //Register custom GraphQL dependencies
-            services.AddTransient<IValidationRule, AuthorizationValidationRule>();
-            services.TryAddSingleton<IAuthorizationEvaluator, PermissionAuthorizationEvaluator>();
-
             services.AddSingleton<ISchemaFilter, CustomSchemaFilter>();
             services.AddSingleton<ISchema, SchemaFactory>();
 
@@ -66,9 +55,6 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             services.AddTransient<ITokenRequestValidator, ContactSignInValidator>();
             services.AddTransient<IExternalSignInValidator, ExternalSignInValidator>();
             services.AddTransient<IExternalSignInUserBuilder, ExternalSignInUserBuilder>();
-
-            // provider for external fields
-            services.AddSingleton<IExternalFieldProvider, ExternalFieldProvider>();
 
             services.AddTransient<ILoadUserToEvalContextService, LoadUserToEvalContextService>();
             services.AddDistributedLockService(configuration);

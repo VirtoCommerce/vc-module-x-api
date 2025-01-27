@@ -2,12 +2,12 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
+using GraphQL;
+using GraphQL.Server.Transports.AspNetCore.WebSockets;
+using GraphQL.Transport;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
-using Newtonsoft.Json.Linq;
 
 namespace VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure
 {
@@ -15,38 +15,25 @@ namespace VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure
     /// Try to resolver user context for subscriptions by validating JWT token in the request's Authorization header
     /// </summary>
     public class SubscriptionsUserContextResolver(
-        IHttpContextAccessor httpContextAccessor,
-        IOptionsSnapshot<JwtBearerOptions> jwtBearerOptions)
-        : IOperationMessageListener
+        IGraphQLSerializer serializer,
+        IOptionsMonitor<JwtBearerOptions> jwtBearerOptionsMonitor)
+        : IWebSocketAuthenticationService
     {
-        private const string _contextKey = "User";
-        private const string _authorizationHeader = "Authorization";
+        private readonly IGraphQLSerializer _serializer = serializer;
+        private readonly IOptionsMonitor<JwtBearerOptions> _jwtBearerOptionsMonitor = jwtBearerOptionsMonitor;
 
-        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-        private readonly IOptionsSnapshot<JwtBearerOptions> _jwtBearerOptions = jwtBearerOptions;
-
-        public async Task BeforeHandleAsync(MessageHandlingContext context)
+        public async Task AuthenticateAsync(IWebSocketConnection connection, string subProtocol, OperationMessage operationMessage)
         {
-            switch (context.Message.Type)
+            var payload = _serializer.ReadNode<Inputs>(operationMessage.Payload);
+
+            if ((payload?.TryGetValue("Authorization", out var value) ?? false) && value is string valueString)
             {
-                case MessageType.GQL_CONNECTION_INIT:
-                    {
-                        if (context.Message.Payload is JObject payload && payload.ContainsKey(_authorizationHeader))
-                        {
-                            var authorization = payload.Value<string>(_authorizationHeader);
-
-                            // set the ClaimsPrincipal for the HttpContext; authentication will take place against this object
-                            var principal = await BuildClaimsPrincipal(authorization);
-                            _httpContextAccessor.HttpContext.User = principal;
-                            context.TryAdd(_contextKey, _httpContextAccessor.HttpContext.User);
-                        }
-
-                        break;
-                    }
-
-                default:
-                    context.TryAdd(_contextKey, _httpContextAccessor.HttpContext.User);
-                    break;
+                var principal = await BuildClaimsPrincipal(valueString);
+                if (principal != null)
+                {
+                    // set user and indicate authentication was successful
+                    connection.HttpContext.User = principal;
+                }
             }
         }
 
@@ -62,7 +49,7 @@ namespace VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure
             try
             {
                 var token = authorization[7..];
-                var tokenOptions = _jwtBearerOptions.Get(JwtBearerDefaults.AuthenticationScheme);
+                var tokenOptions = _jwtBearerOptionsMonitor.Get(JwtBearerDefaults.AuthenticationScheme);
 
                 var jsonWebTokenHandler = tokenOptions.TokenHandlers.OfType<JsonWebTokenHandler>().FirstOrDefault();
                 if (jsonWebTokenHandler != null)
@@ -79,9 +66,5 @@ namespace VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure
 
             return principal;
         }
-
-        public Task HandleAsync(MessageHandlingContext context) => Task.CompletedTask;
-
-        public Task AfterHandleAsync(MessageHandlingContext context) => Task.CompletedTask;
     }
 }

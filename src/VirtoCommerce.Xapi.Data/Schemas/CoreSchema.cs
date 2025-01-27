@@ -2,6 +2,7 @@ using GraphQL;
 using GraphQL.Resolvers;
 using GraphQL.Types;
 using MediatR;
+using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Helpers;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Queries;
@@ -35,8 +36,8 @@ namespace VirtoCommerce.Xapi.Data.Schemas
             _ = schema.Query.AddField(new FieldType
             {
                 Name = "countries",
-                Type = GraphTypeExtenstionHelper.GetActualComplexType<NonNullGraphType<ListGraphType<NonNullGraphType<CountryType>>>>(),
-                Resolver = new AsyncFieldResolver<object>(async context =>
+                Type = GraphTypeExtensionHelper.GetActualComplexType<NonNullGraphType<ListGraphType<NonNullGraphType<CountryType>>>>(),
+                Resolver = new FuncFieldResolver<object>(async context =>
                 {
                     var result = await _mediator.Send(new GetCountriesQuery());
 
@@ -60,8 +61,8 @@ namespace VirtoCommerce.Xapi.Data.Schemas
             {
                 Name = "regions",
                 Arguments = new QueryArguments(new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "countryId" }),
-                Type = GraphTypeExtenstionHelper.GetActualComplexType<NonNullGraphType<ListGraphType<NonNullGraphType<CountryRegionType>>>>(),
-                Resolver = new AsyncFieldResolver<object>(async context =>
+                Type = GraphTypeExtensionHelper.GetActualComplexType<NonNullGraphType<ListGraphType<NonNullGraphType<CountryRegionType>>>>(),
+                Resolver = new FuncFieldResolver<object>(async context =>
                 {
                     var result = await _mediator.Send(new GetRegionsQuery
                     {

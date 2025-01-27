@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <module>
   <id>VirtoCommerce.Xapi</id>
-  <version>3.817.0</version>
+  <version>3.900.0</version>
   <version-tag></version-tag>
 
   <platformVersion>3.861.0</platformVersion>
@@ -48,7 +48,7 @@
   <moduleType>VirtoCommerce.Xapi.Web.Module, VirtoCommerce.Xapi.Web</moduleType>
 
   <releaseNotes>First version.</releaseNotes>
-  <copyright>Copyright © 2024 VirtoCommerce. All rights reserved</copyright>
+  <copyright>Copyright © 2024-2025 VirtoCommerce. All rights reserved</copyright>
   <tags>extension module</tags>
   <useFullTypeNameInSwagger>false</useFullTypeNameInSwagger>
 </module>

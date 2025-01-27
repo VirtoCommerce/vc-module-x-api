@@ -6,7 +6,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
     {
         public SlugInfoResponseType()
         {
-            Field<SeoInfoType>("entityInfo", "SEO info", resolve: context => context.Source.EntityInfo);
+            Field<SeoInfoType>("entityInfo").Description("SEO info").Resolve(context => context.Source.EntityInfo);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                 Name = name,
                 Description = description,
                 DeprecationReason = deprecationReason,
-                Type = GraphTypeExtenstionHelper.GetActualComplexType<TGraphType>(),
+                Type = GraphTypeExtensionHelper.GetActualComplexType<TGraphType>(),
                 Arguments = arguments,
                 Resolver = resolve != null
                     ? new FuncFieldResolver<TSourceType, object>(context =>
@@ -50,13 +50,13 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                 Name = name,
                 Description = description,
                 DeprecationReason = deprecationReason,
-                Type = GraphTypeExtenstionHelper.GetActualComplexType<TGraphType>(),
+                Type = GraphTypeExtensionHelper.GetActualComplexType<TGraphType>(),
                 Arguments = arguments,
                 Resolver = resolve != null
-                    ? new FuncFieldResolver<TSourceType, Task<object>>(context =>
+                    ? new FuncFieldResolver<TSourceType, object>(context =>
                     {
                         context.CopyArgumentsToUserContext();
-                        return resolve(context);
+                        return new ValueTask<object>(resolve(context));
                     })
                     : null
             });
@@ -73,13 +73,17 @@ namespace VirtoCommerce.Xapi.Core.Schemas
 
             if (nullable)
             {
-                Field<StringGraphType>(localizedFieldName, resolve: context =>
-                    localizableSettingService.TranslateAsync(getValue(context.Source), descriptor.Name, context.GetCultureName()));
+                Field<StringGraphType>(localizedFieldName).ResolveAsync(async context =>
+                {
+                    return await localizableSettingService.TranslateAsync(getValue(context.Source), descriptor.Name, context.GetCultureName());
+                });
             }
             else
             {
-                Field<NonNullGraphType<StringGraphType>>(localizedFieldName, resolve: context =>
-                    localizableSettingService.TranslateAsync(getValue(context.Source), descriptor.Name, context.GetCultureName()));
+                Field<NonNullGraphType<StringGraphType>>(localizedFieldName).ResolveAsync(async context =>
+                {
+                    return await localizableSettingService.TranslateAsync(getValue(context.Source), descriptor.Name, context.GetCultureName());
+                });
             }
         }
     }

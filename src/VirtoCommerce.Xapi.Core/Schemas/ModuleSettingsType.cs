@@ -3,7 +3,7 @@ using VirtoCommerce.Xapi.Core.Models;
 
 namespace VirtoCommerce.Xapi.Core.Schemas;
 
-public class ModuleSettingsType : ObjectGraphType<ModuleSettings>
+public class ModuleSettingsType : ExtendableGraphType<ModuleSettings>
 {
     public ModuleSettingsType()
     {

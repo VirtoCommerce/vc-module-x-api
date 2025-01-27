@@ -32,8 +32,8 @@ namespace VirtoCommerce.Xapi.Data.Schemas
                     new QueryArgument<StringGraphType> { Name = "cultureName", Description = "Culture name (\"en-US\")" },
                     new QueryArgument<StringGraphType> { Name = "objectType", Description = "Object type of the dynamic property" }
                 ),
-                Type = GraphTypeExtenstionHelper.GetActualType<DynamicPropertyType>(),
-                Resolver = new AsyncFieldResolver<object>(async context =>
+                Type = GraphTypeExtensionHelper.GetActualType<DynamicPropertyType>(),
+                Resolver = new FuncFieldResolver<object>(async context =>
                 {
                     context.CopyArgumentsToUserContext();
 
@@ -48,8 +48,7 @@ namespace VirtoCommerce.Xapi.Data.Schemas
             };
             schema.Query.AddField(dynamicPropertyField);
 
-            var dynamicPropertiesConnectionBuilder = GraphTypeExtenstionHelper.CreateConnection<DynamicPropertyType, object>()
-                .Name("dynamicProperties")
+            var dynamicPropertiesConnectionBuilder = GraphTypeExtensionHelper.CreateConnection<DynamicPropertyType, object>("dynamicProperties")
                 .Argument<StringGraphType>("cultureName", "The culture name (\"en-US\")")
                 .Argument<StringGraphType>("filter", "This parameter applies a filter to the query results")
                 .Argument<StringGraphType>("sort", "The sort expression")

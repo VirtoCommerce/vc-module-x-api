@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
-using GraphQL.Language.AST;
 using GraphQL.Types;
+using GraphQLParser.AST;
 
 namespace VirtoCommerce.Xapi.Core.Schemas.ScalarTypes
 {
@@ -13,27 +13,27 @@ namespace VirtoCommerce.Xapi.Core.Schemas.ScalarTypes
         private readonly DateTimeGraphType _dateTimeGraphType = new();
         private readonly BooleanGraphType _booleanGraphType = new();
 
-        public override bool CanParseLiteral(IValue value)
+        public override bool CanParseLiteral(GraphQLValue value)
         {
             return value switch
             {
-                IntValue or LongValue or BigIntValue => _intGraphType.CanParseLiteral(value) || _decimalGraphType.CanParseLiteral(value),
-                FloatValue or DecimalValue => _decimalGraphType.CanParseLiteral(value),
-                BooleanValue => _booleanGraphType.CanParseLiteral(value),
-                NullValue => true,
+                GraphQLIntValue => _intGraphType.CanParseLiteral(value) || _decimalGraphType.CanParseLiteral(value),
+                GraphQLFloatValue => _decimalGraphType.CanParseLiteral(value),
+                GraphQLBooleanValue => _booleanGraphType.CanParseLiteral(value),
+                GraphQLNullValue => true,
                 _ => base.CanParseLiteral(value)
             };
         }
 
-        public override object ParseLiteral(IValue value)
+        public override object ParseLiteral(GraphQLValue value)
         {
             return value switch
             {
-                IntValue or LongValue or BigIntValue => _intGraphType.CanParseLiteral(value) ? _intGraphType.ParseLiteral(value) : _decimalGraphType.ParseLiteral(value),
-                FloatValue or DecimalValue => _decimalGraphType.ParseLiteral(value),
-                BooleanValue => _booleanGraphType.ParseLiteral(value),
-                StringValue => _dateTimeGraphType.CanParseLiteral(value) ? _dateTimeGraphType.ParseLiteral(value) : _stringGraphType.ParseLiteral(value),
-                NullValue => null,
+                GraphQLIntValue => _intGraphType.CanParseLiteral(value) ? _intGraphType.ParseLiteral(value) : _decimalGraphType.ParseLiteral(value),
+                GraphQLFloatValue => _decimalGraphType.ParseLiteral(value),
+                GraphQLBooleanValue => _booleanGraphType.ParseLiteral(value),
+                GraphQLStringValue => _dateTimeGraphType.CanParseLiteral(value) ? _dateTimeGraphType.ParseLiteral(value) : _stringGraphType.ParseLiteral(value),
+                GraphQLNullValue => null,
                 _ => ThrowLiteralConversionError(value)
             };
         }

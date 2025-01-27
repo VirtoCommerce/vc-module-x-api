@@ -1,9 +1,8 @@
-using GraphQL.Types;
 using Microsoft.AspNetCore.Identity;
 
 namespace VirtoCommerce.Xapi.Core.Schemas;
 
-public class PasswordOptionsType : ObjectGraphType<PasswordOptions>
+public class PasswordOptionsType : ExtendableGraphType<PasswordOptions>
 {
     public PasswordOptionsType()
     {

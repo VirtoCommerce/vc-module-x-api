@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Types;
+using VirtoCommerce.Xapi.Core.Schemas;
 using Xunit;
 
 namespace VirtoCommerce.Xapi.Tests
@@ -13,27 +14,25 @@ namespace VirtoCommerce.Xapi.Tests
         {
             public string Name { get; set; }
         }
-        public class FooType : ObjectGraphType<Foo>
+        public class FooType : ExtendableGraphType<Foo>
         {
             public FooType()
             {
                 Name = "Foo";
                 Field(x => x.Name);
                 //This nested field cause 'A loop has been detected while registering schema types.' exception in GraphTypesLookup.AddTypeWithLoopCheck
-                Field<FooType>("parent", resolve: (ctx) => new Foo());
+                Field<FooType>("parent").Resolve((ctx) => new Foo());
             }
         }
         public class FooType2 : FooType
         {
         }
-        public class RootQuery : ObjectGraphType<object>
+        public class RootQuery : ExtendableGraphType<object>
         {
             public RootQuery()
             {
-                Field<FooType>(
-                    "foo",
-                    resolve: context => new FooType() { }
-                );
+                Field<FooType>("foo")
+                    .Resolve(context => new FooType() { });
             }
         }
         public class MySchema : Schema

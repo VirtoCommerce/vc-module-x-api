@@ -1,4 +1,3 @@
-using VirtoCommerce.Xapi.Core.Helpers;
 using VirtoCommerce.Xapi.Core.Models;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
@@ -11,8 +10,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
 
             Field(x => x.Id, nullable: false).Description("Vendor ID");
             Field(x => x.Name, nullable: false).Description("Vendor name");
-            Field(
-                GraphTypeExtenstionHelper.GetActualType<RatingType>(),
+            ExtendableField<RatingType>(
                 "rating",
                 "Vendor rating",
                 resolve: context =>
