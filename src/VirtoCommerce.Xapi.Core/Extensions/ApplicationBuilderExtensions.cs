@@ -40,13 +40,13 @@ public static class ApplicationBuilderExtensions
 
         if (schemaIntrospectionEnabled)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var playgroundPath = "/ui/playground";
             if (!string.IsNullOrEmpty(schemaPath))
             {
                 playgroundPath = $"{playgroundPath}/{schemaPath}";
             }
 
-#pragma warning disable CS0618 // Type or member is obsolete
             // UI Playground
             builder.UseGraphQLPlayground(playgroundPath,
                 new PlaygroundOptions
@@ -58,11 +58,16 @@ public static class ApplicationBuilderExtensions
 
             // GraphiQL
             var graphiqlPath = "/ui/graphiql";
+            if (!string.IsNullOrEmpty(schemaPath))
+            {
+                graphiqlPath = $"{graphiqlPath}/{schemaPath}";
+            }
+
             builder.UseGraphQLGraphiQL(path: graphiqlPath,
                 new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
                 {
-                    GraphQLEndPoint = graphQlPath,         // url of GraphQL endpoint
-                    SubscriptionsEndPoint = graphQlPath,   // url of GraphQL endpoint
+                    GraphQLEndPoint = graphQlPath,
+                    SubscriptionsEndPoint = graphQlPath,
                 });
         }
 
