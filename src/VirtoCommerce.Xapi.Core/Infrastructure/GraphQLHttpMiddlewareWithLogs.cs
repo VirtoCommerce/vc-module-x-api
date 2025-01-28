@@ -28,7 +28,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             IServiceScopeFactory serviceScopeFactory,
             GraphQLHttpMiddlewareOptions options,
             IHostApplicationLifetime hostApplicationLifetime,
-            TelemetryClient telemetryClient)
+            TelemetryClient telemetryClient = null)
             : base(next, serializer, documentExecuter, serviceScopeFactory, options, hostApplicationLifetime)
         {
             _telemetryClient = telemetryClient;
