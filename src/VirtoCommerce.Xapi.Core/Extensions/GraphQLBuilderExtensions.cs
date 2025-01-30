@@ -46,7 +46,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         public static IGraphQLBuilder AddSchema(this IGraphQLBuilder builder, IServiceCollection services, Type assemblyMarker)
         {
             builder.AddGraphTypes(assemblyMarker.Assembly);
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assemblyMarker.Assembly));
+            services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(assemblyMarker.Assembly));
             services.AddAutoMapper(assemblyMarker);
             services.AddSchemaBuilders(assemblyMarker);
 
@@ -56,7 +56,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         public static IGraphQLBuilder AddSchema(this IGraphQLBuilder builder, IServiceCollection services, Type coreAssemblyMarker, Type dataAssemblyMarker)
         {
             builder.AddGraphTypes(coreAssemblyMarker.Assembly);
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(coreAssemblyMarker.Assembly, dataAssemblyMarker.Assembly));
+            services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(coreAssemblyMarker.Assembly, dataAssemblyMarker.Assembly));
             services.AddAutoMapper(coreAssemblyMarker, dataAssemblyMarker);
             services.AddSchemaBuilders(dataAssemblyMarker);
 
