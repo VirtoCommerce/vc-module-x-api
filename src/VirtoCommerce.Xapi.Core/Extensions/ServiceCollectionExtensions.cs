@@ -15,7 +15,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         public static ISchemaTypeBuilder<TSchemaType> AddSchemaType<TSchemaType>(this IServiceCollection services) where TSchemaType : class, IGraphType
         {
             //Register GraphQL Schema type in the ServicesCollection
-            services.AddSingleton<TSchemaType>();
+            services.TryAddTransient<TSchemaType>();
 
             return new SchemaTypeBuilder<TSchemaType>(services);
         }
@@ -64,7 +64,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             where TOld : class, IGraphType
             where TNew : class, IGraphType, TOld
         {
-            services.AddSingleton<TNew>();
+            services.TryAddTransient<TNew>();
             AbstractTypeFactory<IGraphType>.OverrideType<TOld, TNew>();
         }
     }
