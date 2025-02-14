@@ -97,6 +97,15 @@ namespace VirtoCommerce.Xapi.Core
                     IsPublic = true
                 };
 
+                public static SettingDescriptor ContinueShoppingLink { get; } = new SettingDescriptor
+                {
+                    Name = "Frontend.ContinueShoppingLink",
+                    ValueType = SettingValueType.ShortText,
+                    GroupName = "Virto Commerce Frontend",
+                    DefaultValue = string.Empty,
+                    IsPublic = true
+                };
+
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
