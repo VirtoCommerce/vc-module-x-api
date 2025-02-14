@@ -27,6 +27,10 @@
     "Frontend.SupportPhoneNumber": {
       "title": "Support phone number",
       "description": "The phone number in the 'Call us' section"
+    },
+    "Frontend.ContinueShoppingLink": {
+      "title": "Continue shopping link",
+      "description": "Allows customers to quickly return to browsing products"
     }
   }
 }
