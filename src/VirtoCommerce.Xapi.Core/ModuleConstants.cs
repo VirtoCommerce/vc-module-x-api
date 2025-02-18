@@ -117,6 +117,7 @@ namespace VirtoCommerce.Xapi.Core
                         yield return SupportPhoneNumber;
                         yield return CatalogMenuLinkListName;
                         yield return CatalogEmptyCategoriesEnabled;
+                        yield return ContinueShoppingLink;
                     }
                 }
             }
@@ -131,7 +132,7 @@ namespace VirtoCommerce.Xapi.Core
                     yield return General.SupportPhoneNumber;
                     yield return General.CatalogMenuLinkListName;
                     yield return General.CatalogEmptyCategoriesEnabled;
-
+                    yield return General.ContinueShoppingLink;
                 }
             }
         }
