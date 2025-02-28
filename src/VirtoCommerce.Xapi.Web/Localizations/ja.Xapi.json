@@ -1,0 +1,36 @@
+{
+  "settings": {
+    "VirtoCommerce.Platform.EnvironmentName": {
+      "title": "環境名",
+      "description": ""
+    },
+    "Frontend.PageTitleWithStoreName": {
+      "title": "ページタイトルにストア名を表示",
+      "description": "ページタイトルにストア名を表示します。例: 'ホーム - ストア名'."
+    },
+    "Frontend.PageTitleStoreNameAlign": {
+      "title": "ページタイトルのストア名の位置",
+      "description": "ページタイトルのストア名の位置。サポートされている値: 開始, 終了."
+    },
+    "Frontend.PageTitleDivider": {
+      "title": "ページタイトルの区切り文字",
+      "description": "ページタイトルの区切り文字。例: 'ホーム - ストア名'."
+    },
+    "Frontend.CatalogMenuLinkListName": {
+      "title": "トップレベルのカタログリンクリスト",
+      "description": "トップレベルのカタログリンクリストの名前を指定します（例: catalog-menu）。空のままにすると、既存のカテゴリに基づいてメニューが自動的に生成されます。"
+    },
+    "Frontend.CatalogEmptyCategoriesEnabled": {
+      "title": "空のカテゴリを表示",
+      "description": "製品のないカテゴリを取得するリクエストを制御します"
+    },
+    "Frontend.SupportPhoneNumber": {
+      "title": "サポート電話番号",
+      "description": "'お問い合わせ'セクションの電話番号"
+    },
+    "Frontend.ContinueShoppingLink": {
+      "title": "ショッピングを続けるリンク",
+      "description": "顧客が製品の閲覧にすぐに戻ることができるようにします"
+    }
+  }
+}
