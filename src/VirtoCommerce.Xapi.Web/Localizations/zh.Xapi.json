@@ -1,0 +1,36 @@
+{
+  "settings": {
+    "VirtoCommerce.Platform.EnvironmentName": {
+      "title": "环境名称",
+      "description": ""
+    },
+    "Frontend.PageTitleWithStoreName": {
+      "title": "在页面标题中显示商店名称",
+      "description": "在页面标题中显示商店名称。例如：'首页 - 商店名称'。"
+    },
+    "Frontend.PageTitleStoreNameAlign": {
+      "title": "页面标题中商店名称的位置",
+      "description": "页面标题中商店名称的位置。支持的值：开始，结束。"
+    },
+    "Frontend.PageTitleDivider": {
+      "title": "页面标题分隔符",
+      "description": "页面标题分隔符。例如：'首页 - 商店名称'。"
+    },
+    "Frontend.CatalogMenuLinkListName": {
+      "title": "顶级目录链接列表",
+      "description": "指定顶级目录链接列表的名称（例如，catalog-menu）。如果留空，菜单将根据现有类别自动生成。"
+    },
+    "Frontend.CatalogEmptyCategoriesEnabled": {
+      "title": "显示空类别",
+      "description": "它控制请求以检索没有产品的类别"
+    },
+    "Frontend.SupportPhoneNumber": {
+      "title": "支持电话号码",
+      "description": "'联系我们'部分的电话号码"
+    },
+    "Frontend.ContinueShoppingLink": {
+      "title": "继续购物链接",
+      "description": "允许客户快速返回浏览产品"
+    }
+  }
+}

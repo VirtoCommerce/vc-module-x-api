@@ -97,6 +97,15 @@ namespace VirtoCommerce.Xapi.Core
                     IsPublic = true
                 };
 
+                public static SettingDescriptor ContinueShoppingLink { get; } = new SettingDescriptor
+                {
+                    Name = "Frontend.ContinueShoppingLink",
+                    ValueType = SettingValueType.ShortText,
+                    GroupName = "Virto Commerce Frontend",
+                    DefaultValue = string.Empty,
+                    IsPublic = true
+                };
+
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
@@ -108,6 +117,7 @@ namespace VirtoCommerce.Xapi.Core
                         yield return SupportPhoneNumber;
                         yield return CatalogMenuLinkListName;
                         yield return CatalogEmptyCategoriesEnabled;
+                        yield return ContinueShoppingLink;
                     }
                 }
             }
@@ -122,7 +132,7 @@ namespace VirtoCommerce.Xapi.Core
                     yield return General.SupportPhoneNumber;
                     yield return General.CatalogMenuLinkListName;
                     yield return General.CatalogEmptyCategoriesEnabled;
-
+                    yield return General.ContinueShoppingLink;
                 }
             }
         }

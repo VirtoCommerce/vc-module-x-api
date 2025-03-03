@@ -1,0 +1,36 @@
+{
+  "settings": {
+    "VirtoCommerce.Platform.EnvironmentName": {
+      "title": "Имя окружения",
+      "description": ""
+    },
+    "Frontend.PageTitleWithStoreName": {
+      "title": "Показывать имя магазина в заголовке страницы",
+      "description": "Показывать имя магазина в заголовке страницы. Пример: 'Главная - Имя Магазина'."
+    },
+    "Frontend.PageTitleStoreNameAlign": {
+      "title": "Позиция имени магазина в заголовке страницы",
+      "description": "Позиция имени магазина в заголовке страницы. Поддерживаемые значения: начало, конец."
+    },
+    "Frontend.PageTitleDivider": {
+      "title": "Разделитель заголовка страницы",
+      "description": "Разделитель заголовка страницы. Пример: 'Главная - Имя Магазина'."
+    },
+    "Frontend.CatalogMenuLinkListName": {
+      "title": "Список ссылок верхнего уровня каталога",
+      "description": "Указывает имя списка ссылок верхнего уровня каталога (например, catalog-menu). Если оставить пустым, меню будет автоматически сгенерировано на основе существующих категорий."
+    },
+    "Frontend.CatalogEmptyCategoriesEnabled": {
+      "title": "Отображать пустые категории",
+      "description": "Управляет запросом на получение категорий без продуктов"
+    },
+    "Frontend.SupportPhoneNumber": {
+      "title": "Номер телефона поддержки",
+      "description": "Номер телефона в разделе 'Позвоните нам'"
+    },
+    "Frontend.ContinueShoppingLink": {
+      "title": "Ссылка для продолжения покупок",
+      "description": "Позволяет клиентам быстро вернуться к просмотру товаров"
+    }
+  }
+}

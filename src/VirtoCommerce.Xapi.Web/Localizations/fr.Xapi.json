@@ -1,0 +1,36 @@
+{
+  "settings": {
+    "VirtoCommerce.Platform.EnvironmentName": {
+      "title": "Nom de l'environnement",
+      "description": ""
+    },
+    "Frontend.PageTitleWithStoreName": {
+      "title": "Afficher le nom du magasin dans le titre de la page",
+      "description": "Afficher le nom du magasin dans le titre de la page. Exemple : 'Accueil - NomDuMagasin'."
+    },
+    "Frontend.PageTitleStoreNameAlign": {
+      "title": "Position du nom du magasin dans le titre de la page",
+      "description": "Position du nom du magasin dans le titre de la page. Valeurs supportées : début, fin."
+    },
+    "Frontend.PageTitleDivider": {
+      "title": "Séparateur de titre de page",
+      "description": "Séparateur de titre de page. Exemple : 'Accueil - NomDuMagasin'."
+    },
+    "Frontend.CatalogMenuLinkListName": {
+      "title": "Liste de liens du catalogue de niveau supérieur",
+      "description": "Spécifie le nom de la liste de liens du catalogue de niveau supérieur (par exemple, menu-catalogue). Si laissé vide, le menu sera automatiquement généré en fonction des catégories existantes."
+    },
+    "Frontend.CatalogEmptyCategoriesEnabled": {
+      "title": "Afficher les catégories vides",
+      "description": "Contrôle la demande de récupération des catégories sans produits"
+    },
+    "Frontend.SupportPhoneNumber": {
+      "title": "Numéro de téléphone du support",
+      "description": "Le numéro de téléphone dans la section 'Appelez-nous'"
+    },
+    "Frontend.ContinueShoppingLink": {
+      "title": "Lien pour continuer vos achats",
+      "description": "Permet aux clients de retourner rapidement à la navigation des produits"
+    }
+  }
+}
