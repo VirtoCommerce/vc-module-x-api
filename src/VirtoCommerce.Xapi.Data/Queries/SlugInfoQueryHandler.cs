@@ -2,11 +2,11 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using VirtoCommerce.CatalogModule.Core.Extensions;
 using VirtoCommerce.CoreModule.Core.Seo;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
-using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Queries;
@@ -61,12 +61,12 @@ namespace VirtoCommerce.Xapi.Data.Queries
             var itemsToMatch = await _seoResolver.FindSeoAsync(criteria);
 
             var seoInfosForStore = itemsToMatch.Where(x => x.StoreId == store.Id).ToArray();
-            var bestMatchSeoInfo = seoInfosForStore.GetBestMatchingSeoInfo(store.Id, store.DefaultLanguage, criteria.LanguageCode, criteria.Slug, criteria.Permalink);
+            var bestMatchSeoInfo = seoInfosForStore.GetBestMatchingSeoInfo(store, criteria.LanguageCode, criteria.Slug, criteria.Permalink);
 
             if (bestMatchSeoInfo == null)
             {
                 var seoInfosWithoutStore = itemsToMatch.Where(x => string.IsNullOrEmpty(x.StoreId)).ToArray();
-                bestMatchSeoInfo = seoInfosWithoutStore.GetBestMatchingSeoInfo(store.Id, criteria);
+                bestMatchSeoInfo = seoInfosWithoutStore.GetBestMatchingSeoInfo(store, criteria.LanguageCode, criteria.Slug, criteria.Permalink);
             }
 
             return bestMatchSeoInfo;
