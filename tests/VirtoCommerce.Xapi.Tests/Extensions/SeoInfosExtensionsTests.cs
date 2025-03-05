@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using VirtoCommerce.CatalogModule.Core.Extensions;
 using VirtoCommerce.CoreModule.Core.Seo;
-using VirtoCommerce.Xapi.Core.Extensions;
+using VirtoCommerce.StoreModule.Core.Model;
 using Xunit;
 
 namespace VirtoCommerce.Xapi.Tests.Extensions
@@ -18,12 +19,12 @@ namespace VirtoCommerce.Xapi.Tests.Extensions
                 new SeoInfo { StoreId = "Store2", LanguageCode = "en-US", SemanticUrl = "product1" },
                 new SeoInfo { StoreId = "Store2", LanguageCode = "en-US", SemanticUrl = "product2" }
             };
-            var storeId = "Store1";
+            var store = new Store { Id = "Store1", DefaultLanguage = "en-US" };
             var cultureName = "en-US";
             var slug = "product1";
 
             // Act
-            var result = seoInfos.GetBestMatchingSeoInfo(storeId, cultureName, slug);
+            var result = seoInfos.GetBestMatchingSeoInfo(store, cultureName, slug);
 
             // Assert
             Assert.NotNull(result);
@@ -43,12 +44,12 @@ namespace VirtoCommerce.Xapi.Tests.Extensions
                 new SeoInfo { StoreId = "Store2", LanguageCode = "en-US", SemanticUrl = "product1" },
                 new SeoInfo { StoreId = "Store2", LanguageCode = "en-US", SemanticUrl = "product2" }
             };
-            string storeId = null;
+            Store store = null;
             string cultureName = null;
             string slug = null;
 
             // Act
-            var result = seoInfos.GetBestMatchingSeoInfo(storeId, cultureName, slug);
+            var result = seoInfos.GetBestMatchingSeoInfo(store, cultureName, slug);
 
             // Assert
             Assert.Null(result);
@@ -64,17 +65,16 @@ namespace VirtoCommerce.Xapi.Tests.Extensions
                 new SeoInfo { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "product1" },
                 new SeoInfo { StoreId = "Store1", LanguageCode = "fr-FR", SemanticUrl = "product1" },
             };
-            var storeId = "Store1";
+            var store = new Store { Id = "Store1", DefaultLanguage = "en-US" };
             var cultureName = "de-DE";
             var slug = "product1";
-            var defaultStoreLang = "en-US";
 
             // Act
-            var result = seoInfos.GetBestMatchingSeoInfo(storeId, cultureName, defaultStoreLang, slug);
+            var result = seoInfos.GetBestMatchingSeoInfo(store, cultureName, slug);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(result.LanguageCode, defaultStoreLang);
+            Assert.Equal(result.LanguageCode, store.DefaultLanguage);
         }
 
         [Fact]
@@ -86,13 +86,12 @@ namespace VirtoCommerce.Xapi.Tests.Extensions
                 new SeoInfo { StoreId = "Store1", LanguageCode = "fr-FR", SemanticUrl = "product1" },
                 new SeoInfo { StoreId = "Store1", LanguageCode = null, SemanticUrl = "product1" },
             };
-            var storeId = "Store1";
+            var store = new Store { Id = "Store1", DefaultLanguage = "en-US" };
             var cultureName = "de-DE";
             var slug = "product1";
-            var defaultStoreLang = "en-US";
 
             // Act
-            var result = seoInfos.GetBestMatchingSeoInfo(storeId, cultureName, defaultStoreLang, slug);
+            var result = seoInfos.GetBestMatchingSeoInfo(store, cultureName, slug);
 
             // Assert
             Assert.NotNull(result);
