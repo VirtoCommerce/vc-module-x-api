@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using VirtoCommerce.CatalogModule.Core.Extensions;
 using VirtoCommerce.CoreModule.Core.Seo;
+using VirtoCommerce.StoreModule.Core.Extensions;
 using VirtoCommerce.StoreModule.Core.Model;
 using Xunit;
 
