@@ -1,8 +1,8 @@
-# Experience API / X-Api
+# Virto Commerce Experience API (xApi) Module
 
 [![CI status](https://github.com/VirtoCommerce/vc-module-x-api/workflows/Module%20CI/badge.svg?branch=dev)](https://github.com/VirtoCommerce/vc-module-x-api/actions?query=workflow%3A"Module+CI") [![Quality gate](https://sonarcloud.io/api/project_badges/measure?project=VirtoCommerce_vc-module-x-api&metric=alert_status&branch=dev)](https://sonarcloud.io/dashboard?id=VirtoCommerce_vc-module-x-api) [![Reliability rating](https://sonarcloud.io/api/project_badges/measure?project=VirtoCommerce_vc-module-x-api&metric=reliability_rating&branch=dev)](https://sonarcloud.io/dashboard?id=VirtoCommerce_vc-module-x-api) [![Security rating](https://sonarcloud.io/api/project_badges/measure?project=VirtoCommerce_vc-module-x-api&metric=security_rating&branch=dev)](https://sonarcloud.io/dashboard?id=VirtoCommerce_vc-module-x-api) [![Sqale rating](https://sonarcloud.io/api/project_badges/measure?project=VirtoCommerce_vc-module-x-api&metric=sqale_rating&branch=dev)](https://sonarcloud.io/dashboard?id=VirtoCommerce_vc-module-x-api)
 
-The Experience API (XAPI) module is the core business API component, central to handling general API functions and integrations within the VirtoCommerce platform. As part of our transition to a more composable architecture, the XAPI module is designed to provide a robust and flexible foundation for business GraphQL / API interactions, ensuring seamless integration and efficient API management.
+The Experience API (xAPI) module is the core business API component, central to handling general API functions and integrations within the VirtoCommerce platform. As part of our transition to a more composable architecture, the XAPI module is designed to provide a robust and flexible foundation for business GraphQL / API interactions, ensuring seamless integration and efficient API management.
 
 ## Architecture
 The primary function of the Experience API (xAPI) module is to isolate high-performance ecommerce business logic from client applications and data providers. This approach involves the following architectural components:
@@ -13,12 +13,12 @@ The primary function of the Experience API (xAPI) module is to isolate high-perf
   
 By decoupling business logic from client applications and data sources, the xAPI module promotes a modular architecture that enhances maintainability, scalability, and flexibility. This design allows developers to update or replace components independently without disrupting the overall system, fostering a more resilient and adaptable ecommerce platform.
 
-## Features
-- [X-API](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/): Core business API module.
-- [X-Catalog](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Catalog/overview/): Manages catalog-related operations.
-- [X-Cart](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Cart/overview/): Handles cart-related functionalities.
-- [X-Orders](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Order/overview/): Manages order processing.
-- [X-UserProfile](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Profile/overview/): Handles My Customer and My Organization functionalities.
+## Key Features
+- [xAPI](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/): Core business API module.
+- [xCatalog](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Catalog/overview/): Manages catalog-related operations.
+- [xCart](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Cart/overview/): Handles cart-related functionalities.
+- [xOrders](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Order/overview/): Manages order processing.
+- [xProfile](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Profile/overview/): Handles My Customer and My Organization functionalities.
 and more ...
 
 ## Modularity
@@ -45,18 +45,21 @@ Other modules that add additional Xapi Scenarios:
 * VirtoCommerce.WhiteLabeling
 
 ## Documentation
-- [Experience API Documentation](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/)
-- [Getting started](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/getting-started/)
-- [How to use Playground IDE](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/playground/)
-- [GraphQL API call from Postman](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/postman/)
-- [How to extend](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/x-api-extensions/)
-- [Virto Commerce Frontend Architecture](https://docs.virtocommerce.org/storefront/developer-guide/architecture/)
+
+* [Experience API Documentation](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/)
+* [Getting started](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/getting-started/)
+* [How to use GraphiQL](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/graphiql/)
+* [How to use Postman](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/postman/)
+* [How to extend](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/x-api-extensions/)
+* [Virto Commerce Frontend architecture](https://docs.virtocommerce.org/storefront/developer-guide/architecture/)
 
 ## References
-* Home: https://virtocommerce.com
-* Documantation: https://docs.virtocommerce.org
-* Community: https://www.virtocommerce.org
-* [Download Latest Release](https://github.com/VirtoCommerce/vc-module-x-api/releases)
+
+* [Deployment](https://docs.virtocommerce.org/platform/developer-guide/Tutorials-and-How-tos/Tutorials/deploy-module-from-source-code/)
+* [Installation](https://docs.virtocommerce.org/platform/user-guide/modules-installation/)
+* [Home](https://virtocommerce.com)
+* [Community](https://www.virtocommerce.org)
+* [Download latest release](https://github.com/VirtoCommerce/vc-module-inventory/releases/latest)
 
 ## License
 Copyright (c) Virto Solutions LTD.  All rights reserved.
