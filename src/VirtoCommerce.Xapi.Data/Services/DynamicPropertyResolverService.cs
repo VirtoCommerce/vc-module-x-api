@@ -22,8 +22,8 @@ namespace VirtoCommerce.Xapi.Data.Services
         /// <returns>Loaded Dynamic Property Values for specified entity</returns>
         public async Task<IEnumerable<DynamicPropertyObjectValue>> LoadDynamicPropertyValues(IHasDynamicProperties entity, string cultureName)
         {
-            // actual values
-            var result = entity.DynamicProperties.SelectMany(x => x.Values.Select(v =>
+            var result = entity.DynamicProperties?
+                .SelectMany(x => x.Values.Select(v =>
                 {
                     var clone = (DynamicPropertyObjectValue)v.Clone();
                     clone.PropertyName = GetLocalizedPropertyName(x, cultureName);
@@ -56,19 +56,15 @@ namespace VirtoCommerce.Xapi.Data.Services
             return emptyValues;
         }
 
-        private static System.Func<DynamicProperty, DynamicPropertyObjectValue> CreateDynamicPropertyObjectValue(IHasDynamicProperties entity, string cultureName)
-        {
-            return x =>
+        private static System.Func<DynamicProperty, DynamicPropertyObjectValue> CreateDynamicPropertyObjectValue(IHasDynamicProperties entity, string cultureName) =>
+            x => new DynamicPropertyObjectValue
             {
-                var newValue = AbstractTypeFactory<DynamicPropertyObjectValue>.TryCreateInstance();
-                newValue.ObjectId = entity.Id;
-                newValue.ObjectType = entity.ObjectType;
-                newValue.PropertyId = x.Id;
-                newValue.PropertyName = GetLocalizedPropertyName(x, cultureName);
-                newValue.ValueType = x.ValueType;
-                return newValue;
+                ObjectId = entity.Id,
+                ObjectType = entity.ObjectType,
+                PropertyId = x.Id,
+                PropertyName = GetLocalizedPropertyName(x, cultureName),
+                ValueType = x.ValueType
             };
-        }
 
         private static string GetLocalizedPropertyName(DynamicProperty dynamicProperty, string cultureName)
         {
@@ -79,14 +75,9 @@ namespace VirtoCommerce.Xapi.Data.Services
 
             var localizedName = dynamicProperty.DisplayNames
                 .FirstOrDefault(n => string.Equals(n.Locale, cultureName, System.StringComparison.InvariantCulture))
-                .Name;
+                ?.Name;
 
-            if (string.IsNullOrEmpty(localizedName))
-            {
-                localizedName = dynamicProperty.Name;
-            }
-
-            return localizedName;
+            return string.IsNullOrEmpty(localizedName) ? dynamicProperty.Name : localizedName;
         }
     }
 }
