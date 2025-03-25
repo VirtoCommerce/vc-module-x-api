@@ -86,14 +86,22 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         //PT-1606:  Need to check what there is no any alternative way to access to the original request arguments in sub selection
         public static void CopyArgumentsToUserContext(this IResolveFieldContext resolveContext)
         {
-            if (resolveContext.Arguments.IsNullOrEmpty())
+            if (!resolveContext.Arguments.IsNullOrEmpty())
             {
-                return;
+                foreach (var pair in resolveContext.Arguments)
+                {
+                    resolveContext.UserContext.TryAdd(pair.Key, pair.Value);
+                }
             }
 
-            foreach (var pair in resolveContext.Arguments)
+            // try to copy "command" variables from parent context
+            var commandVariables = resolveContext.Variables?.FirstOrDefault(x => x.Name == "command");
+            if (commandVariables != null && commandVariables.Value is Dictionary<string, object> variables)
             {
-                resolveContext.UserContext.TryAdd(pair.Key, pair.Value);
+                foreach (var pair in variables)
+                {
+                    resolveContext.UserContext.TryAdd(pair.Key, pair.Value);
+                }
             }
         }
 

@@ -1,3 +1,4 @@
+using System;
 using GraphQL.Types;
 
 namespace VirtoCommerce.Xapi.Core.Helpers
@@ -9,6 +10,7 @@ namespace VirtoCommerce.Xapi.Core.Helpers
             new QueryArgument<StringGraphType> { Name = Constants.CultureName }
         );
 
+        [Obsolete("Use cultureName parameter on query, mutation level", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/platform/user-guide/versions/virto3-products-versions/")]
         public static QueryArguments GetArgumentForDynamicProperties()
         {
             return new QueryArguments(new QueryArgument<StringGraphType>
