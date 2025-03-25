@@ -23,7 +23,13 @@ namespace VirtoCommerce.Xapi.Data.Services
         public async Task<IEnumerable<DynamicPropertyObjectValue>> LoadDynamicPropertyValues(IHasDynamicProperties entity, string cultureName)
         {
             // actual values
-            var result = entity.DynamicProperties?.SelectMany(x => x.Values) ?? Enumerable.Empty<DynamicPropertyObjectValue>();
+            var result = entity.DynamicProperties.SelectMany(x => x.Values.Select(v =>
+                {
+                    var clone = (DynamicPropertyObjectValue)v.Clone();
+                    clone.PropertyName = GetLocalizedPropertyName(x, cultureName);
+                    return clone;
+                }))
+                ?? [];
 
             if (!cultureName.IsNullOrEmpty())
             {
@@ -31,27 +37,56 @@ namespace VirtoCommerce.Xapi.Data.Services
             }
 
             // find and add all the properties without values
+            var emptyValues = await ResolvePropertiesWithoutValues(entity, cultureName);
+
+            return result.Union(emptyValues);
+        }
+
+        private async Task<IEnumerable<DynamicPropertyObjectValue>> ResolvePropertiesWithoutValues(IHasDynamicProperties entity, string cultureName)
+        {
             var criteria = AbstractTypeFactory<DynamicPropertySearchCriteria>.TryCreateInstance();
             criteria.ObjectType = entity.ObjectType;
-            criteria.Take = int.MaxValue;
-            var searchResult = await _dynamicPropertySearchService.SearchAsync(criteria);
+            var searchResult = await _dynamicPropertySearchService.SearchAllNoCloneAsync(criteria);
 
             var entryDynamicProperties = entity.DynamicProperties ?? Enumerable.Empty<DynamicObjectProperty>();
-            var existingDynamicProperties = searchResult.Results
+            var existingDynamicProperties = searchResult
                 .Where(p => entryDynamicProperties.Any(x => x.Id == p.Id || x.Name.EqualsInvariant(p.Name)));
-            var propertiesWithoutValue = searchResult.Results.Except(existingDynamicProperties);
-            var emptyValues = propertiesWithoutValue.Select(x =>
+            var propertiesWithoutValue = searchResult.Except(existingDynamicProperties);
+            var emptyValues = propertiesWithoutValue.Select(CreateDynamicPropertyObjectValue(entity, cultureName));
+            return emptyValues;
+        }
+
+        private static System.Func<DynamicProperty, DynamicPropertyObjectValue> CreateDynamicPropertyObjectValue(IHasDynamicProperties entity, string cultureName)
+        {
+            return x =>
             {
                 var newValue = AbstractTypeFactory<DynamicPropertyObjectValue>.TryCreateInstance();
                 newValue.ObjectId = entity.Id;
                 newValue.ObjectType = entity.ObjectType;
                 newValue.PropertyId = x.Id;
-                newValue.PropertyName = x.Name;
+                newValue.PropertyName = GetLocalizedPropertyName(x, cultureName);
                 newValue.ValueType = x.ValueType;
                 return newValue;
-            });
+            };
+        }
 
-            return result.Union(emptyValues);
+        private static string GetLocalizedPropertyName(DynamicProperty dynamicProperty, string cultureName)
+        {
+            if (string.IsNullOrEmpty(cultureName) || dynamicProperty.DisplayNames.IsNullOrEmpty())
+            {
+                return dynamicProperty.Name;
+            }
+
+            var localizedName = dynamicProperty.DisplayNames
+                .FirstOrDefault(n => string.Equals(n.Locale, cultureName, System.StringComparison.InvariantCulture))
+                .Name;
+
+            if (string.IsNullOrEmpty(localizedName))
+            {
+                localizedName = dynamicProperty.Name;
+            }
+
+            return localizedName;
         }
     }
 }
