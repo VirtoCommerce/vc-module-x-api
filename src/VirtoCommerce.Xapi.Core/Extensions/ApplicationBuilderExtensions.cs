@@ -1,5 +1,9 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.WebSockets;
+using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,10 +51,46 @@ public static class ApplicationBuilderExtensions
             }
 
             builder.UseGraphQLGraphiQL(path: graphiqlPath,
-                new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
+                new GraphiQLOptions
                 {
                     GraphQLEndPoint = graphQlPath,
                     SubscriptionsEndPoint = graphQlPath,
+                    IndexStream = _ =>
+                    {
+                        var originalStream = new GraphiQLOptions().IndexStream(null);
+                        using (var reader = new StreamReader(originalStream, leaveOpen: true))
+                        {
+                            var content = reader.ReadToEnd();
+
+                            var pathsDictionary = new Dictionary<string, string>
+                            {
+                                { "https://unpkg.com/graphiql@3.2.0/graphiql.min.css", null },
+                                { "https://unpkg.com/graphiql@3.2.0/graphiql.min.js", null }
+                            };
+
+                            var modifiedContent = "<!-- Using local paths --!>\n" + content;
+
+                            // Replace CDN paths with local paths
+                            foreach (var item in pathsDictionary.Where(x => x.Value != null))
+                            {
+                                var cdnPackagePath = item.Key;
+                                var newPackagePath = item.Value;
+
+                                modifiedContent = modifiedContent.Replace(cdnPackagePath, newPackagePath);
+                            }
+
+                            var modifiedStream = new MemoryStream();
+                            using (var writer = new StreamWriter(modifiedStream, leaveOpen: true))
+                            {
+                                writer.Write(modifiedContent);
+                                writer.Flush();
+
+                                modifiedStream.Position = 0;
+                            }
+
+                            return modifiedStream;
+                        }
+                    }
                 });
         }
 
