@@ -51,6 +51,8 @@ public static class ApplicationBuilderExtensions
                 {
                     GraphQLEndPoint = graphQlPath,
                     SubscriptionsEndPoint = graphQlPath,
+                    IndexStream = _ => typeof(CoreAssemblyMarker).Assembly
+                        .GetManifestResourceStream("VirtoCommerce.Xapi.Core.UI.graphiql.cshtml")!,
                 });
         }
 
