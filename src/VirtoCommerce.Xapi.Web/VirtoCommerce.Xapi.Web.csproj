@@ -14,7 +14,4 @@
     <ProjectReference Include="..\VirtoCommerce.Xapi.Core\VirtoCommerce.Xapi.Core.csproj" />
     <ProjectReference Include="..\VirtoCommerce.Xapi.Data\VirtoCommerce.Xapi.Data.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Content\graphiql\" />
-  </ItemGroup>
 </Project>

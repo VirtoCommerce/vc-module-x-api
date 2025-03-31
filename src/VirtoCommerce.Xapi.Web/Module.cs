@@ -1,3 +1,4 @@
+using System.IO;
 using GraphQL;
 using GraphQL.Types;
 using GraphQL.Validation.Rules;
@@ -97,7 +98,9 @@ namespace VirtoCommerce.Xapi.Web
 
             // add http for Schema at default url /graphql
             // use GraphQL Playground at default URL /ui/playground
-            appBuilder.UseSchemaGraphQL<ISchema>(IsSchemaIntrospectionEnabled);
+
+            var graphiqlFilePath = Path.Combine(ModuleInfo.FullPhysicalPath, "Content/graphiql/index.html");
+            appBuilder.UseSchemaGraphQL<ISchema>(graphiqlFilePath, IsSchemaIntrospectionEnabled);
 
             // settings
             var settingsRegistrar = serviceProvider.GetRequiredService<ISettingsRegistrar>();
