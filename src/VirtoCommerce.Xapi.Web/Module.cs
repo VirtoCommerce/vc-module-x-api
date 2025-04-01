@@ -77,14 +77,9 @@ namespace VirtoCommerce.Xapi.Web
 
             if (IsSchemaIntrospectionEnabled)
             {
-                serviceCollection.AddSingleton(_ =>
+                serviceCollection.Configure<GraphiQLOptions>(options =>
                 {
-                    return new GraphiQLOptions
-                    {
-                        IndexStream = _ => File.OpenRead(
-                            Path.Combine(ModuleInfo.FullPhysicalPath, "Content/graphiql/index.html")
-                        ),
-                    };
+                    options.IndexStream = _ => File.OpenRead(Path.Combine(ModuleInfo.FullPhysicalPath, "Content/graphiql/index.html"));
                 });
             }
 

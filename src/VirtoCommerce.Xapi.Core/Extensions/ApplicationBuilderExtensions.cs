@@ -47,7 +47,7 @@ public static class ApplicationBuilderExtensions
                 graphiqlPath = $"{graphiqlPath}/{schemaPath}";
             }
 
-            var options = builder.ApplicationServices.GetRequiredService<GraphiQLOptions>();
+            var options = builder.ApplicationServices.GetRequiredService<IOptions<GraphiQLOptions>>().Value;
 
             options.GraphQLEndPoint = graphQlPath;
             options.SubscriptionsEndPoint = graphQlPath;
