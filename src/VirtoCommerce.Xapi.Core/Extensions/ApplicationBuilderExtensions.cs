@@ -46,14 +46,12 @@ public static class ApplicationBuilderExtensions
                 graphiqlPath = $"{graphiqlPath}/{schemaPath}";
             }
 
-            builder.UseGraphQLGraphiQL(path: graphiqlPath,
-                new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
-                {
-                    GraphQLEndPoint = graphQlPath,
-                    SubscriptionsEndPoint = graphQlPath,
-                    IndexStream = _ => typeof(CoreAssemblyMarker).Assembly
-                        .GetManifestResourceStream("VirtoCommerce.Xapi.Core.UI.index.html")!,
-                });
+            var options = builder.ApplicationServices.GetRequiredService<GraphQL.Server.Ui.GraphiQL.GraphiQLOptions>();
+
+            options.GraphQLEndPoint = graphQlPath;
+            options.SubscriptionsEndPoint = graphQlPath;
+
+            builder.UseGraphQLGraphiQL(path: graphiqlPath, options);
         }
 
         return builder;
