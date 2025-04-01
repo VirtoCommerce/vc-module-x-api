@@ -12,14 +12,14 @@ namespace VirtoCommerce.Xapi.Core.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
-    public static IApplicationBuilder UseScopedSchema<TMarker>(this IApplicationBuilder builder, string graphiqlFilePath, string schemaPath)
+    public static IApplicationBuilder UseScopedSchema<TMarker>(this IApplicationBuilder builder, string schemaPath)
     {
         var playgroundOptions = builder.ApplicationServices.GetService<IOptions<GraphQLPlaygroundOptions>>();
 
-        return builder.UseSchemaGraphQL<ScopedSchemaFactory<TMarker>>(graphiqlFilePath, playgroundOptions?.Value?.Enable ?? true, schemaPath);
+        return builder.UseSchemaGraphQL<ScopedSchemaFactory<TMarker>>(playgroundOptions?.Value?.Enable ?? true, schemaPath);
     }
 
-    public static IApplicationBuilder UseSchemaGraphQL<TSchema>(this IApplicationBuilder builder, string graphiqlFilePath, bool schemaIntrospectionEnabled = true, string schemaPath = null)
+    public static IApplicationBuilder UseSchemaGraphQL<TSchema>(this IApplicationBuilder builder, bool schemaIntrospectionEnabled = true, string schemaPath = null)
         where TSchema : ISchema
     {
         var graphQlPath = string.IsNullOrEmpty(schemaPath)
@@ -31,7 +31,7 @@ public static class ApplicationBuilderExtensions
         builder.UseGraphQL<GraphQLHttpMiddlewareWithLogs<TSchema>>(path: graphQlPath, new GraphQLHttpMiddlewareOptions()
         {
             // configure keep-alive packets
-            WebSockets = new GraphQLWebSocketOptions()
+            WebSockets = new GraphQLWebSocketOptions
             {
                 KeepAliveTimeout = webSocketOptions.Value.KeepAliveInterval,
             }
@@ -51,7 +51,8 @@ public static class ApplicationBuilderExtensions
                 {
                     GraphQLEndPoint = graphQlPath,
                     SubscriptionsEndPoint = graphQlPath,
-                    IndexStream = _ => System.IO.File.OpenRead(graphiqlFilePath),
+                    IndexStream = _ => typeof(CoreAssemblyMarker).Assembly
+                        .GetManifestResourceStream("VirtoCommerce.Xapi.Core.UI.index.html")!,
                 });
         }
 
