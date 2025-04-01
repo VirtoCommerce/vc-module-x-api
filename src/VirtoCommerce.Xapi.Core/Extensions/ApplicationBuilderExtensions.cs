@@ -1,3 +1,4 @@
+using System;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.WebSockets;
 using GraphQL.Server.Ui.GraphiQL;
@@ -47,7 +48,7 @@ public static class ApplicationBuilderExtensions
                 graphiqlPath = $"{graphiqlPath}/{schemaPath}";
             }
 
-            var options = builder.ApplicationServices.GetRequiredService<IOptions<GraphiQLOptions>>().Value;
+            var options = builder.ApplicationServices.GetRequiredService<Func<GraphiQLOptions>>()();
 
             options.GraphQLEndPoint = graphQlPath;
             options.SubscriptionsEndPoint = graphQlPath;

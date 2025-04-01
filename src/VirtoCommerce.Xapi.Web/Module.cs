@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using GraphQL;
 using GraphQL.Server.Ui.GraphiQL;
@@ -77,9 +78,10 @@ namespace VirtoCommerce.Xapi.Web
 
             if (IsSchemaIntrospectionEnabled)
             {
-                serviceCollection.Configure<GraphiQLOptions>(options =>
+                serviceCollection.AddTransient<Func<GraphiQLOptions>>(_ => () => new GraphiQLOptions
                 {
-                    options.IndexStream = _ => File.OpenRead(Path.Combine(ModuleInfo.FullPhysicalPath, "Content/graphiql/index.html"));
+                    IndexStream = _ =>
+                        File.OpenRead(Path.Combine(ModuleInfo.FullPhysicalPath, "Content/graphiql/index.html")),
                 });
             }
 
