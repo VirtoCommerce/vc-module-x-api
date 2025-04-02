@@ -1,4 +1,4 @@
-const moduleId = "VirtoCommerce.Store"
+const moduleId = "VirtoCommerce.Xapi"
 
 const glob = require("glob");
 const path = require("path");
