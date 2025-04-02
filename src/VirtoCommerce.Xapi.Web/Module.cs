@@ -1,4 +1,7 @@
+using System;
+using System.IO;
 using GraphQL;
+using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Types;
 using GraphQL.Validation.Rules;
 using Microsoft.AspNetCore.Builder;
@@ -73,6 +76,14 @@ namespace VirtoCommerce.Xapi.Web
                 }
             });
 
+            if (IsSchemaIntrospectionEnabled)
+            {
+                serviceCollection.AddTransient<Func<GraphiQLOptions>>(_ => () => new GraphiQLOptions
+                {
+                    IndexStream = _ =>
+                        File.OpenRead(Path.Combine(ModuleInfo.FullPhysicalPath, "Content/graphiql/index.html")),
+                });
+            }
 
             //Register xApi boundaries
             serviceCollection.AddXCore(Configuration);
