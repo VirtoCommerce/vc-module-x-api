@@ -7,10 +7,13 @@ if (AppDependencies !== undefined) {
 
 angular.module(moduleName, [])
     .run(
-        ['platformWebApp.devToolsList',
-            function (devToolsList) {
-                devToolsList.add({
-                    name: 'GraphQL',
-                    url: '/ui/graphiql'
-                });
+        ['$injector',
+            function ($injector) {
+                if ($injector.has('platformWebApp.devToolsList')) {
+                    var devToolsList = $injector.get('platformWebApp.devToolsList');
+                    devToolsList.add({
+                        name: 'GraphQL',
+                        url: '/ui/graphiql'
+                    });
+                }
             }]);
