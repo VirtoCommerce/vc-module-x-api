@@ -23,6 +23,8 @@ namespace VirtoCommerce.Xapi.Data.Services
         /// <returns>Loaded Dynamic Property Values for specified entity</returns>
         public async Task<IEnumerable<DynamicPropertyObjectValue>> LoadDynamicPropertyValues(IHasDynamicProperties entity, string cultureName)
         {
+            ArgumentNullException.ThrowIfNull(entity);
+
             var entityDynamicProperties = await GetDynamicPropertyMetaData(entity);
 
             var result = entity.DynamicProperties?
@@ -91,7 +93,7 @@ namespace VirtoCommerce.Xapi.Data.Services
 
         private static string GetLocalizedPropertyName(DynamicProperty dynamicProperty, string cultureName)
         {
-            ArgumentNullException.ThrowIfNull(dynamicProperty, nameof(dynamicProperty));
+            ArgumentNullException.ThrowIfNull(dynamicProperty);
 
             if (string.IsNullOrEmpty(cultureName) || dynamicProperty.DisplayNames.IsNullOrEmpty())
             {
