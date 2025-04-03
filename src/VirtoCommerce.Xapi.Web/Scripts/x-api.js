@@ -9,8 +9,8 @@ angular.module(moduleName, [])
     .run(
         ['$injector',
             function ($injector) {
-                if ($injector.has('platformWebApp.devToolsList')) {
-                    var devToolsList = $injector.get('platformWebApp.devToolsList');
+                if ($injector.has('platformWebApp.developerToolsList')) {
+                    var devToolsList = $injector.get('platformWebApp.developerToolsList');
                     devToolsList.add({
                         name: 'GraphQL',
                         url: '/ui/graphiql'
