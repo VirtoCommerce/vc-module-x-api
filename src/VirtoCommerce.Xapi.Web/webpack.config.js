@@ -9,12 +9,10 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const rootPath = path.resolve(__dirname, 'dist');
 
 function getEntryPoints() {
-    const result = [
+    return [
         ...glob.sync('./Scripts/**/*.js', { nosort: true }),
         ...glob.sync('./Content/**/*.css', { nosort: true }),
     ];
-
-    return result;
 }
 
 module.exports = (env, argv) => {
@@ -48,6 +46,6 @@ module.exports = (env, argv) => {
             new MiniCssExtractPlugin({
                 filename: 'style.css',
             }),
-        ]
+        ],
     };
 };

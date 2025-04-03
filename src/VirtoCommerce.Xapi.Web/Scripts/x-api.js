@@ -1,4 +1,4 @@
-var moduleName = "virtoCommerce.xApi";
+var moduleName = "virtoCommerce.xapi";
 
 if (AppDependencies !== undefined) {
     AppDependencies.push(moduleName);
