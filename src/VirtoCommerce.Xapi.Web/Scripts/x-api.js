@@ -13,6 +13,7 @@ angular.module(moduleName, [])
                     developerTools.add({
                         name: 'GraphQL',
                         url: '/ui/graphiql',
+                        sortOrder: 1000,
                     });
                 }
             }]);

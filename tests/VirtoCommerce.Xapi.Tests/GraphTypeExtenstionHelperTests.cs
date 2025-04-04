@@ -44,8 +44,8 @@ namespace VirtoCommerce.Xapi.Tests
             var targetType = GraphTypeExtensionHelper.GetActualComplexType<FooComplex<FooType>>();
 
             // Assert
-            typeof(FooComplex<FooType>).GenericTypeArguments.Should().OnlyContain(x => x.Name.EqualsInvariant(nameof(FooType)));
-            targetType.GenericTypeArguments.Should().OnlyContain(x => x.Name.EqualsInvariant(nameof(FooTypeExtended)));
+            typeof(FooComplex<FooType>).GenericTypeArguments.Should().OnlyContain(x => x.Name.EqualsIgnoreCase(nameof(FooType)));
+            targetType.GenericTypeArguments.Should().OnlyContain(x => x.Name.EqualsIgnoreCase(nameof(FooTypeExtended)));
         }
 
         [Fact]
@@ -58,8 +58,8 @@ namespace VirtoCommerce.Xapi.Tests
             var targetType = GraphTypeExtensionHelper.GetActualComplexType<FooComplex2<FooComplex<FooType>>>();
 
             // Assert
-            typeof(FooComplex2<FooComplex<FooType>>).GenericTypeArguments[0].GenericTypeArguments.Should().OnlyContain(x => x.Name.EqualsInvariant(nameof(FooType)));
-            targetType.GenericTypeArguments[0].GenericTypeArguments.Should().OnlyContain(x => x.Name.EqualsInvariant(nameof(FooTypeExtended)));
+            typeof(FooComplex2<FooComplex<FooType>>).GenericTypeArguments[0].GenericTypeArguments.Should().OnlyContain(x => x.Name.EqualsIgnoreCase(nameof(FooType)));
+            targetType.GenericTypeArguments[0].GenericTypeArguments.Should().OnlyContain(x => x.Name.EqualsIgnoreCase(nameof(FooTypeExtended)));
         }
 
         public class FooType : GraphType

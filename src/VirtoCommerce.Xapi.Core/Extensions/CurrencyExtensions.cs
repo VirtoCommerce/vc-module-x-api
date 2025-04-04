@@ -13,7 +13,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         {
             ArgumentNullException.ThrowIfNull(currencies);
 
-            var currency = currencies.FirstOrDefault(x => x.Code.EqualsInvariant(currencyCode));
+            var currency = currencies.FirstOrDefault(x => x.Code.EqualsIgnoreCase(currencyCode));
             if (currency == null)
             {
                 throw new OperationCanceledException($"currency with code: {currencyCode} is not registered in the system");

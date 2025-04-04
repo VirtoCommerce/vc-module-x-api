@@ -21,7 +21,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             ArgumentNullException.ThrowIfNull(hasLanguages);
 
             //Try find object for passed language event if it null
-            var result = hasLanguages.FirstOrDefault(x => langSelector(x)?.EqualsInvariant(language) ?? langSelector(x) == language);
+            var result = hasLanguages.FirstOrDefault(x => langSelector(x)?.EqualsIgnoreCase(language) ?? langSelector(x) == language);
             if (result == null)
             {
                 //find the first with no language set

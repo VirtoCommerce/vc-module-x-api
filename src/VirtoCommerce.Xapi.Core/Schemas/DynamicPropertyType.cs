@@ -25,7 +25,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                 .Resolve(context =>
                 {
                     var culture = context.GetValue<string>("cultureName");
-                    return context.Source.DisplayNames.FirstOrDefault(x => culture.IsNullOrEmpty() || x.Locale.EqualsInvariant(culture))?.Name;
+                    return context.Source.DisplayNames.FirstOrDefault(x => culture.IsNullOrEmpty() || x.Locale.EqualsIgnoreCase(culture))?.Name;
                 });
             Field(x => x.DisplayOrder, nullable: true).Description("The order for the dynamic property to display");
             Field<NonNullGraphType<DynamicPropertyValueTypeEnum>>("dynamicPropertyValueType")

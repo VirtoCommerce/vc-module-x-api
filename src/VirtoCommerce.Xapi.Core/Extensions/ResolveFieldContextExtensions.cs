@@ -158,7 +158,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         public static Currency GetCurrencyByCode<T>(this IResolveFieldContext<T> userContext, string currencyCode)
         {
             var allCurrencies = userContext.GetValue<IEnumerable<Currency>>("allCurrencies");
-            var result = allCurrencies?.FirstOrDefault(x => x.Code.EqualsInvariant(currencyCode));
+            var result = allCurrencies?.FirstOrDefault(x => x.Code.EqualsIgnoreCase(currencyCode));
             if (result == null)
             {
                 throw new OperationCanceledException($"the currency with code '{currencyCode}' is not registered");
