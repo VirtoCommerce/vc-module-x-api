@@ -20,7 +20,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
         public void Process(ITelemetry item)
         {
             // skip plain "POST /graphql" (without operation name) requests to reduce AppInsights telemetry flood
-            if (item is RequestTelemetry request && request.Name?.EqualsInvariant("POST /graphql") == true)
+            if (item is RequestTelemetry request && request.Name?.EqualsIgnoreCase("POST /graphql") == true)
             {
                 return;
             }

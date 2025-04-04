@@ -24,7 +24,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             };
 
             // Act
-            var result = await _discountType.Fields.FirstOrDefault(x => x.Name.EqualsInvariant("Coupon")).Resolver.ResolveAsync(resolveContext);
+            var result = await _discountType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("Coupon")).Resolver.ResolveAsync(resolveContext);
 
             // Assert
             result.Should().BeOfType<string>();
@@ -42,7 +42,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             };
 
             // Act
-            var result = await _discountType.Fields.FirstOrDefault(x => x.Name.EqualsInvariant("Description")).Resolver.ResolveAsync(resolveContext);
+            var result = await _discountType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("Description")).Resolver.ResolveAsync(resolveContext);
 
             // Assert
             result.Should().BeOfType<string>();
@@ -60,7 +60,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             };
 
             // Act
-            var result = await _discountType.Fields.FirstOrDefault(x => x.Name.EqualsInvariant("PromotionId")).Resolver.ResolveAsync(resolveContext);
+            var result = await _discountType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("PromotionId")).Resolver.ResolveAsync(resolveContext);
 
             // Assert
             result.Should().BeOfType<string>();
@@ -78,7 +78,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             };
 
             // Act
-            var result = await _discountType.Fields.FirstOrDefault(x => x.Name.EqualsInvariant("Amount")).Resolver.ResolveAsync(resolveContext);
+            var result = await _discountType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("Amount")).Resolver.ResolveAsync(resolveContext);
 
             // Assert
             result.Should().BeOfType<decimal>();
@@ -96,7 +96,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             };
 
             // Act
-            var result = await _discountType.Fields.FirstOrDefault(x => x.Name.EqualsInvariant("AmountWithTax")).Resolver.ResolveAsync(resolveContext);
+            var result = await _discountType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("AmountWithTax")).Resolver.ResolveAsync(resolveContext);
 
             // Assert
             result.Should().BeOfType<decimal>();

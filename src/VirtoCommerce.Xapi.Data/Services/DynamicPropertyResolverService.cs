@@ -38,7 +38,7 @@ namespace VirtoCommerce.Xapi.Data.Services
 
             if (!cultureName.IsNullOrEmpty())
             {
-                result = result.Where(x => x.Locale.IsNullOrEmpty() || x.Locale.EqualsInvariant(cultureName));
+                result = result.Where(x => x.Locale.IsNullOrEmpty() || x.Locale.EqualsIgnoreCase(cultureName));
             }
 
             // find and add all the properties without values
@@ -51,7 +51,7 @@ namespace VirtoCommerce.Xapi.Data.Services
         {
             var entryDynamicProperties = entity.DynamicProperties ?? Enumerable.Empty<DynamicObjectProperty>();
             var existingDynamicProperties = entityDynamicProperties
-                .Where(p => entryDynamicProperties.Any(x => x.Id == p.Id || x.Name.EqualsInvariant(p.Name)));
+                .Where(p => entryDynamicProperties.Any(x => x.Id == p.Id || x.Name.EqualsIgnoreCase(p.Name)));
             var propertiesWithoutValue = entityDynamicProperties.Except(existingDynamicProperties);
             var emptyValues = propertiesWithoutValue.Select(CreateDynamicPropertyObjectValue(entity, cultureName));
             return emptyValues;
@@ -82,7 +82,7 @@ namespace VirtoCommerce.Xapi.Data.Services
                 return dynamicPropertyName;
             }
 
-            var dynamicProperty = entityDynamicProperties.FirstOrDefault(x => x.Name.EqualsInvariant(dynamicPropertyName));
+            var dynamicProperty = entityDynamicProperties.FirstOrDefault(x => x.Name.EqualsIgnoreCase(dynamicPropertyName));
             if (dynamicProperty == null)
             {
                 return dynamicPropertyName;
