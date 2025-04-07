@@ -6,7 +6,6 @@ using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using VirtoCommerce.Platform.Core.DeveloperTools;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Models;
 using static VirtoCommerce.Xapi.Core.ModuleConstants;
@@ -55,10 +54,6 @@ public static class ApplicationBuilderExtensions
             options.SubscriptionsEndPoint = graphQlPath;
 
             builder.UseGraphQLGraphiQL(path: graphiqlPath, options);
-
-            // developer tool
-            var developerToolRegistrar = builder.ApplicationServices.GetRequiredService<IDeveloperToolRegistrar>();
-            developerToolRegistrar.RegisterDeveloperTool(new DeveloperToolDescriptor { Name = "GraphQL", Url = "/ui/graphiql", SortOrder = 40 });
         }
 
         return builder;

@@ -7,6 +7,7 @@ using GraphQL.Validation.Rules;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using VirtoCommerce.Platform.Core.DeveloperTools;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.TaxModule.Core.Model;
@@ -114,6 +115,13 @@ namespace VirtoCommerce.Xapi.Web
             var settingsRegistrar = serviceProvider.GetRequiredService<ISettingsRegistrar>();
             settingsRegistrar.RegisterSettings(Settings.General.AllSettings, ModuleInfo.Id);
             settingsRegistrar.RegisterSettingsForType(Settings.StoreLevelSettings, nameof(Store));
+
+            if (IsSchemaIntrospectionEnabled)
+            {
+                // developer tool
+                var developerToolRegistrar = serviceProvider.GetRequiredService<IDeveloperToolRegistrar>();
+                developerToolRegistrar.RegisterDeveloperTool(new DeveloperToolDescriptor { Name = "GraphQL", Url = "/ui/graphiql", SortOrder = 40 });
+            }
         }
 
         public void Uninstall()
