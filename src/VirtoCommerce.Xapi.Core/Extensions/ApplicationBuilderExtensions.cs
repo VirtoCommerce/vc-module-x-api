@@ -1,5 +1,7 @@
+using System;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Server.Transports.AspNetCore.WebSockets;
+using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +33,7 @@ public static class ApplicationBuilderExtensions
         builder.UseGraphQL<GraphQLHttpMiddlewareWithLogs<TSchema>>(path: graphQlPath, new GraphQLHttpMiddlewareOptions()
         {
             // configure keep-alive packets
-            WebSockets = new GraphQLWebSocketOptions()
+            WebSockets = new GraphQLWebSocketOptions
             {
                 KeepAliveTimeout = webSocketOptions.Value.KeepAliveInterval,
             }
@@ -46,12 +48,12 @@ public static class ApplicationBuilderExtensions
                 graphiqlPath = $"{graphiqlPath}/{schemaPath}";
             }
 
-            builder.UseGraphQLGraphiQL(path: graphiqlPath,
-                new GraphQL.Server.Ui.GraphiQL.GraphiQLOptions
-                {
-                    GraphQLEndPoint = graphQlPath,
-                    SubscriptionsEndPoint = graphQlPath,
-                });
+            var options = builder.ApplicationServices.GetRequiredService<Func<GraphiQLOptions>>()();
+
+            options.GraphQLEndPoint = graphQlPath;
+            options.SubscriptionsEndPoint = graphQlPath;
+
+            builder.UseGraphQLGraphiQL(path: graphiqlPath, options);
         }
 
         return builder;
