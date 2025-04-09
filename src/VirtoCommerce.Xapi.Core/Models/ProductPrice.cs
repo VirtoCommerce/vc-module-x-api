@@ -29,7 +29,7 @@ namespace VirtoCommerce.Xapi.Core.Models
         /// <summary>
         /// Price list name.
         /// </summary>
-        public string PriceListName { get; set; }
+        public string PricelistName { get; set; }
 
         /// <summary>
         /// Currency
