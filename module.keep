@@ -7,3 +7,4 @@ Microsoft.ApplicationInsights.AspNetCore.dll
 Microsoft.ApplicationInsights.dll
 Microsoft.Extensions.Logging.ApplicationInsights.dll
 Microsoft.Extensions.Logging.AzureAppServices.dll
+VirtoCommerce.TaxModule.Core.dll
