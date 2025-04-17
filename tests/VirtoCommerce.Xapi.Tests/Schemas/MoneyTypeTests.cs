@@ -31,7 +31,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             };
 
             // Act
-            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsInvariant("Amount")).Resolver.ResolveAsync(resolveContext);
+            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("Amount")).Resolver.ResolveAsync(resolveContext);
 
             // Assert
             result.Should().BeOfType<decimal>();
@@ -49,7 +49,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             };
 
             // Act
-            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsInvariant("DecimalDigits")).Resolver.ResolveAsync(resolveContext);
+            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("DecimalDigits")).Resolver.ResolveAsync(resolveContext);
 
             // Assert
             result.Should().BeOfType<int>();
@@ -67,7 +67,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             };
 
             // Act
-            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsInvariant("FormattedAmount")).Resolver.ResolveAsync(resolveContext);
+            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("FormattedAmount")).Resolver.ResolveAsync(resolveContext);
 
             // Assert
             result.Should().BeOfType<string>();
@@ -85,7 +85,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             };
 
             // Act
-            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsInvariant("FormattedAmountWithoutCurrency")).Resolver.ResolveAsync(resolveContext);
+            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("FormattedAmountWithoutCurrency")).Resolver.ResolveAsync(resolveContext);
 
             // Assert
             result.Should().BeOfType<string>();
@@ -103,7 +103,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             };
 
             // Act
-            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsInvariant("FormattedAmountWithoutPoint")).Resolver.ResolveAsync(resolveContext);
+            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("FormattedAmountWithoutPoint")).Resolver.ResolveAsync(resolveContext);
 
             // Assert
             result.Should().BeOfType<string>();
@@ -121,7 +121,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             };
 
             // Act
-            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsInvariant("FormattedAmountWithoutPointAndCurrency")).Resolver.ResolveAsync(resolveContext);
+            var result = await _moneyType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("FormattedAmountWithoutPointAndCurrency")).Resolver.ResolveAsync(resolveContext);
 
             // Assert
             result.Should().BeOfType<string>();

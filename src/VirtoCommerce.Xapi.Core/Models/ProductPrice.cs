@@ -132,7 +132,7 @@ namespace VirtoCommerce.Xapi.Core.Models
 
         public void ApplyTaxRates(IEnumerable<TaxRate> taxRates)
         {
-            var productTaxRates = taxRates.Where(x => x.Line.Id.EqualsInvariant(ProductId));
+            var productTaxRates = taxRates.Where(x => x.Line.Id.EqualsIgnoreCase(ProductId));
             var taxRate = productTaxRates.FirstOrDefault(x => x.Line.Quantity == 0);
             if (taxRate != null)
             {

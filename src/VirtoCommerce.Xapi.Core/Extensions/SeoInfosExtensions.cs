@@ -78,11 +78,11 @@ public static class SeoInfosExtensions
         var score = new[]
         {
                 seoInfo.IsActive,
-                !string.IsNullOrEmpty(permalink) && permalink.TrimStart('/').EqualsInvariant(seoInfo.SemanticUrl.TrimStart('/')),
-                !string.IsNullOrEmpty(slug) && slug.TrimStart('/').EqualsInvariant(seoInfo.SemanticUrl.TrimStart('/')),
-                storeId.EqualsInvariant(seoInfo.StoreId),
+                !string.IsNullOrEmpty(permalink) && permalink.TrimStart('/').EqualsIgnoreCase(seoInfo.SemanticUrl.TrimStart('/')),
+                !string.IsNullOrEmpty(slug) && slug.TrimStart('/').EqualsIgnoreCase(seoInfo.SemanticUrl.TrimStart('/')),
+                storeId.EqualsIgnoreCase(seoInfo.StoreId),
                 language.Equals(seoInfo.LanguageCode),
-                defaultStoreLang.EqualsInvariant(seoInfo.LanguageCode),
+                defaultStoreLang.EqualsIgnoreCase(seoInfo.LanguageCode),
                 seoInfo.LanguageCode.IsNullOrEmpty()
             }
         .Reverse()
