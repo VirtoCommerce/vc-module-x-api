@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.Platform.Core.DeveloperTools;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Settings;
-using VirtoCommerce.TaxModule.Core.Model;
+using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.Xapi.Core;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure;
