@@ -13,6 +13,7 @@ using VirtoCommerce.Xapi.Core.Queries;
 
 namespace VirtoCommerce.Xapi.Data.Queries
 {
+    [Obsolete("Class is deprecated, please use SEO module instead.", DiagnosticId = "VC0011", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     public class SlugInfoQueryHandler : IQueryHandler<SlugInfoQuery, SlugInfoResponse>
     {
         private readonly CompositeSeoResolver _seoResolver;
@@ -52,6 +53,12 @@ namespace VirtoCommerce.Xapi.Data.Queries
             criteria.UserId = request.UserId;
 
             result.EntityInfo = await GetBestMatchingSeoInfo(criteria, store);
+
+            if (result.EntityInfo == null)
+            {
+                // todo: use seofaultservice
+                result.RedirectUrl = "";
+            }
 
             return result;
         }

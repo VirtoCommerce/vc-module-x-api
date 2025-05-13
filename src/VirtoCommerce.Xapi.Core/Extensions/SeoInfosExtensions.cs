@@ -40,6 +40,7 @@ public static class SeoInfosExtensions
             criteria.Slug, criteria.Permalink);
     }
 
+    [Obsolete("Use VirtoCommerce.Seo.Core.Extensions", DiagnosticId = "VC0011", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     private static SeoInfo GetBestMatchingSeoInfoInternal(IList<SeoInfo> seoInfos, string storeId,
         string defaultStoreLang, string cultureName, string slug, string permalink)
     {
@@ -50,6 +51,7 @@ public static class SeoInfosExtensions
         return seoInfos.GetBestMatchingSeoInfos(storeId, defaultStoreLang, cultureName, slug, permalink);
     }
 
+    [Obsolete("Use VirtoCommerce.Seo.Core.Extensions", DiagnosticId = "VC0011", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     public static SeoInfo GetFallbackSeoInfo(string id, string name, string cultureName)
     {
         var result = AbstractTypeFactory<SeoInfo>.TryCreateInstance();
@@ -59,6 +61,7 @@ public static class SeoInfosExtensions
         return result;
     }
 
+    [Obsolete("Use VirtoCommerce.Seo.Core.Extensions", DiagnosticId = "VC0011", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     private static SeoInfo GetBestMatchingSeoInfos(this IEnumerable<SeoInfo> seoRecords, string storeId, string defaultStoreLang, string language, string slug, string permalink)
     {
         var result = seoRecords?.Select(s => new
@@ -73,6 +76,7 @@ public static class SeoInfosExtensions
         return result;
     }
 
+    [Obsolete("Use VirtoCommerce.Seo.Core.Extensions", DiagnosticId = "VC0011", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     private static int CalculateScore(SeoInfo seoInfo, string slug, string permalink, string storeId, string defaultStoreLang, string language)
     {
         var score = new[]
