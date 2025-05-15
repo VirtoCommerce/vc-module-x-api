@@ -59,17 +59,9 @@ namespace VirtoCommerce.Xapi.Data.Queries
         protected virtual async Task<SeoInfo> GetBestMatchingSeoInfo(SeoSearchCriteria criteria, Store store)
         {
             var itemsToMatch = await _seoResolver.FindSeoAsync(criteria);
-
-            var seoInfosForStore = itemsToMatch.Where(x => x.StoreId == store.Id).ToArray();
-            var bestMatchSeoInfo = seoInfosForStore.GetBestMatchingSeoInfo(store, criteria.LanguageCode, criteria.Slug, criteria.Permalink);
-
-            if (bestMatchSeoInfo == null)
-            {
-                var seoInfosWithoutStore = itemsToMatch.Where(x => string.IsNullOrEmpty(x.StoreId)).ToArray();
-                bestMatchSeoInfo = seoInfosWithoutStore.GetBestMatchingSeoInfo(store, criteria.LanguageCode, criteria.Slug, criteria.Permalink);
-            }
-
-            return bestMatchSeoInfo;
+            // result should have items only from current store or without store
+            var result = itemsToMatch.Where(x => x.StoreId == store.Id || string.IsNullOrEmpty(x.StoreId));
+            return result.GetBestMatchingSeoInfo(store, criteria.LanguageCode, criteria.Slug, criteria.Permalink);
         }
     }
 }
