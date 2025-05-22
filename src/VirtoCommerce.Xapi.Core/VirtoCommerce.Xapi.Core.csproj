@@ -41,5 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\vc-module-core\src\VirtoCommerce.CoreModule.Core\VirtoCommerce.CoreModule.Core.csproj" />
+    <ProjectReference Include="..\..\..\vc-module-seo\src\VirtoCommerce.Seo.Core\VirtoCommerce.Seo.Core.csproj" />
   </ItemGroup>
 </Project>

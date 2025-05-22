@@ -118,15 +118,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
 
         protected virtual List<ISchemaBuilder> GetSchemaBuilders()
         {
-            var typeToIgnore = _schemaBuilders
-                .SelectMany(x => x.GetType().GetCustomAttributes(typeof(ReplaceSchemaAttribute), false))
-                .Cast<ReplaceSchemaAttribute>()
-                .Select(x => x.SchemaToReplace)
-                .ToArray();
-
-            var result = _schemaBuilders.Where(x => !typeToIgnore.Contains(x.GetType())).ToList();
-
-            return result;
+            return _schemaBuilders.ToList();
         }
 
         public void Initialize()
