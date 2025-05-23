@@ -49,9 +49,9 @@ namespace VirtoCommerce.Xapi.Web
 #pragma warning restore CS0618 // Type or member is obsolete
 
             // Register .NET GraphQL server
-            serviceCollection.AddGraphQL(bulder =>
+            serviceCollection.AddGraphQL(builder =>
             {
-                bulder
+                builder
                     .AddNewtonsoftJson()
                     .AddSchema(serviceCollection, typeof(CoreAssemblyMarker), typeof(DataAssemblyMarker))
                     .AddPermissionAuthorization()
@@ -71,9 +71,9 @@ namespace VirtoCommerce.Xapi.Web
 
                 if (!IsSchemaIntrospectionEnabled)
                 {
-                    bulder.ReplaceValidationRule<KnownTypeNames, CustomKnownTypeNames>();
-                    bulder.ReplaceValidationRule<FieldsOnCorrectType, CustomFieldsOnCorrectType>();
-                    bulder.ReplaceValidationRule<KnownArgumentNames, CustomKnownArgumentNames>();
+                    builder.ReplaceValidationRule<KnownTypeNames, CustomKnownTypeNames>();
+                    builder.ReplaceValidationRule<FieldsOnCorrectType, CustomFieldsOnCorrectType>();
+                    builder.ReplaceValidationRule<KnownArgumentNames, CustomKnownArgumentNames>();
                 }
             });
 
