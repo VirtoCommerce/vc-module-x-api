@@ -27,10 +27,12 @@
     <PackageReference Include="PipelineNet" Version="0.9.0" />
     <PackageReference Include="RedLock.net" Version="2.3.2" />
     <PackageReference Include="System.Reactive" Version="6.0.0" />
+    <PackageReference Include="VirtoCommerce.CoreModule.Core" Version="3.821.0-alpha.1659-vcst-3299" />
     <PackageReference Include="VirtoCommerce.Platform.Core" Version="3.887.0" />
-    <PackageReference Include="VirtoCommerce.CustomerModule.Core" Version="3.817.0" />
+    <PackageReference Include="VirtoCommerce.CustomerModule.Core" Version="3.832.0-alpha.893-vcst-3299" />
     <PackageReference Include="VirtoCommerce.SearchModule.Core" Version="3.804.0" />
-    <PackageReference Include="VirtoCommerce.StoreModule.Core" Version="3.814.0" />
+    <PackageReference Include="VirtoCommerce.Seo.Core" Version="3.800.0-alpha.15-vcst-3299" />
+    <PackageReference Include="VirtoCommerce.StoreModule.Core" Version="3.815.0-alpha.738-vcst-3299" />
     <PackageReference Include="VirtoCommerce.TaxModule.Core" Version="3.802.0" />
   </ItemGroup>
 
@@ -38,9 +40,5 @@
   <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\vc-module-core\src\VirtoCommerce.CoreModule.Core\VirtoCommerce.CoreModule.Core.csproj" />
-    <ProjectReference Include="..\..\..\vc-module-seo\src\VirtoCommerce.Seo.Core\VirtoCommerce.Seo.Core.csproj" />
   </ItemGroup>
 </Project>
