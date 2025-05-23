@@ -8,5 +8,6 @@ public class SlugInfoResponseType : ExtendableGraphType<SlugInfoResponse>
     public SlugInfoResponseType()
     {
         Field<SeoInfoType>("entityInfo").Description("SEO info").Resolve(context => context.Source.EntityInfo);
+        // here should be redirectUrl soon
     }
 }
