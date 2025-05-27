@@ -27,7 +27,7 @@ public class StoreDomainResolverService : IStoreDomainResolverService
         _storeOptions = storeOptions.Value;
     }
 
-    public async Task<Store> GetStoreAsync(StoreDomainRequest request)
+    public virtual async Task<Store> GetStoreAsync(StoreDomainRequest request)
     {
         Store store = null;
 
