@@ -16,10 +16,10 @@ namespace VirtoCommerce.Xapi.Data.Queries;
 
 public class SlugInfoQueryHandler : IQueryHandler<SlugInfoQuery, SlugInfoResponse>
 {
-    private readonly CompositeSeoResolver _seoResolver;
+    private readonly ICompositeSeoResolver _seoResolver;
     private readonly IStoreService _storeService;
 
-    public SlugInfoQueryHandler(CompositeSeoResolver seoResolver, IStoreService storeService)
+    public SlugInfoQueryHandler(ICompositeSeoResolver seoResolver, IStoreService storeService)
     {
         _seoResolver = seoResolver;
         _storeService = storeService;
