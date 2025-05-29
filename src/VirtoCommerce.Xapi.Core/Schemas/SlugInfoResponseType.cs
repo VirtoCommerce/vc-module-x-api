@@ -1,7 +1,6 @@
 using VirtoCommerce.Xapi.Core.Models;
-using VirtoCommerce.Xapi.Core.Schemas;
 
-namespace VirtoCommerce.Xapi.Data.Schemas;
+namespace VirtoCommerce.Xapi.Core.Schemas;
 
 public class SlugInfoResponseType : ExtendableGraphType<SlugInfoResponse>
 {

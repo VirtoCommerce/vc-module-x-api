@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.Xapi.Core.BaseQueries;
 using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Queries;
-using VirtoCommerce.Xapi.Data.Schemas;
+using VirtoCommerce.Xapi.Core.Schemas;
 
 namespace VirtoCommerce.Xapi.Data.Queries;
 

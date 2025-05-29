@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Seo.Core.Extensions;
 using VirtoCommerce.Seo.Core.Models;
 using VirtoCommerce.Seo.Core.Services;
+using VirtoCommerce.StoreModule.Core.Extensions;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.Xapi.Core.Infrastructure;
@@ -66,6 +66,6 @@ public class SlugInfoQueryHandler : IQueryHandler<SlugInfoQuery, SlugInfoRespons
     protected virtual async Task<SeoInfo> GetBestMatchingSeoInfo(SeoSearchCriteria criteria, Store store)
     {
         var itemsToMatch = await _seoResolver.FindSeoAsync(criteria);
-        return itemsToMatch.GetBestMatchingSeoInfo(store.Id, store.DefaultLanguage, criteria.LanguageCode, criteria.Slug, criteria.Permalink);
+        return itemsToMatch.GetBestMatchingSeoInfo(store, criteria.LanguageCode, criteria.Slug, criteria.Permalink);
     }
 }
