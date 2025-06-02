@@ -66,6 +66,6 @@ public class SlugInfoQueryHandler : IQueryHandler<SlugInfoQuery, SlugInfoRespons
     protected virtual async Task<SeoInfo> GetBestMatchingSeoInfo(SeoSearchCriteria criteria, Store store)
     {
         var itemsToMatch = await _seoResolver.FindSeoAsync(criteria);
-        return itemsToMatch.GetBestMatchingSeoInfo(store, criteria.LanguageCode, criteria.Slug, criteria.Permalink);
+        return itemsToMatch.GetBestMatchingSeoInfo(store, criteria.LanguageCode);
     }
 }
