@@ -1,4 +1,4 @@
-using VirtoCommerce.CoreModule.Core.Seo;
+using VirtoCommerce.Seo.Core.Models;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
