@@ -8,31 +8,31 @@ namespace VirtoCommerce.Xapi.Core.Extensions;
 
 public static class SeoInfosExtensions
 {
-    [Obsolete("Use VirtoCommerce.StoreModule.Core.Extensions", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
+    [Obsolete("Use VirtoCommerce.Seo.Core.Extensions", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     public static SeoInfo GetBestMatchingSeoInfo(this IList<SeoInfo> seoInfos, string storeId, string cultureName)
     {
         return GetBestMatchingSeoInfoInternal(seoInfos, storeId, cultureName, cultureName, slug: null, permalink: null);
     }
 
-    [Obsolete("Use VirtoCommerce.StoreModule.Core.Extensions", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
+    [Obsolete("Use VirtoCommerce.Seo.Core.Extensions", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     public static SeoInfo GetBestMatchingSeoInfo(this IList<SeoInfo> seoInfos, string storeId, string cultureName, string slug)
     {
         return GetBestMatchingSeoInfoInternal(seoInfos, storeId, cultureName, cultureName, slug, permalink: null);
     }
 
-    [Obsolete("Use VirtoCommerce.StoreModule.Core.Extensions", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
+    [Obsolete("Use VirtoCommerce.Seo.Core.Extensions", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     public static SeoInfo GetBestMatchingSeoInfo(this IList<SeoInfo> seoInfos, string storeId, string defaultStoreLang, string cultureName, string slug)
     {
         return GetBestMatchingSeoInfoInternal(seoInfos, storeId, defaultStoreLang, cultureName, slug, permalink: null);
     }
 
-    [Obsolete("Use VirtoCommerce.StoreModule.Core.Extensions", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
+    [Obsolete("Use VirtoCommerce.Seo.Core.Extensions", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     public static SeoInfo GetBestMatchingSeoInfo(this IList<SeoInfo> seoInfos, string storeId, string defaultStoreLang, string cultureName, string slug, string permalink)
     {
         return GetBestMatchingSeoInfoInternal(seoInfos, storeId, defaultStoreLang, cultureName, slug, permalink);
     }
 
-    [Obsolete("Use VirtoCommerce.StoreModule.Core.Extensions", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
+    [Obsolete("Use VirtoCommerce.Seo.Core.Extensions", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     public static SeoInfo GetBestMatchingSeoInfo(this IList<SeoInfo> seoInfos, string defaultStoreLang,
         SeoSearchCriteria criteria)
     {
@@ -40,16 +40,7 @@ public static class SeoInfosExtensions
             criteria.Slug, criteria.Permalink);
     }
 
-    private static SeoInfo GetBestMatchingSeoInfoInternal(IList<SeoInfo> seoInfos, string storeId,
-        string defaultStoreLang, string cultureName, string slug, string permalink)
-    {
-        if (storeId.IsNullOrEmpty() || cultureName.IsNullOrEmpty())
-        {
-            return null;
-        }
-        return seoInfos.GetBestMatchingSeoInfos(storeId, defaultStoreLang, cultureName, slug, permalink);
-    }
-
+    [Obsolete("Use VirtoCommerce.Seo.Core.Extensions", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     public static SeoInfo GetFallbackSeoInfo(string id, string name, string cultureName)
     {
         var result = AbstractTypeFactory<SeoInfo>.TryCreateInstance();
@@ -59,7 +50,21 @@ public static class SeoInfosExtensions
         return result;
     }
 
+#pragma warning disable VC0010 // Type or member is obsolete
+    private static SeoInfo GetBestMatchingSeoInfoInternal(IList<SeoInfo> seoInfos, string storeId,
+#pragma warning restore VC0010 // Type or member is obsolete
+        string defaultStoreLang, string cultureName, string slug, string permalink)
+    {
+        if (storeId.IsNullOrEmpty() || cultureName.IsNullOrEmpty())
+        {
+            return null;
+        }
+        return seoInfos.GetBestMatchingSeoInfos(storeId, defaultStoreLang, cultureName, slug, permalink);
+    }
+
+#pragma warning disable VC0010 // Type or member is obsolete
     private static SeoInfo GetBestMatchingSeoInfos(this IEnumerable<SeoInfo> seoRecords, string storeId, string defaultStoreLang, string language, string slug, string permalink)
+#pragma warning restore VC0010 // Type or member is obsolete
     {
         var result = seoRecords?.Select(s => new
         {
@@ -73,7 +78,9 @@ public static class SeoInfosExtensions
         return result;
     }
 
+#pragma warning disable VC0010 // Type or member is obsolete
     private static int CalculateScore(SeoInfo seoInfo, string slug, string permalink, string storeId, string defaultStoreLang, string language)
+#pragma warning restore VC0010 // Type or member is obsolete
     {
         var score = new[]
         {
