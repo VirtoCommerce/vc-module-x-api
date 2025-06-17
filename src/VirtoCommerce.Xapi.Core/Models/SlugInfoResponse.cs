@@ -5,6 +5,6 @@ namespace VirtoCommerce.Xapi.Core.Models
     public class SlugInfoResponse
     {
         public SeoInfo EntityInfo { get; set; }
-        //public string RedirectUrl { get; set; }
+        public string RedirectUrl { get; set; }
     }
 }

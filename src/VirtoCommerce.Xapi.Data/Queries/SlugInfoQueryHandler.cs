@@ -14,16 +14,12 @@ using VirtoCommerce.Xapi.Core.Queries;
 
 namespace VirtoCommerce.Xapi.Data.Queries;
 
-public class SlugInfoQueryHandler : IQueryHandler<SlugInfoQuery, SlugInfoResponse>
+public class SlugInfoQueryHandler(
+    ICompositeSeoResolver seoResolver,
+    IStoreService storeService,
+    IBrokenLinkSearchService brokenLinkSearchService)
+    : IQueryHandler<SlugInfoQuery, SlugInfoResponse>
 {
-    private readonly ICompositeSeoResolver _seoResolver;
-    private readonly IStoreService _storeService;
-
-    public SlugInfoQueryHandler(ICompositeSeoResolver seoResolver, IStoreService storeService)
-    {
-        _seoResolver = seoResolver;
-        _storeService = storeService;
-    }
 
     public async Task<SlugInfoResponse> Handle(SlugInfoQuery request, CancellationToken cancellationToken)
     {
@@ -34,7 +30,7 @@ public class SlugInfoQueryHandler : IQueryHandler<SlugInfoQuery, SlugInfoRespons
             return result;
         }
 
-        var store = await _storeService.GetByIdAsync(request.StoreId);
+        var store = await storeService.GetByIdAsync(request.StoreId);
         if (store is null)
         {
             return result;
@@ -54,18 +50,34 @@ public class SlugInfoQueryHandler : IQueryHandler<SlugInfoQuery, SlugInfoRespons
 
         result.EntityInfo = await GetBestMatchingSeoInfo(criteria, store);
 
-        //if (result.EntityInfo == null)
-        //{
-        //    // todo: use seofaultservice
-        //    result.RedirectUrl = "";
-        //}
+        if (result.EntityInfo == null)
+        {
+            var brokenLinkCriteria = AbstractTypeFactory<BrokenLinkSearchCriteria>.TryCreateInstance();
+
+            brokenLinkCriteria.Permalink = request.Permalink;
+            brokenLinkCriteria.StoreId = store.Id;
+            brokenLinkCriteria.Status = Seo.Core.ModuleConstants.LinkStatus.Resolved;
+            brokenLinkCriteria.LanguageCode = request.CultureName;
+
+            var brokenLinkResult = await brokenLinkSearchService.SearchAsync(brokenLinkCriteria);
+
+            if (brokenLinkResult.Results.Count > 0)
+            {
+                var resultItem = brokenLinkResult.Results.FirstOrDefault(x =>
+                                     (x.Language == request.CultureName) ||
+                                     (!request.CultureName.IsNullOrEmpty() && x.Language.IsNullOrEmpty()))
+                                 ?? brokenLinkResult.Results.FirstOrDefault();
+
+                result.RedirectUrl = resultItem?.RedirectUrl;
+            }
+        }
 
         return result;
     }
 
     protected virtual async Task<SeoInfo> GetBestMatchingSeoInfo(SeoSearchCriteria criteria, Store store)
     {
-        var itemsToMatch = await _seoResolver.FindSeoAsync(criteria);
+        var itemsToMatch = await seoResolver.FindSeoAsync(criteria);
         return itemsToMatch.GetBestMatchingSeoInfo(store, criteria.LanguageCode);
     }
 }
