@@ -8,7 +8,6 @@ using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Services;
 using VirtoCommerce.Xapi.Data.Security;
-using VirtoCommerce.Xapi.Data.Security.Authorization;
 using VirtoCommerce.Xapi.Data.Services;
 using static VirtoCommerce.Xapi.Core.ModuleConstants;
 using ContactSignInValidator = VirtoCommerce.Xapi.Data.Security.OpenIddict.ContactSignInValidator;
@@ -55,8 +54,8 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             services.AddTransient<ITokenRequestValidator, ContactSignInValidator>();
             services.AddTransient<IExternalSignInValidator, ExternalSignInValidator>();
             services.AddTransient<IExternalSignInUserBuilder, ExternalSignInUserBuilder>();
-
             services.AddTransient<ILoadUserToEvalContextService, LoadUserToEvalContextService>();
+            services.AddTransient<IStoreDomainResolverService, StoreDomainResolverService>();
             services.AddDistributedLockService(configuration);
 
             return services;

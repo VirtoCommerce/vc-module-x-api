@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -15,6 +16,7 @@ using VirtoCommerce.Xapi.Core;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Queries;
+using VirtoCommerce.Xapi.Core.Services;
 using VirtoCommerce.Xapi.Core.Subscriptions;
 using StoreSettingGeneral = VirtoCommerce.StoreModule.Core.ModuleConstants.Settings.General;
 using StoreSettingSeo = VirtoCommerce.StoreModule.Core.ModuleConstants.Settings.SEO;
@@ -31,6 +33,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
     private readonly GraphQLWebSocketOptions _webSocketOptions;
     private readonly StoresOptions _storeOptions;
     private readonly IStoreAuthenticationService _storeAuthenticationService;
+    private readonly IStoreDomainResolverService _storeDomainResolverService;
 
     public GetStoreQueryHandler(
         IStoreService storeService,
@@ -40,8 +43,8 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         IOptions<IdentityOptions> identityOptions,
         IOptions<GraphQLWebSocketOptions> webSocketOptions,
         IOptions<StoresOptions> storeOptions,
-        IStoreAuthenticationService storeAuthenticationService)
-
+        IStoreAuthenticationService storeAuthenticationService,
+        IStoreDomainResolverService storeDomainResolverService)
     {
         _storeService = storeService;
         _storeSearchService = storeSearchService;
@@ -51,25 +54,13 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         _identityOptions = identityOptions.Value;
         _webSocketOptions = webSocketOptions.Value;
         _storeOptions = storeOptions.Value;
+        _storeDomainResolverService = storeDomainResolverService;
     }
 
     public async Task<StoreResponse> Handle(GetStoreQuery request, CancellationToken cancellationToken)
     {
-        Store store = null;
-
-        if (!string.IsNullOrEmpty(request.StoreId))
-        {
-            store = await _storeService.GetByIdAsync(request.StoreId, clone: false);
-        }
-        else if (!string.IsNullOrEmpty(request.Domain))
-        {
-            store = await ResolveStoreByDomain(request.Domain);
-
-            if (store == null && !string.IsNullOrEmpty(_storeOptions.DefaultStore))
-            {
-                store = await _storeService.GetByIdAsync(_storeOptions.DefaultStore, clone: false);
-            }
-        }
+        var storeResolverRequest = CreateStoreResolveRequest(request);
+        var store = await _storeDomainResolverService.GetStoreAsync(storeResolverRequest);
 
         if (store == null)
         {
@@ -135,6 +126,15 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         return response;
     }
 
+    protected virtual StoreDomainRequest CreateStoreResolveRequest(GetStoreQuery request)
+    {
+        var storeResolverRequest = AbstractTypeFactory<StoreDomainRequest>.TryCreateInstance();
+        storeResolverRequest.StoreId = request.StoreId;
+        storeResolverRequest.Domain = request.Domain;
+        return storeResolverRequest;
+    }
+
+    [Obsolete("Not being called anymore. Use IStoreDomainResolverService.ResolveStoreByDomain(string domain) method.", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     protected virtual async Task<Store> ResolveStoreByDomain(string domain)
     {
         if (_storeOptions.Domains.TryGetValue(domain, out var storeId))
