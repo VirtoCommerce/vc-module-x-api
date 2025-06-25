@@ -7,7 +7,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
         public SlugInfoResponseType()
         {
             Field<SeoInfoType>("entityInfo").Description("SEO info").Resolve(context => context.Source.EntityInfo);
-            // here should be redirectUrl soon
+            Field(x => x.RedirectUrl, nullable: true).Description("Target URL when SEO is null");
         }
     }
 }
