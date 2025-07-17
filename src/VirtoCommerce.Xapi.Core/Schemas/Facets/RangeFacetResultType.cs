@@ -17,6 +17,10 @@ namespace VirtoCommerce.Xapi.Core.Schemas.Facets
                 .Description("Ranges")
                 .Resolve(context => context.Source.Ranges);
 
+            Field<RangeFacetStatisticsType>("Statistics")
+                .Description("Statistics for the facet, such as min and max values across ranges.")
+                .Resolve(context => context.Source.Statistics);
+
             IsTypeOf = obj => obj is RangeFacetResult;
             Interface<FacetInterface>();
         }
