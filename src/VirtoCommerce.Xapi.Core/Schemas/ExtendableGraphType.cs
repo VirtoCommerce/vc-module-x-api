@@ -10,6 +10,20 @@ using VirtoCommerce.Xapi.Core.Helpers;
 
 namespace VirtoCommerce.Xapi.Core.Schemas
 {
+    public class ExtendableInputObjectGraphType : ExtendableInputObjectGraph<object>
+    {
+    }
+
+    public class ExtendableInputObjectGraph<TSourceType> : InputObjectGraphType<TSourceType>
+    {
+        public override FieldType AddField(FieldType fieldType)
+        {
+            fieldType.Type = GraphTypeExtensionHelper.GetActualComplexType(fieldType.Type);
+
+            return base.AddField(fieldType);
+        }
+    }
+
     public class ExtendableGraphType<TSourceType> : ObjectGraphType<TSourceType>
     {
         public FieldType ExtendableField<TGraphType>(
