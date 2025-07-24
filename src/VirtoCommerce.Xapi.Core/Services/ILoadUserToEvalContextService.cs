@@ -6,5 +6,7 @@ namespace VirtoCommerce.Xapi.Core.Services
     public interface ILoadUserToEvalContextService
     {
         Task SetShopperDataFromMember(EvaluationContextBase evalContextBase, string customerId);
+
+        Task SetShopperDataFromOrganization(EvaluationContextBase evalContextBase, string organizationId);
     }
 }
