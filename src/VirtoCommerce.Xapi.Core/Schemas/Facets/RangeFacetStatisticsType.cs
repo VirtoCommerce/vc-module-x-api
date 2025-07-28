@@ -1,4 +1,4 @@
-﻿using VirtoCommerce.Xapi.Core.Models.Facets;
+using VirtoCommerce.Xapi.Core.Models.Facets;
 
 namespace VirtoCommerce.Xapi.Core.Schemas.Facets
 {
