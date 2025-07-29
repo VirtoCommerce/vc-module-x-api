@@ -36,7 +36,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         /// <param name="hasLanguages">An enumerable with values to search</param>
         /// <param name="language">Language to search</param>
         /// <returns>First matching item to the specified language</returns>
-        [Obsolete("Use IHasLanguageCode FirstBestMatchForLanguage instead.", DiagnosticId = "VC0011", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+        [Obsolete("Use IEnumerable<IHasLanguageCode>.FirstBestMatchForLanguage()", DiagnosticId = "VC0011", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
         public static IHasLanguage FirstBestMatchForLanguage(this IEnumerable<IHasLanguage> hasLanguages, string language)
         {
             return hasLanguages.FirstBestMatchForLanguage(x => x.LanguageCode, language);
