@@ -43,24 +43,37 @@ namespace VirtoCommerce.Xapi.Data.Services
 
                 evalContextBase.GeoTimeZone = contact.TimeZone;
 
-                evalContextBase.UserGroups = contact.Groups?.ToArray();
+                var userGroups = new List<string>();
 
-                if (!contact.Organizations.IsNullOrEmpty())
+                if (!evalContextBase.UserGroups.IsNullOrEmpty())
                 {
-                    var userGroups = new List<string>();
-
-                    if (!evalContextBase.UserGroups.IsNullOrEmpty())
-                    {
-                        userGroups.AddRange(evalContextBase.UserGroups);
-                    }
-
-                    var organizations = await _memberService.GetByIdsAsync(contact.Organizations.ToArray(), MemberResponseGroup.WithGroups.ToString());
-                    userGroups.AddRange(organizations.OfType<Organization>().SelectMany(x => x.Groups));
-
-                    evalContextBase.UserGroups = userGroups.Distinct().ToArray();
+                    userGroups.AddRange(evalContextBase.UserGroups);
                 }
+
+                userGroups.AddRange(contact.Groups?.ToArray());
+
+                evalContextBase.UserGroups = userGroups.Distinct().ToArray();
             }
         }
 
+        public async Task SetShopperDataFromOrganization(EvaluationContextBase evalContextBase, string organizationId)
+        {
+            if (organizationId.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            var userGroups = new List<string>();
+
+            if (!evalContextBase.UserGroups.IsNullOrEmpty())
+            {
+                userGroups.AddRange(evalContextBase.UserGroups);
+            }
+
+            var organizations = await _memberService.GetByIdsAsync([organizationId], MemberResponseGroup.WithGroups.ToString());
+            userGroups.AddRange(organizations.OfType<Organization>().SelectMany(x => x.Groups));
+
+            evalContextBase.UserGroups = userGroups.Distinct().ToArray();
+        }
     }
 }
