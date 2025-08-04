@@ -59,19 +59,12 @@ public class ExtendableInputObjectGraphType<TSourceType> : InputObjectGraphType<
         }
         else if (GlobalSwitches.DynamicallyCompileToObject)
         {
-            if (GetType().GetMethod(nameof(ParseDictionary), [typeof(IDictionary<string, object>)])!.DeclaringType == typeof(InputObjectGraphType<TSourceType>))
+            _parseDictionary = data =>
             {
                 _parseDictionary = ObjectExtensions.CompileToObject(actualType, this);
-            }
-            else
-            {
-                _parseDictionary = data =>
-                {
-                    _parseDictionary = ObjectExtensions.CompileToObject(actualType, this);
-                    var result = _parseDictionary(data);
-                    return result;
-                };
-            }
+                var result = _parseDictionary(data);
+                return result;
+            };
         }
         else
         {
@@ -79,22 +72,22 @@ public class ExtendableInputObjectGraphType<TSourceType> : InputObjectGraphType<
         }
     }
 
-    //public override object ParseDictionary(IDictionary<string, object> value)
-    //{
-    //    if (value == null)
-    //    {
-    //        return null;
-    //    }
+    public override object ParseDictionary(IDictionary<string, object> value)
+    {
+        if (value == null)
+        {
+            return null;
+        }
 
-    //    object result = null;
-    //    if (_parseDictionary != null)
-    //    {
-    //        result = _parseDictionary(value);
-    //        return result;
-    //    }
+        object result = null;
+        if (_parseDictionary != null)
+        {
+            result = _parseDictionary(value);
+            return result;
+        }
 
-    //    var actualType = GenericTypeHelper.GetActualType<TSourceType>();
-    //    result = value.ToObject(actualType, this);
-    //    return result;
-    //}
+        var actualType = GenericTypeHelper.GetActualType<TSourceType>();
+        result = value.ToObject(actualType, this);
+        return result;
+    }
 }
