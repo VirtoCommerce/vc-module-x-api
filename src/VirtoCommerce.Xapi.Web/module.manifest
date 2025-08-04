@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <module>
   <id>VirtoCommerce.Xapi</id>
-  <version>3.917.0</version>
+  <version>3.919.0</version>
   <version-tag></version-tag>
 
-  <platformVersion>3.889.0</platformVersion>
+  <platformVersion>3.895.0</platformVersion>
   <dependencies>
     <dependency id="VirtoCommerce.ApplicationInsights" version="3.804.0" optional="true" />
     <dependency id="VirtoCommerce.Customer" version="3.833.0" />
