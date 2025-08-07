@@ -10,5 +10,7 @@ namespace VirtoCommerce.Xapi.Core.Models.Facets
         }
 
         public IList<FacetRange> Ranges { get; set; } = new List<FacetRange>();
+
+        public RangeFacetStatistics Statistics { get; set; }
     }
 }
