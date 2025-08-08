@@ -11,6 +11,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas.Facets
 
             Field(d => d.Name, nullable: false).Description("The key/name  of the facet.");
             Field(d => d.Label, nullable: false).Description("Localized name of the facet.");
+            Field(x => x.Order, nullable: true).Description("Display order of the facet.");
 
             Field<NonNullGraphType<FacetTypeEnum>>("FacetType")
                 .Description("The three types of facets. Terms, Range, Filter");
