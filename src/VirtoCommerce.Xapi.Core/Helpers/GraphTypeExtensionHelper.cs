@@ -44,6 +44,11 @@ namespace VirtoCommerce.Xapi.Core.Helpers
             return GetActualComplexTypeRecursive(outerGraphType);
         }
 
+        public static Type GetActualComplexType(Type graphType)
+        {
+            return GetActualComplexTypeRecursive(graphType);
+        }
+
         private static Type GetActualComplexTypeRecursive(Type outerGraphType)
         {
             if (outerGraphType.IsGenericType && outerGraphType.GenericTypeArguments.Length > 0)
