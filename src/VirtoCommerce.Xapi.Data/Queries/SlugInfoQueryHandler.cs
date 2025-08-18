@@ -17,7 +17,8 @@ namespace VirtoCommerce.Xapi.Data.Queries;
 public class SlugInfoQueryHandler(
     ICompositeSeoResolver seoResolver,
     IStoreService storeService,
-    IBrokenLinkSearchService brokenLinkSearchService)
+    IBrokenLinkSearchService brokenLinkSearchService,
+    IRedirectResolver redirectResolver)
     : IQueryHandler<SlugInfoQuery, SlugInfoResponse>
 {
 
@@ -33,6 +34,13 @@ public class SlugInfoQueryHandler(
         var store = await storeService.GetByIdAsync(request.StoreId);
         if (store is null)
         {
+            return result;
+        }
+
+        var redirectResult = await redirectResolver.ResolveRedirect(request.StoreId, request.Permalink);
+        if (redirectResult != null)
+        {
+            result.RedirectUrl = redirectResult;
             return result;
         }
 
