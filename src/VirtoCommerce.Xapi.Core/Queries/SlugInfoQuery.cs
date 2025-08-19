@@ -20,6 +20,7 @@ namespace VirtoCommerce.Xapi.Core.Queries
 #pragma warning restore VC0008
         public string StoreId { get; set; }
         public string UserId { get; set; }
+        public string OrganizationId { get; set; }
         public string CultureName { get; set; }
 
         public override IEnumerable<QueryArgument> GetArguments()

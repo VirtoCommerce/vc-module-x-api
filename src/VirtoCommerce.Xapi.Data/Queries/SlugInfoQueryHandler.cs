@@ -22,7 +22,7 @@ public class SlugInfoQueryHandler(
     : IQueryHandler<SlugInfoQuery, SlugInfoResponse>
 {
 
-    public async Task<SlugInfoResponse> Handle(SlugInfoQuery request, CancellationToken cancellationToken)
+    public virtual async Task<SlugInfoResponse> Handle(SlugInfoQuery request, CancellationToken cancellationToken)
     {
         var result = new SlugInfoResponse();
 
@@ -56,7 +56,7 @@ public class SlugInfoQueryHandler(
         criteria.Slug = lastSegment;
         criteria.UserId = request.UserId;
 
-        result.EntityInfo = await GetBestMatchingSeoInfo(criteria, store);
+        result.EntityInfo = await GetBestMatchingSeoInfo(request, criteria, store);
 
         if (result.EntityInfo == null)
         {
@@ -72,7 +72,7 @@ public class SlugInfoQueryHandler(
             if (brokenLinkResult.Results.Count > 0)
             {
                 var resultItem = brokenLinkResult.Results.FirstOrDefault(x =>
-                                     (x.Language == request.CultureName) ||
+                                     x.Language == request.CultureName ||
                                      (!request.CultureName.IsNullOrEmpty() && x.Language.IsNullOrEmpty()))
                                  ?? brokenLinkResult.Results.FirstOrDefault();
 
@@ -83,9 +83,10 @@ public class SlugInfoQueryHandler(
         return result;
     }
 
-    protected virtual async Task<SeoInfo> GetBestMatchingSeoInfo(SeoSearchCriteria criteria, Store store)
+    protected virtual async Task<SeoInfo> GetBestMatchingSeoInfo(SlugInfoQuery request, SeoSearchCriteria criteria, Store store)
     {
         var itemsToMatch = await seoResolver.FindSeoAsync(criteria);
+
         return itemsToMatch.GetBestMatchingSeoInfo(store, criteria.LanguageCode);
     }
 }
