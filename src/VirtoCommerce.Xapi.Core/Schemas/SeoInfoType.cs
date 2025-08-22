@@ -11,6 +11,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
             Field(x => x.Id, nullable: false);
             Field(x => x.Name, nullable: true);
             Field(x => x.SemanticUrl, nullable: false);
+            Field(x => x.Outline, nullable: true);
             Field(x => x.PageTitle, nullable: true);
             Field(x => x.MetaDescription, nullable: true);
             Field(x => x.ImageAltDescription, nullable: true);
