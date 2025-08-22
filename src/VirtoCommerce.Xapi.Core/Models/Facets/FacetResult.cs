@@ -10,6 +10,7 @@ namespace VirtoCommerce.Xapi.Core.Models.Facets
         public string Name { get; set; }
         public string Label { get; set; }
         public string DisplayStyle { get; set; }
+        public int Order { get; set; }
         public FacetTypes FacetType { get; private set; }
     }
 }
