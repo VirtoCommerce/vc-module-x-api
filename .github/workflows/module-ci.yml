@@ -59,7 +59,6 @@ jobs:
     steps:
       - name: Get associated PR
         id: getAssociatedPr
-        if: ${{ inputs.forceBlob }}
         uses: VirtoCommerce/vc-github-actions/get-pr-number@VCST-3064
         with:
           repo: "${{ github.repository }}"
