@@ -3,6 +3,9 @@
 name: Publish nuget
 
 on:
+  pull_request:
+    branches:
+      [VCST-3064]
   workflow_dispatch:
     inputs:
       publishAlpha:
