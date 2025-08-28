@@ -57,6 +57,13 @@ jobs:
       run-ui-tests: ${{ steps.run-ui-tests.outputs.result }}
 
     steps:
+      - name: Get associated PR
+        id: getAssociatedPr
+        if: ${{ inputs.forceBlob }}
+        uses: VirtoCommerce/vc-github-actions/get-pr-number@VCST-3064
+        with:
+          repo: "${{ github.repository }}"
+          branch: "${{ github.ref_name }}"
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
