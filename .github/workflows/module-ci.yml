@@ -57,6 +57,12 @@ jobs:
       run-ui-tests: ${{ steps.run-ui-tests.outputs.result }}
 
     steps:
+      - name: Get associated PR
+        id: getAssociatedPr
+        uses: VirtoCommerce/vc-github-actions/get-pr-number@VCST-3064
+        with:
+          repo: "${{ github.repository }}"
+          branch: "${{ github.ref_name }}"
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
@@ -143,7 +149,7 @@ jobs:
           
       - name: Add Jira link
         if: ${{ github.event_name == 'pull_request' }}
-        uses: VirtoCommerce/vc-github-actions/publish-jira-link@master
+        uses: VirtoCommerce/vc-github-actions/publish-jira-link@VCST-861-1 #master
         with:
           branchName: ${{ github.head_ref }}
           repoOrg: ${{ github.repository_owner }}

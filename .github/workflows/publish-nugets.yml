@@ -3,6 +3,9 @@
 name: Publish nuget
 
 on:
+  pull_request:
+    branches:
+      [VCST-3064]
   workflow_dispatch:
     inputs:
       publishAlpha:
@@ -29,7 +32,7 @@ jobs:
   publish-nuget:
     needs:
       [build, test]
-    uses: VirtoCommerce/.github/.github/workflows/publish-github.yml@v3.800.13
+    uses: VirtoCommerce/.github/.github/workflows/publish-github.yml@VCST-3064 #v3.800.13
     with:
       fullKey: ${{ needs.build.outputs.packageFullKey }}
       forceGithub: false
