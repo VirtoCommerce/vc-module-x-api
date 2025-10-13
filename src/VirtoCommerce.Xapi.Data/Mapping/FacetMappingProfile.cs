@@ -26,7 +26,7 @@ public class FacetMappingProfile : Profile
                         Count = x.Count,
                         IsSelected = x.IsApplied,
                         Term = x.Value?.ToString(),
-                        Label = x.Labels?.FirstBestMatchForLanguage(x => x.Language, cultureName)?.Label ?? x.Value.ToString(),
+                        Label = x.Labels?.FirstBestMatchForLanguage(x => x.Language, cultureName)?.Label ?? x.Value?.ToString(),
                     }).ToArray() ?? [],
 
                 },
