@@ -30,7 +30,7 @@ public class FacetMappingProfile : Profile
                     }).ToArray() ?? [],
 
                 },
-                "range" => new RangeFacetResult
+                "range" or "pricerange" => new RangeFacetResult
                 {
                     Name = request.Field,
                     Label = request.Field,
@@ -46,9 +46,25 @@ public class FacetMappingProfile : Profile
                         ToStr = x.RequestedUpperBound,
                         Label = x.Value?.ToString(),
                     }).ToArray() ?? [],
+                    Statistics = request.Statistics == null ? null : new RangeFacetStatistics
+                    {
+                        Max = request.Statistics.Max,
+                        Min = request.Statistics.Min,
+                    }
                 },
                 _ => null
             };
+
+            if (result != null)
+            {
+                result.Label = request.Labels?.FirstBestMatchForLanguage(x => x.Language, cultureName)?.Label ?? result.Name;
+
+                context.Items.TryGetValue("order", out var orderObj);
+                if (orderObj != null)
+                {
+                    result.Order = (int)orderObj;
+                }
+            }
 
             return result;
         });
