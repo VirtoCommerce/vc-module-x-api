@@ -7,7 +7,8 @@ public class OptionalGraphQlTypesContainerAttribute : Attribute
 {
     public string DependencyName { get; set; }
 
-    public OptionalGraphQlTypesContainerAttribute()
+    public OptionalGraphQlTypesContainerAttribute(string dependencyName)
     {
+        DependencyName = dependencyName;
     }
 }
