@@ -69,7 +69,11 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
         public static void AddOptionalGraphTypes(this IGraphQLBuilder builder, Type assemblyType)
         {
-            var dependencyNames = assemblyType.GetCustomAttributes<OptionalGraphQlTypesContainerAttribute>().Select(x => x.DependencyName).ToArray();
+            var dependencyNames = assemblyType.GetCustomAttributes<OptionalGraphQlTypesContainerAttribute>()
+                .Select(x => x.DependencyName)
+                .Where(x => x != null)
+                .ToArray();
+
             if (dependencyNames.Length > 0)
             {
                 var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
