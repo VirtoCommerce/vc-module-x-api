@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using GraphQL;
 using GraphQL.DI;
 using GraphQL.Validation;
 using Microsoft.Extensions.DependencyInjection;
+using VirtoCommerce.Xapi.Core.Models;
 using ServiceLifetime = GraphQL.DI.ServiceLifetime;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
@@ -46,6 +48,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         public static IGraphQLBuilder AddSchema(this IGraphQLBuilder builder, IServiceCollection services, Type assemblyMarker)
         {
             builder.AddGraphTypes(assemblyMarker.Assembly);
+            builder.AddOptionalGraphTypes(assemblyMarker);
             services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(assemblyMarker.Assembly));
             services.AddAutoMapper(assemblyMarker);
             services.AddSchemaBuilders(assemblyMarker);
@@ -56,11 +59,31 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         public static IGraphQLBuilder AddSchema(this IGraphQLBuilder builder, IServiceCollection services, Type coreAssemblyMarker, Type dataAssemblyMarker)
         {
             builder.AddGraphTypes(coreAssemblyMarker.Assembly);
+            builder.AddOptionalGraphTypes(coreAssemblyMarker);
             services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(coreAssemblyMarker.Assembly, dataAssemblyMarker.Assembly));
             services.AddAutoMapper(coreAssemblyMarker, dataAssemblyMarker);
             services.AddSchemaBuilders(dataAssemblyMarker);
 
             return builder;
+        }
+
+        public static void AddOptionalGraphTypes(this IGraphQLBuilder builder, Type assemblyType)
+        {
+            var dependencyNames = assemblyType.GetCustomAttributes<OptionalGraphQlTypesContainerAttribute>().Select(x => x.DependencyName).ToArray();
+            if (dependencyNames.Length > 0)
+            {
+                var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+                foreach (var dependencyName in dependencyNames)
+                {
+                    var targetAssembly = loadedAssemblies.FirstOrDefault(x => x.GetName().Name.Equals(dependencyName, StringComparison.OrdinalIgnoreCase));
+
+                    if (targetAssembly != null)
+                    {
+                        builder.AddGraphTypes(targetAssembly);
+                    }
+                }
+            }
         }
     }
 }
