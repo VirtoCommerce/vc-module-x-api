@@ -69,16 +69,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
 
         var availableLanguages = !store.Languages.IsNullOrEmpty() ? store.Languages.Select(x => new Language(x)).ToList() : [];
 
-        var cultureName = request.CultureName ?? store.DefaultLanguage;
-
-        if (cultureName.Length == 2)
-        {
-            cultureName = availableLanguages.FirstOrDefault(x => cultureName == x.TwoLetterLanguageName)?.CultureName;
-            if (cultureName == null)
-            {
-                throw new InvalidOperationException($"Store '{store.Name}' doesn't support language with code '{request.CultureName}'");
-            }
-        }
+        var cultureName = GetCultureName(request.CultureName, store.DefaultLanguage, availableLanguages);
 
         var allCurrencies = await _storeCurrencyResolver.GetAllStoreCurrenciesAsync(store.Id, cultureName);
         var availableCurrencies = allCurrencies.Where(x => store.Currencies.Contains(x.Code)).ToList();
@@ -134,6 +125,21 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         }
 
         return response;
+    }
+
+    private static string GetCultureName(string cultureName, string defaultCultureName, List<Language> availableLanguages)
+    {
+        if (cultureName.IsNullOrEmpty())
+        {
+            cultureName = defaultCultureName;
+        }
+        else if (cultureName.Length == 2)
+        {
+            cultureName = availableLanguages.FirstOrDefault(x => cultureName == x.TwoLetterLanguageName)?.CultureName;
+            cultureName ??= defaultCultureName;
+        }
+
+        return cultureName;
     }
 
     protected virtual StoreDomainRequest CreateStoreResolveRequest(GetStoreQuery request)
