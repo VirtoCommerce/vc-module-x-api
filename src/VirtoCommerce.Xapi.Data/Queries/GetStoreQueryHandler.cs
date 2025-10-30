@@ -127,21 +127,6 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         return response;
     }
 
-    private static string GetCultureName(string cultureName, string defaultCultureName, List<Language> availableLanguages)
-    {
-        if (cultureName.IsNullOrEmpty())
-        {
-            cultureName = defaultCultureName;
-        }
-        else if (cultureName.Length == 2)
-        {
-            cultureName = availableLanguages.FirstOrDefault(x => cultureName == x.TwoLetterLanguageName)?.CultureName;
-            cultureName ??= defaultCultureName;
-        }
-
-        return cultureName;
-    }
-
     protected virtual StoreDomainRequest CreateStoreResolveRequest(GetStoreQuery request)
     {
         var storeResolverRequest = AbstractTypeFactory<StoreDomainRequest>.TryCreateInstance();
@@ -212,5 +197,20 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
             }
             return result;
         }
+    }
+
+    private static string GetCultureName(string cultureName, string defaultCultureName, IList<Language> availableLanguages)
+    {
+        if (cultureName.IsNullOrEmpty())
+        {
+            cultureName = defaultCultureName;
+        }
+        else if (cultureName.Length == 2)
+        {
+            cultureName = availableLanguages.FirstOrDefault(x => cultureName == x.TwoLetterLanguageName)?.CultureName;
+            cultureName ??= defaultCultureName;
+        }
+
+        return cultureName;
     }
 }
