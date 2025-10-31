@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using VirtoCommerce.CoreModule.Core.Common;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Model.Search;
@@ -119,11 +120,36 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
                     .Select(x => x.Name)
                     .ToList(),
 
-                Modules = ToModulesSettings(store.Settings)
+                Modules = ToModulesSettings(store.Settings),
+
+                DynamicProperties = await ToStoreDynamicPropeties(store),
             };
         }
 
         return response;
+    }
+
+    private async Task<StoreDynamicPropertyValue[]> ToStoreDynamicPropeties(Store dynamicProperties)
+    {
+        var result = new List<StoreDynamicPropertyValue>();
+
+        var dynamicPropertyAccessor = new DynamicPropertyAccessor(dynamicProperties);
+
+        foreach (var dynamicProperty in await DynamicPropertyMetadata.GetProperties(typeof(Store).FullName))
+        {
+            if (dynamicPropertyAccessor.TryGetPropertyValue(dynamicProperty.Name, out var value))
+            {
+                var storeDynamicPropertyValue = new StoreDynamicPropertyValue
+                {
+                    Name = dynamicProperty.Name,
+                    Value = value
+                };
+
+                result.Add(storeDynamicPropertyValue);
+            }
+        }
+
+        return [.. result];
     }
 
     protected virtual StoreDomainRequest CreateStoreResolveRequest(GetStoreQuery request)
@@ -197,4 +223,5 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
             return result;
         }
     }
+
 }
