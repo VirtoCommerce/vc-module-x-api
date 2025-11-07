@@ -39,6 +39,5 @@ namespace VirtoCommerce.Xapi.Core.Models
 
         public ModuleSettings[] Modules { get; set; }
 
-        public StoreDynamicPropertyValue[] DynamicProperties { get; set; }
     }
 }

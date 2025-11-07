@@ -8,7 +8,6 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using VirtoCommerce.CoreModule.Core.Common;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Model.Search;
@@ -35,6 +34,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
     private readonly StoresOptions _storeOptions;
     private readonly IStoreAuthenticationService _storeAuthenticationService;
     private readonly IStoreDomainResolverService _storeDomainResolverService;
+    private readonly IDynamicPropertyResolverService _dynamicPropertyResolverService;
 
     public GetStoreQueryHandler(
         IStoreService storeService,
@@ -45,7 +45,8 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         IOptions<GraphQLWebSocketOptions> webSocketOptions,
         IOptions<StoresOptions> storeOptions,
         IStoreAuthenticationService storeAuthenticationService,
-        IStoreDomainResolverService storeDomainResolverService)
+        IStoreDomainResolverService storeDomainResolverService,
+        IDynamicPropertyResolverService dynamicPropertyResolverService)
     {
         _storeService = storeService;
         _storeSearchService = storeSearchService;
@@ -56,6 +57,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         _webSocketOptions = webSocketOptions.Value;
         _storeOptions = storeOptions.Value;
         _storeDomainResolverService = storeDomainResolverService;
+        _dynamicPropertyResolverService = dynamicPropertyResolverService;
     }
 
     public async Task<StoreResponse> Handle(GetStoreQuery request, CancellationToken cancellationToken)
@@ -87,6 +89,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
             AvailableCurrencies = availableCurrencies,
             DefaultLanguage = defaultLanguage,
             AvailableLanguages = availableLanguages,
+            DynamicProperties = [.. (await _dynamicPropertyResolverService.LoadDynamicPropertyValues(store, cultureName))],
             GraphQLSettings = new GraphQLSettings
             {
                 KeepAliveInterval = _webSocketOptions.KeepAliveInterval,
@@ -120,36 +123,11 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
                     .Select(x => x.Name)
                     .ToList(),
 
-                Modules = ToModulesSettings(store.Settings),
-
-                DynamicProperties = await ToStoreDynamicPropeties(store),
+                Modules = ToModulesSettings(store.Settings)
             };
         }
 
         return response;
-    }
-
-    private async Task<StoreDynamicPropertyValue[]> ToStoreDynamicPropeties(Store dynamicProperties)
-    {
-        var result = new List<StoreDynamicPropertyValue>();
-
-        var dynamicPropertyAccessor = new DynamicPropertyAccessor(dynamicProperties);
-
-        foreach (var dynamicProperty in await DynamicPropertyMetadata.GetProperties(typeof(Store).FullName))
-        {
-            if (dynamicPropertyAccessor.TryGetPropertyValue(dynamicProperty.Name, out var value))
-            {
-                var storeDynamicPropertyValue = new StoreDynamicPropertyValue
-                {
-                    Name = dynamicProperty.Name,
-                    Value = value
-                };
-
-                result.Add(storeDynamicPropertyValue);
-            }
-        }
-
-        return [.. result];
     }
 
     protected virtual StoreDomainRequest CreateStoreResolveRequest(GetStoreQuery request)

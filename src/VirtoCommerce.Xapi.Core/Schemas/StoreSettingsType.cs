@@ -27,6 +27,5 @@ public class StoreSettingsType : ExtendableGraphType<StoreSettings>
         Field<PasswordOptionsType>("passwordRequirements").Description("Password requirements");
         Field<NonNullGraphType<ListGraphType<StringGraphType>>>("authenticationTypes");
         Field<NonNullGraphType<ListGraphType<NonNullGraphType<ModuleSettingsType>>>>("modules");
-        Field<NonNullGraphType<ListGraphType<NonNullGraphType<StoreDynamicPropertyValueType>>>>("dynamicProperties");
     }
 }
