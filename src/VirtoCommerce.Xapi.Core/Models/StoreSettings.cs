@@ -38,6 +38,5 @@ namespace VirtoCommerce.Xapi.Core.Models
         public IList<string> AuthenticationTypes { get; set; }
 
         public ModuleSettings[] Modules { get; set; }
-
     }
 }
