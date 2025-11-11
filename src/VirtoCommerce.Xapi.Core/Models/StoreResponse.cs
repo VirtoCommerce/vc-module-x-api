@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using VirtoCommerce.CoreModule.Core.Common;
 using VirtoCommerce.CoreModule.Core.Currency;
+using VirtoCommerce.Platform.Core.DynamicProperties;
 
 namespace VirtoCommerce.Xapi.Core.Models
 {
@@ -25,5 +26,8 @@ namespace VirtoCommerce.Xapi.Core.Models
         public StoreSettings Settings { get; set; }
 
         public GraphQLSettings GraphQLSettings { get; set; }
+
+        public IList<DynamicPropertyObjectValue> DynamicProperties { get; set; }
+
     }
 }
