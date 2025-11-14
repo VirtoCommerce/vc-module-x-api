@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Server.Transports.AspNetCore;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure
@@ -19,6 +21,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
     public class GraphQLHttpMiddlewareWithLogs<TSchema> : GraphQLHttpMiddleware<TSchema>
         where TSchema : ISchema
     {
+        private readonly ILogger _logger;
         private readonly TelemetryClient _telemetryClient;
 
         public GraphQLHttpMiddlewareWithLogs(
@@ -28,22 +31,24 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             IServiceScopeFactory serviceScopeFactory,
             GraphQLHttpMiddlewareOptions options,
             IHostApplicationLifetime hostApplicationLifetime,
+            ILogger<GraphQLHttpMiddlewareWithLogs<TSchema>> logger,
             TelemetryClient telemetryClient = null)
             : base(next, serializer, documentExecuter, serviceScopeFactory, options, hostApplicationLifetime)
         {
+            _logger = logger;
             _telemetryClient = telemetryClient;
         }
 
         protected override async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest request, IServiceProvider serviceProvider, IDictionary<string, object> userContext)
         {
             // process Playground schema introspection queries without AppInsights logging
-            if (_telemetryClient == null || request.OperationName == "IntrospectionQuery")
+            if (_telemetryClient is null || request?.OperationName == "IntrospectionQuery")
             {
                 return await base.ExecuteRequestAsync(context, request, serviceProvider, userContext);
             }
 
             // prepare AppInsights telemetry
-            var appInsightsOperationName = $"POST graphql/{request.OperationName}";
+            var appInsightsOperationName = $"POST graphql/{request?.OperationName}";
 
             var requestTelemetry = new RequestTelemetry
             {
@@ -55,20 +60,21 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             requestTelemetry.Context.Operation.Id = Guid.NewGuid().ToString("N");
             requestTelemetry.Context.Operation.Name = appInsightsOperationName;
             requestTelemetry.Properties["Type"] = "GraphQL";
+
             using var operation = _telemetryClient.StartOperation(requestTelemetry);
 
             // execute GraphQL query
             var result = await base.ExecuteRequestAsync(context, request, serviceProvider, userContext);
-            requestTelemetry.Success = result.Errors.IsNullOrEmpty();
 
-            if (requestTelemetry.Success == false)
+            requestTelemetry.Success = result.Errors.IsNullOrEmpty();
+            if (requestTelemetry.Success != true)
             {
                 // pass an error response code to trigger AppInsights operation failure state
                 requestTelemetry.ResponseCode = "500";
 
-                var exception = result.Errors.Count > 1
+                Exception exception = result.Errors?.Count > 1
                     ? new AggregateException(result.Errors)
-                    : result.Errors.FirstOrDefault() as Exception;
+                    : result.Errors?.FirstOrDefault();
 
                 var exceptionTelemetry = new ExceptionTelemetry(exception);
 
@@ -80,6 +86,19 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             }
 
             return result;
+        }
+
+        public override async Task InvokeAsync(HttpContext context)
+        {
+            try
+            {
+                await base.InvokeAsync(context);
+            }
+            catch (WebSocketException ex) when (ex.WebSocketErrorCode is WebSocketError.ConnectionClosedPrematurely or WebSocketError.InvalidState)
+            {
+                // These are common and expected during client disconnects
+                _logger.LogWarning(ex, "The WebSocket connection was terminated unexpectedly");
+            }
         }
     }
 }
