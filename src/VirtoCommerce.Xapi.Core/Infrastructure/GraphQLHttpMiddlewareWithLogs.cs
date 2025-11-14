@@ -103,11 +103,6 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
                     wsEx.WebSocketErrorCode,
                     wsEx.Message);
             }
-            catch (WebSocketException wsEx)
-            {
-                // Other WebSocket errors might need attention
-                _logger.LogWarning(wsEx, "WebSocket error occurred");
-            }
         }
     }
 }
