@@ -42,13 +42,13 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
         protected override async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest request, IServiceProvider serviceProvider, IDictionary<string, object> userContext)
         {
             // process Playground schema introspection queries without AppInsights logging
-            if (_telemetryClient == null || request.OperationName == "IntrospectionQuery")
+            if (_telemetryClient is null || request?.OperationName == "IntrospectionQuery")
             {
                 return await base.ExecuteRequestAsync(context, request, serviceProvider, userContext);
             }
 
             // prepare AppInsights telemetry
-            var appInsightsOperationName = $"POST graphql/{request.OperationName}";
+            var appInsightsOperationName = $"POST graphql/{request?.OperationName}";
 
             var requestTelemetry = new RequestTelemetry
             {
@@ -60,20 +60,21 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             requestTelemetry.Context.Operation.Id = Guid.NewGuid().ToString("N");
             requestTelemetry.Context.Operation.Name = appInsightsOperationName;
             requestTelemetry.Properties["Type"] = "GraphQL";
+
             using var operation = _telemetryClient.StartOperation(requestTelemetry);
 
             // execute GraphQL query
             var result = await base.ExecuteRequestAsync(context, request, serviceProvider, userContext);
-            requestTelemetry.Success = result.Errors.IsNullOrEmpty();
 
-            if (requestTelemetry.Success == false)
+            requestTelemetry.Success = result.Errors.IsNullOrEmpty();
+            if (requestTelemetry.Success != true)
             {
                 // pass an error response code to trigger AppInsights operation failure state
                 requestTelemetry.ResponseCode = "500";
 
-                var exception = result.Errors.Count > 1
+                Exception exception = result.Errors?.Count > 1
                     ? new AggregateException(result.Errors)
-                    : result.Errors.FirstOrDefault() as Exception;
+                    : result.Errors?.FirstOrDefault();
 
                 var exceptionTelemetry = new ExceptionTelemetry(exception);
 
@@ -93,15 +94,10 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             {
                 await base.InvokeAsync(context);
             }
-            catch (WebSocketException wsEx) when (
-                wsEx.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely ||
-                wsEx.WebSocketErrorCode == WebSocketError.InvalidState)
+            catch (WebSocketException ex) when (ex.WebSocketErrorCode is WebSocketError.ConnectionClosedPrematurely or WebSocketError.InvalidState)
             {
                 // These are common and expected during client disconnects
-                _logger.LogWarning(
-                    "WebSocket disconnected: {ErrorCode} - {Message}",
-                    wsEx.WebSocketErrorCode,
-                    wsEx.Message);
+                _logger.LogWarning(ex, "The WebSocket connection was terminated unexpectedly");
             }
         }
     }
