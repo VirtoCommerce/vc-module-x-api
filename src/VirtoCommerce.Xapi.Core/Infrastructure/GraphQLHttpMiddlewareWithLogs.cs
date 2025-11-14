@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Server.Transports.AspNetCore;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure
@@ -19,6 +21,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
     public class GraphQLHttpMiddlewareWithLogs<TSchema> : GraphQLHttpMiddleware<TSchema>
         where TSchema : ISchema
     {
+        private readonly ILogger _logger;
         private readonly TelemetryClient _telemetryClient;
 
         public GraphQLHttpMiddlewareWithLogs(
@@ -28,9 +31,11 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             IServiceScopeFactory serviceScopeFactory,
             GraphQLHttpMiddlewareOptions options,
             IHostApplicationLifetime hostApplicationLifetime,
+            ILogger<GraphQLHttpMiddlewareWithLogs<TSchema>> logger,
             TelemetryClient telemetryClient = null)
             : base(next, serializer, documentExecuter, serviceScopeFactory, options, hostApplicationLifetime)
         {
+            _logger = logger;
             _telemetryClient = telemetryClient;
         }
 
@@ -80,6 +85,29 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             }
 
             return result;
+        }
+
+        public override async Task InvokeAsync(HttpContext context)
+        {
+            try
+            {
+                await base.InvokeAsync(context);
+            }
+            catch (WebSocketException wsEx) when (
+                wsEx.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely ||
+                wsEx.WebSocketErrorCode == WebSocketError.InvalidState)
+            {
+                // These are common and expected during client disconnects
+                _logger.LogWarning(
+                    "WebSocket disconnected: {ErrorCode} - {Message}",
+                    wsEx.WebSocketErrorCode,
+                    wsEx.Message);
+            }
+            catch (WebSocketException wsEx)
+            {
+                // Other WebSocket errors might need attention
+                _logger.LogWarning(wsEx, "WebSocket error occurred");
+            }
         }
     }
 }
