@@ -42,6 +42,7 @@ namespace VirtoCommerce.Xapi.Core.Queries
             Permalink = context.GetArgument<string>(nameof(Permalink));
             StoreId = context.GetArgument<string>(nameof(StoreId));
             UserId = context.GetCurrentUserId();
+            OrganizationId = context.GetCurrentOrganizationId();
             CultureName = context.GetArgument<string>(nameof(CultureName));
         }
     }

@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Seo.Core.Extensions;
 using VirtoCommerce.Seo.Core.Models;
 using VirtoCommerce.Seo.Core.Services;
-using VirtoCommerce.StoreModule.Core.Extensions;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.Xapi.Core.Infrastructure;
@@ -53,6 +53,7 @@ public class SlugInfoQueryHandler(
         criteria.StoreId = store.Id;
         criteria.LanguageCode = currentCulture;
         criteria.Permalink = request.Permalink;
+        criteria.OrganizationId = request.OrganizationId;
         criteria.Slug = lastSegment;
         criteria.UserId = request.UserId;
 
@@ -87,6 +88,6 @@ public class SlugInfoQueryHandler(
     {
         var itemsToMatch = await seoResolver.FindSeoAsync(criteria);
 
-        return itemsToMatch.GetBestMatchingSeoInfo(store, criteria.LanguageCode);
+        return itemsToMatch.GetBestMatchingSeoInfo(store.Id, criteria.OrganizationId, store.DefaultLanguage, criteria.LanguageCode);
     }
 }
