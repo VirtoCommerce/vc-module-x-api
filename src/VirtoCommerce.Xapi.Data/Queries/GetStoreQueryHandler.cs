@@ -34,6 +34,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
     private readonly StoresOptions _storeOptions;
     private readonly IStoreAuthenticationService _storeAuthenticationService;
     private readonly IStoreDomainResolverService _storeDomainResolverService;
+    private readonly IDynamicPropertyResolverService _dynamicPropertyResolverService;
 
     public GetStoreQueryHandler(
         IStoreService storeService,
@@ -44,7 +45,8 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         IOptions<GraphQLWebSocketOptions> webSocketOptions,
         IOptions<StoresOptions> storeOptions,
         IStoreAuthenticationService storeAuthenticationService,
-        IStoreDomainResolverService storeDomainResolverService)
+        IStoreDomainResolverService storeDomainResolverService,
+        IDynamicPropertyResolverService dynamicPropertyResolverService)
     {
         _storeService = storeService;
         _storeSearchService = storeSearchService;
@@ -55,6 +57,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         _webSocketOptions = webSocketOptions.Value;
         _storeOptions = storeOptions.Value;
         _storeDomainResolverService = storeDomainResolverService;
+        _dynamicPropertyResolverService = dynamicPropertyResolverService;
     }
 
     public async Task<StoreResponse> Handle(GetStoreQuery request, CancellationToken cancellationToken)
@@ -87,6 +90,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
             AvailableCurrencies = availableCurrencies,
             DefaultLanguage = defaultLanguage,
             AvailableLanguages = availableLanguages,
+            DynamicProperties = [.. (await _dynamicPropertyResolverService.LoadDynamicPropertyValues(store, cultureName))],
             GraphQLSettings = new GraphQLSettings
             {
                 KeepAliveInterval = _webSocketOptions.KeepAliveInterval,
