@@ -30,6 +30,10 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             IDistributedLockService distributedLockService,
             Func<IResolveFieldContext<TSourceType>, TReturnType> resolve)
         {
+            fieldBuilder.FieldType.Resolver = new FuncFieldResolver<TSourceType, TReturnType>(ResolveWrapper);
+
+            return fieldBuilder;
+
             TReturnType ResolveWrapper(IResolveFieldContext<TSourceType> context)
             {
                 // Find resource key in context
@@ -39,10 +43,6 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                     ? resolve(context)
                     : distributedLockService.Execute(resourceKey, () => resolve(context));
             }
-
-            fieldBuilder.FieldType.Resolver = new FuncFieldResolver<TSourceType, TReturnType>(ResolveWrapper);
-
-            return fieldBuilder;
         }
 
         public static FieldBuilder<TSourceType, TReturnType> ResolveSynchronizedAsync<TSourceType, TReturnType>(
@@ -52,6 +52,10 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             IDistributedLockService distributedLockService,
             Func<IResolveFieldContext<TSourceType>, Task<TReturnType>> resolve)
         {
+            fieldBuilder.FieldType.Resolver = new FuncFieldResolver<TSourceType, TReturnType>(ctx => ResolveWrapperAsync(ctx));
+
+            return fieldBuilder;
+
             async ValueTask<TReturnType> ResolveWrapperAsync(IResolveFieldContext<TSourceType> context)
             {
                 // Find resource key in context
@@ -61,10 +65,6 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                     ? await resolve(context)
                     : await distributedLockService.ExecuteAsync(resourceKey, async () => await resolve(context));
             }
-
-            fieldBuilder.FieldType.Resolver = new FuncFieldResolver<TSourceType, TReturnType>(ResolveWrapperAsync);
-
-            return fieldBuilder;
         }
 
 
