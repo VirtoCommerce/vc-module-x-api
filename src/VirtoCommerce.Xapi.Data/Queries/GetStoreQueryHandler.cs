@@ -211,7 +211,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         }
         else if (cultureName.Length == 2)
         {
-            cultureName = availableLanguages.FirstOrDefault(x => cultureName == x.TwoLetterLanguageName)?.CultureName;
+            cultureName = availableLanguages.FirstOrDefault(x => cultureName.EqualsIgnoreCase(x.TwoLetterLanguageName))?.CultureName;
             cultureName ??= defaultCultureName;
         }
 
