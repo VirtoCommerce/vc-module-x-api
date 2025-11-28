@@ -70,14 +70,15 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
             return null;
         }
 
-        var cultureName = request.CultureName ?? store.DefaultLanguage;
+        var availableLanguages = !store.Languages.IsNullOrEmpty() ? store.Languages.Select(x => new Language(x)).ToList() : [];
+
+        var cultureName = GetCultureName(request.CultureName, store.DefaultLanguage, availableLanguages);
 
         var allCurrencies = await _storeCurrencyResolver.GetAllStoreCurrenciesAsync(store.Id, cultureName);
         var availableCurrencies = allCurrencies.Where(x => store.Currencies.Contains(x.Code)).ToList();
         var defaultCurrency = await _storeCurrencyResolver.GetStoreCurrencyAsync(store.DefaultCurrency, store.Id, cultureName);
 
         var defaultLanguage = store.DefaultLanguage != null ? new Language(store.DefaultLanguage) : Language.InvariantLanguage;
-        var availableLanguages = !store.Languages.IsNullOrEmpty() ? store.Languages.Select(x => new Language(x)).ToList() : new List<Language>();
 
         var response = new StoreResponse
         {
@@ -202,4 +203,18 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         }
     }
 
+    private static string GetCultureName(string cultureName, string defaultCultureName, IList<Language> availableLanguages)
+    {
+        if (cultureName.IsNullOrEmpty())
+        {
+            cultureName = defaultCultureName;
+        }
+        else if (cultureName.Length == 2)
+        {
+            cultureName = availableLanguages.FirstOrDefault(x => cultureName.EqualsIgnoreCase(x.TwoLetterLanguageName))?.CultureName;
+            cultureName ??= defaultCultureName;
+        }
+
+        return cultureName;
+    }
 }
