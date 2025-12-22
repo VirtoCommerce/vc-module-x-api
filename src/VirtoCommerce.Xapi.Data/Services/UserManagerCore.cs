@@ -31,7 +31,7 @@ namespace VirtoCommerce.Xapi.Data.Services
         [Obsolete("Use CheckCurrentUserState()", DiagnosticId = "VC0009", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
         public Task CheckUserState(string userId, bool allowAnonymous)
         {
-            return CheckUserState(userId, allowAnonymous, isExternalSignIn: false);
+            return CheckUserState(userId, allowAnonymous, isExternalSignIn: false, isImpersonated: false);
         }
 
         public Task CheckCurrentUserState(IResolveFieldContext context, bool allowAnonymous)
@@ -39,12 +39,13 @@ namespace VirtoCommerce.Xapi.Data.Services
             var principal = context.GetCurrentPrincipal();
             var userId = principal.GetCurrentUserId();
             var isExternalSignIn = principal.IsExternalSignIn();
+            var isImpersonated = principal.IsImpersonated();
 
-            return CheckUserState(userId, allowAnonymous, isExternalSignIn);
+            return CheckUserState(userId, allowAnonymous, isExternalSignIn, isImpersonated);
         }
 
 
-        private async Task CheckUserState(string userId, bool allowAnonymous, bool isExternalSignIn)
+        private async Task CheckUserState(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
         {
             var userManager = _userManagerFactory();
             var user = await userManager.FindByIdAsync(userId);
@@ -59,7 +60,7 @@ namespace VirtoCommerce.Xapi.Data.Services
                 throw AuthorizationError.AnonymousAccessDenied();
             }
 
-            if (user.PasswordExpired && !isExternalSignIn)
+            if (user.PasswordExpired && !isExternalSignIn && !isImpersonated)
             {
                 throw AuthorizationError.PasswordExpired();
             }
