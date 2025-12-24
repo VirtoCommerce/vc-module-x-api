@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Resolvers;
@@ -7,7 +7,7 @@ using VirtoCommerce.Xapi.Core.Extensions;
 
 namespace VirtoCommerce.Xapi.Core.Helpers
 {
-    public class FieldCreator
+    public static class FieldCreator
     {
         public static FieldType CreateField<TSourceType, TGraphType>(
           string name,
