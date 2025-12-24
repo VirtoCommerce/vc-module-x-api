@@ -2,7 +2,6 @@ using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using GraphQL;
-using GraphQL.Resolvers;
 using GraphQL.Types;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Xapi.Core.Extensions;
@@ -18,23 +17,16 @@ namespace VirtoCommerce.Xapi.Core.Schemas
             QueryArguments arguments = null,
             Func<IResolveFieldContext<TSourceType>, object> resolve = null,
             string deprecationReason = null)
-            where TGraphType : IGraphType
+              where TGraphType : IGraphType
         {
-            return AddField(new FieldType
-            {
-                Name = name,
-                Description = description,
-                DeprecationReason = deprecationReason,
-                Type = GraphTypeExtensionHelper.GetActualComplexType<TGraphType>(),
-                Arguments = arguments,
-                Resolver = resolve != null
-                    ? new FuncFieldResolver<TSourceType, object>(context =>
-                        {
-                            context.CopyArgumentsToUserContext();
-                            return resolve(context);
-                        })
-                    : null
-            });
+            var field = FieldCreator.CreateField<TSourceType, TGraphType>(
+              name,
+              description,
+              arguments,
+              resolve,
+              deprecationReason);
+
+            return AddField(field);
         }
 
         public FieldType ExtendableFieldAsync<TGraphType>(
@@ -43,23 +35,15 @@ namespace VirtoCommerce.Xapi.Core.Schemas
           QueryArguments arguments = null,
           Func<IResolveFieldContext<TSourceType>, Task<object>> resolve = null,
           string deprecationReason = null)
-          where TGraphType : IGraphType
+            where TGraphType : IGraphType
         {
-            return AddField(new FieldType
-            {
-                Name = name,
-                Description = description,
-                DeprecationReason = deprecationReason,
-                Type = GraphTypeExtensionHelper.GetActualComplexType<TGraphType>(),
-                Arguments = arguments,
-                Resolver = resolve != null
-                    ? new FuncFieldResolver<TSourceType, object>(context =>
-                    {
-                        context.CopyArgumentsToUserContext();
-                        return new ValueTask<object>(resolve(context));
-                    })
-                    : null
-            });
+            var fieldAsync = FieldCreator.CreateFieldAsync<TSourceType, TGraphType>(
+              name,
+              description,
+              arguments,
+              resolve,
+              deprecationReason);
+            return AddField(fieldAsync);
         }
 
         public void LocalizedField(Expression<Func<TSourceType, string>> expression, SettingDescriptor descriptor, ILocalizableSettingService localizableSettingService, bool nullable)
