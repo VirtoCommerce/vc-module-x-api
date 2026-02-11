@@ -61,23 +61,20 @@ namespace VirtoCommerce.Xapi.Web
                     {
                         options.EnableMetrics = false;
                     })
-                    .AddErrorInfoProvider(options =>
-                    {
-                        options.ExposeExtensions = true;
-                        options.ExposeExceptionDetails = true;
-                    })
-                    .AddUserContextBuilder(async context => await context.BuildGraphQLUserContextAsync())
-                    .AddDataLoader()
-                    .AddValidationRule<ContentTypeValidationRule>()
-                    .AddWebSocketAuthentication<SubscriptionsUserContextResolver>()
                     .AddErrorInfoProvider((options, serviceProvider) =>
                     {
+                        options.ExposeExtensions = true;
+
                         var enviroment = serviceProvider.GetService<IWebHostEnvironment>();
                         if (enviroment != null)
                         {
                             options.ExposeExceptionDetails = enviroment.IsDevelopment();
                         }
-                    });
+                    })
+                    .AddUserContextBuilder(async context => await context.BuildGraphQLUserContextAsync())
+                    .AddDataLoader()
+                    .AddValidationRule<ContentTypeValidationRule>()
+                    .AddWebSocketAuthentication<SubscriptionsUserContextResolver>();
 
                 if (!IsSchemaIntrospectionEnabled)
                 {
