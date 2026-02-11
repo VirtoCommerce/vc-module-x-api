@@ -88,7 +88,7 @@ namespace VirtoCommerce.Xapi.Data.Security.OpenIddict
 
         private Task<Store> GetStore(TokenRequestContext context)
         {
-            var storeId = context.Request.GetParameter(ModuleConstants.Parameters.StoreId)?.Value?.ToString();
+            var storeId = context.Request.GetParameter(ModuleConstants.Parameters.StoreId)?.ToString();
 
             return string.IsNullOrEmpty(storeId)
                 ? Task.FromResult<Store>(null)
