@@ -98,6 +98,11 @@ namespace VirtoCommerce.Xapi.Web
                         options.DefaultObjectImpact = validationOptions.ObjectFieldImpact ?? options.DefaultObjectImpact;
                         options.DefaultListImpactMultiplier = validationOptions.ListImpactMultiplied ?? options.DefaultListImpactMultiplier;
 
+                        if (!validationOptions.IgnoreIntrospection)
+                        {
+                            return;
+                        }
+
                         options.ValidateComplexityDelegate = async (context) =>
                         {
                             if (context.ValidationContext.IsIntrospectionRequest())
