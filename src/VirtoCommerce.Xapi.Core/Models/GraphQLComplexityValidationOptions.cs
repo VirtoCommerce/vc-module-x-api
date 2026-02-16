@@ -32,5 +32,5 @@ public class GraphQLComplexityValidationOptions
     /// <summary>
     /// Default GraphQL.NET value is 20
     /// </summary>
-    public double? ListImpactMultiplied { get; set; }
+    public double? ListImpactMultiplier { get; set; }
 }

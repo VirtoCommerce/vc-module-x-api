@@ -96,7 +96,7 @@ namespace VirtoCommerce.Xapi.Web
 
                         options.DefaultScalarImpact = validationOptions.ScalarFieldImpact ?? options.DefaultScalarImpact;
                         options.DefaultObjectImpact = validationOptions.ObjectFieldImpact ?? options.DefaultObjectImpact;
-                        options.DefaultListImpactMultiplier = validationOptions.ListImpactMultiplied ?? options.DefaultListImpactMultiplier;
+                        options.DefaultListImpactMultiplier = validationOptions.ListImpactMultiplier ?? options.DefaultListImpactMultiplier;
 
                         if (!validationOptions.IgnoreIntrospection)
                         {
