@@ -1,11 +1,11 @@
 namespace VirtoCommerce.Xapi.Core.Models;
 
-public class GraphQLComplexetyValidationOptions
+public class GraphQLComplexityValidationOptions
 {
     public bool Enable { get; set; }
 
     /// <summary>
-    /// Ignore introspection fields during complexety validation
+    /// Ignore introspection fields during complexity validation
     /// </summary>
     public bool IgnoreIntrospection { get; set; }
 

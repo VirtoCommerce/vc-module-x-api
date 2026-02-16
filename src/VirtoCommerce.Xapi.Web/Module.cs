@@ -39,11 +39,11 @@ namespace VirtoCommerce.Xapi.Web
             }
         }
 
-        private bool IsComplexetyValidationEnabled
+        private bool IsComplexityValidationEnabled
         {
             get
             {
-                return Configuration.GetValue<bool>($"{ConfigKeys.GraphQlComplexetyValidation}:{nameof(GraphQLComplexetyValidationOptions.Enable)}");
+                return Configuration.GetValue<bool>($"{ConfigKeys.GraphQlComplexityValidation}:{nameof(GraphQLComplexityValidationOptions.Enable)}");
             }
         }
 
@@ -85,11 +85,11 @@ namespace VirtoCommerce.Xapi.Web
                     builder.ReplaceValidationRule<KnownArgumentNames, CustomKnownArgumentNames>();
                 }
 
-                if (IsComplexetyValidationEnabled)
+                if (IsComplexityValidationEnabled)
                 {
                     builder.AddComplexityAnalyzer((options, serviceProvider) =>
                     {
-                        var validationOptions = serviceProvider.GetRequiredService<IOptions<GraphQLComplexetyValidationOptions>>().Value;
+                        var validationOptions = serviceProvider.GetRequiredService<IOptions<GraphQLComplexityValidationOptions>>().Value;
 
                         options.MaxDepth = validationOptions.MaxDepth;
                         options.MaxComplexity = validationOptions.MaxComplexity;
@@ -131,7 +131,7 @@ namespace VirtoCommerce.Xapi.Web
 
             serviceCollection.Configure<GraphQLPlaygroundOptions>(Configuration.GetSection(ConfigKeys.GraphQlPlayground));
             serviceCollection.Configure<GraphQLWebSocketOptions>(Configuration.GetSection(ConfigKeys.GraphQlWebSocket));
-            serviceCollection.Configure<GraphQLComplexetyValidationOptions>(Configuration.GetSection(ConfigKeys.GraphQlComplexetyValidation));
+            serviceCollection.Configure<GraphQLComplexityValidationOptions>(Configuration.GetSection(ConfigKeys.GraphQlComplexityValidation));
             serviceCollection.Configure<StoresOptions>(Configuration.GetSection(ConfigKeys.Stores));
 
             serviceCollection.AddAuthenticationFilter(Configuration);
