@@ -7,6 +7,7 @@ using GraphQL.Validation.Rules;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using VirtoCommerce.Platform.Core.DeveloperTools;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Settings;
@@ -35,6 +36,14 @@ namespace VirtoCommerce.Xapi.Web
             get
             {
                 return Configuration.GetValue<bool>($"{ConfigKeys.GraphQlPlayground}:{nameof(GraphQLPlaygroundOptions.Enable)}");
+            }
+        }
+
+        private bool IsComplexetyValidationEnabled
+        {
+            get
+            {
+                return Configuration.GetValue<bool>($"{ConfigKeys.GraphQlComplexetyValidation}:{nameof(GraphQLComplexetyValidationOptions.Enable)}");
             }
         }
 
@@ -75,6 +84,30 @@ namespace VirtoCommerce.Xapi.Web
                     builder.ReplaceValidationRule<FieldsOnCorrectType, CustomFieldsOnCorrectType>();
                     builder.ReplaceValidationRule<KnownArgumentNames, CustomKnownArgumentNames>();
                 }
+
+                if (IsComplexetyValidationEnabled)
+                {
+                    builder.AddComplexityAnalyzer((options, serviceProvider) =>
+                    {
+                        var validationOptions = serviceProvider.GetRequiredService<IOptions<GraphQLComplexetyValidationOptions>>().Value;
+
+                        options.MaxDepth = validationOptions.MaxDepth;
+                        options.MaxComplexity = validationOptions.MaxComplexity;
+
+                        options.DefaultScalarImpact = validationOptions.ScalarFieldImpact ?? options.DefaultScalarImpact;
+                        options.DefaultObjectImpact = validationOptions.ObjectFieldImpact ?? options.DefaultObjectImpact;
+                        options.DefaultListImpactMultiplier = validationOptions.ListImpactMultiplied ?? options.DefaultListImpactMultiplier;
+
+                        options.ValidateComplexityDelegate = async (context) =>
+                        {
+                            if (context.ValidationContext.IsIntrospectionRequest())
+                            {
+                                // ignore complexity errors
+                                context.Error = null;
+                            }
+                        };
+                    });
+                }
             });
 
             if (IsSchemaIntrospectionEnabled)
@@ -93,6 +126,7 @@ namespace VirtoCommerce.Xapi.Web
 
             serviceCollection.Configure<GraphQLPlaygroundOptions>(Configuration.GetSection(ConfigKeys.GraphQlPlayground));
             serviceCollection.Configure<GraphQLWebSocketOptions>(Configuration.GetSection(ConfigKeys.GraphQlWebSocket));
+            serviceCollection.Configure<GraphQLComplexetyValidationOptions>(Configuration.GetSection(ConfigKeys.GraphQlComplexetyValidation));
             serviceCollection.Configure<StoresOptions>(Configuration.GetSection(ConfigKeys.Stores));
 
             serviceCollection.AddAuthenticationFilter(Configuration);

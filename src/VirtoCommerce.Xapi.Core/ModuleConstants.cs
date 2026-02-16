@@ -11,6 +11,7 @@ namespace VirtoCommerce.Xapi.Core
         {
             public const string GraphQl = "VirtoCommerce:GraphQL";
             public const string GraphQlPlayground = "VirtoCommerce:GraphQLPlayground";
+            public const string GraphQlComplexetyValidation = "VirtoCommerce:GraphQLComplexetyValidation";
             public const string GraphQlWebSocket = "VirtoCommerce:GraphQLWebSocket";
             public const string Stores = "VirtoCommerce:Stores";
         }
