@@ -107,7 +107,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
 
         protected virtual Schema CreateSchema(IServiceProvider services, ISchemaFilter schemaFilter)
         {
-            return new Schema(services)
+            return new CustomSchema(services)
             {
                 Query = new ObjectGraphType { Name = "Query" },
                 Mutation = new ObjectGraphType { Name = "Mutations" },

@@ -6,6 +6,7 @@ using GraphQL;
 using GraphQL.DI;
 using GraphQL.Validation;
 using Microsoft.Extensions.DependencyInjection;
+using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Models;
 using ServiceLifetime = GraphQL.DI.ServiceLifetime;
 
@@ -88,6 +89,20 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                     }
                 }
             }
+        }
+
+        public static IGraphQLBuilder AddGraphTypeHook<THook>(this IGraphQLBuilder builder) where THook : class, IGraphTypeHook
+        {
+            builder.Services.Register<IGraphTypeHook, THook>(ServiceLifetime.Transient);
+
+            return builder;
+        }
+
+        public static IGraphQLBuilder AddGraphTypeHook(this IGraphQLBuilder builder, Type graphTypeHook)
+        {
+            builder.Services.Register(typeof(IGraphTypeHook), graphTypeHook, ServiceLifetime.Transient);
+
+            return builder;
         }
     }
 }
