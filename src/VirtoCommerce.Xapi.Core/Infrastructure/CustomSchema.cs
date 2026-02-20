@@ -19,6 +19,8 @@ public class CustomSchema : Schema
 
     protected override void OnBeforeInitializeType(IGraphType graphType)
     {
+        base.OnBeforeInitializeType(graphType);
+
         var typeHooks = _graphTypeHooks
             .Where(x => x.TypeName.EqualsIgnoreCase(graphType.Name));
 
