@@ -193,7 +193,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
                 result.Add(new ModuleSettings
                 {
                     ModuleId = module.Id,
-                    Version = module.Version.ToString(),
+                    Version = module.Version?.ToString() ?? string.Empty,
                     Settings = [],
                 });
             }
@@ -211,7 +211,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
     {
         return _moduleCatalog.Modules
                 .OfType<ManifestModuleInfo>()
-                .FirstOrDefault(x => x.Id.EqualsIgnoreCase(moduleId) && x.IsInstalled).Version.ToString();
+                .FirstOrDefault(x => x.Id.EqualsIgnoreCase(moduleId) && x.IsInstalled)?.Version?.ToString() ?? string.Empty;
     }
 
     protected virtual object ToSettingValue(ObjectSettingEntry s)
