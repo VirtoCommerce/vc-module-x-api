@@ -188,17 +188,14 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         {
             var existingModuleIds = new HashSet<string>(result.Select(r => r.ModuleId), StringComparer.OrdinalIgnoreCase);
 
-            foreach (var module in _moduleCatalog.Modules.OfType<ManifestModuleInfo>().Where(x => x.IsInstalled))
+            foreach (var module in _moduleCatalog.Modules.OfType<ManifestModuleInfo>().Where(x => x.IsInstalled && !existingModuleIds.Contains(x.Id)))
             {
-                if (!existingModuleIds.Contains(module.Id))
+                result.Add(new ModuleSettings
                 {
-                    result.Add(new ModuleSettings
-                    {
-                        ModuleId = module.Id,
-                        Version = module.Version.ToString(),
-                        Settings = [],
-                    });
-                }
+                    ModuleId = module.Id,
+                    Version = module.Version.ToString(),
+                    Settings = [],
+                });
             }
         }
 
@@ -214,7 +211,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
     {
         return _moduleCatalog.Modules
                 .OfType<ManifestModuleInfo>()
-                .FirstOrDefault(x => x.Id.EqualsIgnoreCase(moduleId) && x.IsInstalled)?.Version?.ToString() ?? string.Empty;
+                .FirstOrDefault(x => x.Id.EqualsIgnoreCase(moduleId) && x.IsInstalled).Version.ToString();
     }
 
     protected virtual object ToSettingValue(ObjectSettingEntry s)
