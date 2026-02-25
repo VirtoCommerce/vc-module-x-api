@@ -4,6 +4,10 @@
       "title": "Umgebungsname",
       "description": ""
     },
+    "XAPI.Security.ReturnModuleVersion": {
+      "title": "Modulversion zurückgeben",
+      "description": "Wenn aktiviert, werden Modulversionen und die vollständige Liste der installierten Module in der Shop-Antwort zurückgegeben"
+    },
     "Frontend.PageTitleWithStoreName": {
       "title": "Shopname im Seitentitel anzeigen",
       "description": "Shopname im Seitentitel anzeigen. Beispiel: 'Startseite - Shopname'."

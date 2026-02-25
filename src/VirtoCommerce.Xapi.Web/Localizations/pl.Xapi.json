@@ -4,6 +4,10 @@
       "title": "Nazwa środowiska",
       "description": ""
     },
+    "XAPI.Security.ReturnModuleVersion": {
+      "title": "Zwróć wersję modułu",
+      "description": "Po włączeniu wersje modułów i pełna lista zainstalowanych modułów są zwracane w odpowiedzi sklepu"
+    },
     "Frontend.PageTitleWithStoreName": {
       "title": "Pokaż nazwę sklepu w tytule strony",
       "description": "Pokaż nazwę sklepu w tytule strony. Przykład: 'Strona główna - NazwaSklepu'."

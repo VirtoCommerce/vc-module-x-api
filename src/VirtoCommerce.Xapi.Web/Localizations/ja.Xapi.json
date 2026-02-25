@@ -4,6 +4,10 @@
       "title": "環境名",
       "description": ""
     },
+    "XAPI.Security.ReturnModuleVersion": {
+      "title": "モジュールバージョンを返す",
+      "description": "有効にすると、モジュールのバージョンとインストール済みモジュールの完全なリストがストアレスポンスに返されます"
+    },
     "Frontend.PageTitleWithStoreName": {
       "title": "ページタイトルにストア名を表示",
       "description": "ページタイトルにストア名を表示します。例: 'ホーム - ストア名'."

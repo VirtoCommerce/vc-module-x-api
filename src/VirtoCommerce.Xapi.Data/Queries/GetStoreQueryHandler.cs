@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using VirtoCommerce.CoreModule.Core.Common;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Model.Search;
@@ -35,6 +36,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
     private readonly IStoreAuthenticationService _storeAuthenticationService;
     private readonly IStoreDomainResolverService _storeDomainResolverService;
     private readonly IDynamicPropertyResolverService _dynamicPropertyResolverService;
+    private readonly IModuleCatalog _moduleCatalog;
 
     public GetStoreQueryHandler(
         IStoreService storeService,
@@ -46,7 +48,8 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         IOptions<StoresOptions> storeOptions,
         IStoreAuthenticationService storeAuthenticationService,
         IStoreDomainResolverService storeDomainResolverService,
-        IDynamicPropertyResolverService dynamicPropertyResolverService)
+        IDynamicPropertyResolverService dynamicPropertyResolverService,
+        IModuleCatalog moduleCatalog)
     {
         _storeService = storeService;
         _storeSearchService = storeSearchService;
@@ -58,6 +61,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         _storeOptions = storeOptions.Value;
         _storeDomainResolverService = storeDomainResolverService;
         _dynamicPropertyResolverService = dynamicPropertyResolverService;
+        _moduleCatalog = moduleCatalog;
     }
 
     public async Task<StoreResponse> Handle(GetStoreQuery request, CancellationToken cancellationToken)
@@ -158,12 +162,14 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
     protected virtual ModuleSettings[] ToModulesSettings(ICollection<ObjectSettingEntry> settings)
     {
         var result = new List<ModuleSettings>();
+        var returnModuleVersions = ReturnModuleVersion();
 
         foreach (var settingByModule in settings.Where(s => s.IsPublic).GroupBy(s => s.ModuleId))
         {
             var moduleSettings = new ModuleSettings
             {
                 ModuleId = settingByModule.Key,
+                Version = returnModuleVersions ? GetModuleVersion(settingByModule.Key) : string.Empty,
                 Settings = settingByModule.Select(s => new ModuleSetting
                 {
                     Name = s.Name,
@@ -177,7 +183,35 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
             }
         }
 
+        // Add modules without Public settings if ReturnModuleVersions is true
+        if (returnModuleVersions)
+        {
+            var existingModuleIds = new HashSet<string>(result.Select(r => r.ModuleId), StringComparer.OrdinalIgnoreCase);
+
+            foreach (var module in _moduleCatalog.Modules.OfType<ManifestModuleInfo>().Where(x => x.IsInstalled && !existingModuleIds.Contains(x.Id)))
+            {
+                result.Add(new ModuleSettings
+                {
+                    ModuleId = module.Id,
+                    Version = module.Version?.ToString() ?? string.Empty,
+                    Settings = [],
+                });
+            }
+        }
+
         return [.. result];
+    }
+
+    private bool ReturnModuleVersion()
+    {
+        return _settingsManager.GetValue<bool>(ModuleConstants.Settings.General.ReturnModuleVersion);
+    }
+
+    protected virtual string GetModuleVersion(string moduleId)
+    {
+        return _moduleCatalog.Modules
+                .OfType<ManifestModuleInfo>()
+                .FirstOrDefault(x => x.Id.EqualsIgnoreCase(moduleId) && x.IsInstalled)?.Version?.ToString() ?? string.Empty;
     }
 
     protected virtual object ToSettingValue(ObjectSettingEntry s)
