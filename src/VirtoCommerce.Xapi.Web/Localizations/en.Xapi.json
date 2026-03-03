@@ -4,6 +4,10 @@
       "title": "Environment name",
       "description": ""
     },
+    "XAPI.Security.ReturnModuleVersion": {
+      "title": "Return module version",
+      "description": "When enabled, module versions and the full list of installed modules are returned in the store response"
+    },
     "Frontend.PageTitleWithStoreName": {
       "title": "Show store name in page title",
       "description": "Show store name in page title. Example: 'Home - StoreName'."

@@ -42,6 +42,14 @@ namespace VirtoCommerce.Xapi.Core
                     DefaultValue = string.Empty,
                 };
 
+                public static SettingDescriptor ReturnModuleVersion { get; } = new()
+                {
+                    Name = "XAPI.Security.ReturnModuleVersion",
+                    ValueType = SettingValueType.Boolean,
+                    GroupName = "Platform|Security",
+                    DefaultValue = true,
+                };
+
                 public static SettingDescriptor PageTitleWithStoreName { get; } = new SettingDescriptor
                 {
                     Name = "Frontend.PageTitleWithStoreName",
@@ -111,6 +119,7 @@ namespace VirtoCommerce.Xapi.Core
                     get
                     {
                         yield return EnvironmentName;
+                        yield return ReturnModuleVersion;
                         yield return PageTitleWithStoreName;
                         yield return PageTitleStoreNameAlign;
                         yield return PageTitleDivider;
