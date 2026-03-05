@@ -65,6 +65,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             where TNew : class, IGraphType, TOld
         {
             services.TryAddTransient<TNew>();
+            services.AddTransient<TOld, TNew>();
             AbstractTypeFactory<IGraphType>.OverrideType<TOld, TNew>();
         }
     }
