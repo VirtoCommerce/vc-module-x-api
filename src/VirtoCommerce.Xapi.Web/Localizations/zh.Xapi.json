@@ -4,6 +4,10 @@
       "title": "环境名称",
       "description": ""
     },
+    "XAPI.Security.ReturnModuleVersion": {
+      "title": "返回模块版本",
+      "description": "启用后，模块版本和已安装模块的完整列表将在商店响应中返回"
+    },
     "Frontend.PageTitleWithStoreName": {
       "title": "在页面标题中显示商店名称",
       "description": "在页面标题中显示商店名称。例如：'首页 - 商店名称'。"

@@ -8,6 +8,7 @@ public class ModuleSettingsType : ExtendableGraphType<ModuleSettings>
     public ModuleSettingsType()
     {
         Field(x => x.ModuleId, nullable: false);
+        Field(x => x.Version, nullable: false);
         Field<NonNullGraphType<ListGraphType<NonNullGraphType<ModuleSettingType>>>>("settings");
     }
 }
