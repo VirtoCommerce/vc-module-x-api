@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Server.Transports.AspNetCore.WebSockets;
@@ -65,7 +66,9 @@ namespace VirtoCommerce.Xapi.Data.Security.Subscriptions
 
             if (payload.TryGetValue("Authorization", out var value) &&
                 value is string authorization &&
-                authorization.StartsWithIgnoreCase("Bearer"))
+                !authorization.IsNullOrEmpty() &&
+                AuthenticationHeaderValue.TryParse(authorization, out var parsed) &&
+                parsed.Scheme.EqualsIgnoreCase("Bearer"))
             {
                 return authorization;
             }
