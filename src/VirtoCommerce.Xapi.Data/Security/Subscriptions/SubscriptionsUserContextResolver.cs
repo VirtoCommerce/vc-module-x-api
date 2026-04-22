@@ -44,6 +44,10 @@ namespace VirtoCommerce.Xapi.Data.Security.Subscriptions
                     httpContext.User = result.Principal;
                 }
             }
+            catch
+            {
+                // Keep anonymous behavior on invalid token or auth errors.
+            }
             finally
             {
                 if (hadOriginalHeader)
