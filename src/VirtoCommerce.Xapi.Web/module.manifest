@@ -4,7 +4,7 @@
   <version>3.1007.0</version>
   <version-tag></version-tag>
 
-  <platformVersion>3.1023.0-alpha.13268-vcst-4576</platformVersion>
+  <platformVersion>3.1026.0-alpha.13278-vcst-4576</platformVersion>
   <dependencies>
     <dependency id="VirtoCommerce.ApplicationInsights" version="3.807.0" optional="true" />
     <dependency id="VirtoCommerce.Customer" version="3.1000.0" />
