@@ -97,12 +97,6 @@ public class InMemoryLockService : IDistributedLockService
         }
     }
 
-    /// <summary>
-    /// Release one use-reference. If this drops the count to zero, atomically tombstone
-    /// the entry and remove it from the dictionary so no new acquirers can adopt it.
-    /// If another caller acquires between the decrement and the tombstone CAS, they bump
-    /// the count back above zero and we abandon the removal — they own the entry now.
-    /// </summary>
     private void ReleaseEntry(string resourceKey, LockEntry entry)
     {
         if (Interlocked.Decrement(ref entry.RefCount) != 0)
