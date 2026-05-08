@@ -9,7 +9,7 @@
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="VirtoCommerce.Platform.Security" Version="3.1026.0" />
+    <PackageReference Include="VirtoCommerce.Platform.Security" Version="3.1000.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.Xapi.Core\VirtoCommerce.Xapi.Core.csproj" />
