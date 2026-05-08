@@ -36,7 +36,7 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             }
             else
             {
-                services.AddSingleton<IDistributedLockService, NoLockService>();
+                services.AddSingleton<IDistributedLockService, InMemoryLockService>();
             }
 
             return services;
