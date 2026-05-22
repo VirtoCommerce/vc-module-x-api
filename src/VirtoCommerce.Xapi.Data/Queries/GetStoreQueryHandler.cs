@@ -188,7 +188,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         {
             var existingModuleIds = new HashSet<string>(result.Select(r => r.ModuleId), StringComparer.OrdinalIgnoreCase);
 
-            foreach (var module in _moduleService.GetInstalledModules())
+            foreach (var module in _moduleService.GetInstalledModules().Where(m => !existingModuleIds.Contains(m.Id)))
             {
                 result.Add(new ModuleSettings
                 {
@@ -197,10 +197,9 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
                     Settings = [],
                 });
             }
-        }
 
-        return [.. result];
-    }
+            return [.. result];
+        }
 
     private bool ReturnModuleVersion()
     {
