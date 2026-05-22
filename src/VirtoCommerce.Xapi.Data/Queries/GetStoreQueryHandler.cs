@@ -193,7 +193,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
                 result.Add(new ModuleSettings
                 {
                     ModuleId = module.Id,
-                    Version = module.Version?.ToString() ?? string.Empty,
+                    Version = GetModuleVersion(module.Id),
                     Settings = [],
                 });
             }
