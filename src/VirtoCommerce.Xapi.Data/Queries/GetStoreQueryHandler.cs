@@ -197,9 +197,10 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
                     Settings = [],
                 });
             }
-
-            return [.. result];
         }
+
+        return [.. result];
+    }
 
     private bool ReturnModuleVersion()
     {
