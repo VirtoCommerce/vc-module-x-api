@@ -36,7 +36,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
     private readonly IStoreAuthenticationService _storeAuthenticationService;
     private readonly IStoreDomainResolverService _storeDomainResolverService;
     private readonly IDynamicPropertyResolverService _dynamicPropertyResolverService;
-    private readonly IModuleCatalog _moduleCatalog;
+    private readonly IModuleService _moduleService;
 
     public GetStoreQueryHandler(
         IStoreService storeService,
@@ -49,7 +49,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         IStoreAuthenticationService storeAuthenticationService,
         IStoreDomainResolverService storeDomainResolverService,
         IDynamicPropertyResolverService dynamicPropertyResolverService,
-        IModuleCatalog moduleCatalog)
+        IModuleService moduleService)
     {
         _storeService = storeService;
         _storeSearchService = storeSearchService;
@@ -61,7 +61,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         _storeOptions = storeOptions.Value;
         _storeDomainResolverService = storeDomainResolverService;
         _dynamicPropertyResolverService = dynamicPropertyResolverService;
-        _moduleCatalog = moduleCatalog;
+        _moduleService = moduleService;
     }
 
     public async Task<StoreResponse> Handle(GetStoreQuery request, CancellationToken cancellationToken)
@@ -188,7 +188,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         {
             var existingModuleIds = new HashSet<string>(result.Select(r => r.ModuleId), StringComparer.OrdinalIgnoreCase);
 
-            foreach (var module in _moduleCatalog.Modules.OfType<ManifestModuleInfo>().Where(x => x.IsInstalled && !existingModuleIds.Contains(x.Id)))
+            foreach (var module in _moduleService.GetInstalledModules())
             {
                 result.Add(new ModuleSettings
                 {
@@ -209,9 +209,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
 
     protected virtual string GetModuleVersion(string moduleId)
     {
-        return _moduleCatalog.Modules
-                .OfType<ManifestModuleInfo>()
-                .FirstOrDefault(x => x.Id.EqualsIgnoreCase(moduleId) && x.IsInstalled)?.Version?.ToString() ?? string.Empty;
+        return _moduleService.GetModule(moduleId)?.Version?.ToString() ?? string.Empty;
     }
 
     protected virtual object ToSettingValue(ObjectSettingEntry s)
