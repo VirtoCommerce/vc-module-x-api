@@ -42,7 +42,7 @@
   </groups>
 
   <projectUrl>https://github.com/VirtoCommerce/vc-module-x-api</projectUrl>
-  <iconUrl>Modules/$(VirtoCommerce.Xapi)/Content/logo.png</iconUrl>
+  <iconUrl>Modules/$(VirtoCommerce.Xapi)/Content/logo.svg</iconUrl>
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
 
   <assemblyFile>VirtoCommerce.Xapi.Web.dll</assemblyFile>

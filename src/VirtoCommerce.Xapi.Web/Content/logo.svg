@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="XAPI">
+  <title>XAPI</title>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="92%" y2="100%">
+      <stop offset="0%" stop-color="#5FC8F5"/>
+      <stop offset="100%" stop-color="#265FC6"/>
+    </linearGradient>
+    <filter id="lift" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#0B3F66" flood-opacity="0.30"/>
+    </filter>
+  </defs>
+
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+
+  <g transform="translate(64,66)" filter="url(#lift)">
+    <!-- Graph edges -->
+    <g stroke="#ffffff" stroke-width="5" stroke-linejoin="round" fill="none">
+      <polygon points="0,-36 32,18 -32,18"/>
+      <line x1="0" y1="-36" x2="0" y2="0"/>
+      <line x1="32" y1="18" x2="0" y2="0"/>
+      <line x1="-32" y1="18" x2="0" y2="0"/>
+    </g>
+
+    <!-- Nodes -->
+    <circle cx="0" cy="-36" r="11" fill="#FFC24D"/>
+    <circle cx="32" cy="18" r="11" fill="#3FD8B4"/>
+    <circle cx="-32" cy="18" r="11" fill="#F87FAC"/>
+    <circle cx="0" cy="0" r="12" fill="#ffffff"/>
+  </g>
+</svg>
