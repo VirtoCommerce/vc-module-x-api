@@ -4,6 +4,10 @@
       "title": "Nombre del entorno",
       "description": ""
     },
+    "XAPI.Security.ReturnModuleVersion": {
+      "title": "Devolver versión del módulo",
+      "description": "Cuando está habilitado, las versiones de los módulos y la lista completa de módulos instalados se devuelven en la respuesta de la tienda"
+    },
     "Frontend.PageTitleWithStoreName": {
       "title": "Mostrar nombre de la tienda en el título de la página",
       "description": "Mostrar nombre de la tienda en el título de la página. Ejemplo: 'Inicio - NombreTienda'."

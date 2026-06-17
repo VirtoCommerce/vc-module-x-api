@@ -9,8 +9,7 @@
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="VirtoCommerce.Platform.Security" Version="3.1020.0" />
+    <PackageReference Include="VirtoCommerce.Platform.Security" Version="3.1027.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.Xapi.Core\VirtoCommerce.Xapi.Core.csproj" />

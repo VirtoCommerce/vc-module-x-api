@@ -21,9 +21,9 @@ using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure.Validation;
 using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Subscriptions;
-using VirtoCommerce.Xapi.Core.Subscriptions.Infrastructure;
 using VirtoCommerce.Xapi.Data;
 using VirtoCommerce.Xapi.Data.Extensions;
+using VirtoCommerce.Xapi.Data.Security.Subscriptions;
 using VirtoCommerce.Xapi.Web.Extensions;
 using static VirtoCommerce.Xapi.Core.ModuleConstants;
 
