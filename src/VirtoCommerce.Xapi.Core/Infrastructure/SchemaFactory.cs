@@ -78,11 +78,20 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             schema.RegisterTypeMapping<Optional<decimal?>, OptionalNullableDecimalGraphType>();
             schema.RegisterTypeMapping<Optional<int>, OptionalIntGraphType>();
             schema.RegisterTypeMapping<Optional<int?>, OptionalNullableIntGraphType>();
+            schema.RegisterTypeMapping<Optional<bool>, OptionalBooleanGraphType>();
+            schema.RegisterTypeMapping<Optional<bool?>, OptionalNullableBooleanGraphType>();
 
             // Map common value conversions to Optional
             ValueConverter.Register<int, Optional<int>>(x => new Optional<int>(x));
+            ValueConverter.Register<int, Optional<int?>>(x => new Optional<int?>(x));
+            ValueConverter.Register<int?, Optional<int?>>(x => new Optional<int?>(x));
             ValueConverter.Register<decimal, Optional<decimal>>(x => new Optional<decimal>(x));
+            ValueConverter.Register<decimal, Optional<decimal?>>(x => new Optional<decimal?>(x));
+            ValueConverter.Register<decimal?, Optional<decimal?>>(x => new Optional<decimal?>(x));
             ValueConverter.Register<string, Optional<string>>(x => new Optional<string>(x));
+            ValueConverter.Register<bool, Optional<bool>>(x => new Optional<bool>(x));
+            ValueConverter.Register<bool, Optional<bool?>>(x => new Optional<bool?>(x));
+            ValueConverter.Register<bool?, Optional<bool?>>(x => new Optional<bool?>(x));
 
             // Clean Query, Mutation and Subscription if they have no fields
             // to prevent GraphQL configuration errors.
