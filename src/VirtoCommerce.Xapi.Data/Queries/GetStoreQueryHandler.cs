@@ -60,7 +60,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         _dynamicPropertyResolverService = dynamicPropertyResolverService;
     }
 
-    public async Task<StoreResponse> Handle(GetStoreQuery request, CancellationToken cancellationToken)
+    public virtual async Task<StoreResponse> Handle(GetStoreQuery request, CancellationToken cancellationToken)
     {
         var storeResolverRequest = CreateStoreResolveRequest(request);
         var store = await _storeDomainResolverService.GetStoreAsync(storeResolverRequest);
