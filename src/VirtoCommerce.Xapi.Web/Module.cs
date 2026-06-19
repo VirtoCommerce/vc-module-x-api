@@ -10,13 +10,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using OpenTelemetry.Trace;
+using VirtoCommerce.ApplicationInsights.Data.Telemetry;
 using VirtoCommerce.Platform.Core.DeveloperTools;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.Xapi.Core;
 using VirtoCommerce.Xapi.Core.Extensions;
-using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Infrastructure.Validation;
 using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Subscriptions;
@@ -51,7 +52,7 @@ namespace VirtoCommerce.Xapi.Web
 
         public void Initialize(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddApplicationInsightsTelemetryProcessor<IgnorePlainCoreXapiGraphQLTelemetryProcessor>();
+            serviceCollection.AddOpenTelemetry().WithTracing(t => t.AddProcessor(new IgnorePlainCoreXapiGraphQLTelemetryProcessor()));
 
 #pragma warning disable CS0618 // Type or member is obsolete
             // Use legacy type naming for backward compatibility
