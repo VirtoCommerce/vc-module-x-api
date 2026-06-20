@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.Domain;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
 {
@@ -41,18 +40,6 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                 result = hasLanguagesCollection.FirstOrDefault(x => langSelector(x) == null);
             }
             return result;
-        }
-
-        /// <summary>
-        /// Looking for first best-match language-specific value in the enumerable
-        /// </summary>
-        /// <param name="hasLanguages">An enumerable with values to search</param>
-        /// <param name="language">Language to search</param>
-        /// <returns>First matching item to the specified language</returns>
-        [Obsolete("Use IEnumerable<IHasLanguageCode>.FirstBestMatchForLanguage()", DiagnosticId = "VC0011", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
-        public static IHasLanguage FirstBestMatchForLanguage(this IEnumerable<IHasLanguage> hasLanguages, string language)
-        {
-            return hasLanguages.FirstBestMatchForLanguage(x => x.LanguageCode, language);
         }
     }
 }
