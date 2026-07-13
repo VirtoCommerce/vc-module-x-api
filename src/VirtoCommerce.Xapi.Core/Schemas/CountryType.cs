@@ -17,7 +17,8 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                 .Description("Country regions.")
                 .ResolveAsync(async context =>
                 {
-                    var response = await context.GetMediator().Send(new GetRegionsQuery() { CountryId = context.Source.Id });
+                    var response = await context.GetMediator().Send(new GetRegionsQuery { CountryId = context.Source.Id });
+
                     return response.Regions;
                 });
         }

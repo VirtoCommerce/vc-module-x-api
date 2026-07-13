@@ -12,12 +12,8 @@ namespace VirtoCommerce.Xapi.Core.Schemas
 {
     public class DynamicPropertyValueType : ExtendableGraphType<DynamicPropertyObjectValue>
     {
-        private readonly IDynamicPropertyDictionaryItemsService _dynamicPropertyDictionaryItemsService;
-
         public DynamicPropertyValueType(IDynamicPropertyDictionaryItemsService dynamicPropertyDictionaryItemsService)
         {
-            _dynamicPropertyDictionaryItemsService = dynamicPropertyDictionaryItemsService;
-
             Field<StringGraphType>("name")
                 .Description("Property name")
                 .Resolve(context => context.Source.PropertyName);
@@ -31,23 +27,23 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                 .Description("Property value")
                 .Resolve(context => context.Source.Value);
 
-            Field<DictionaryItemType>("dictionaryItem").Description("Associated dictionary item").ResolveAsync(async context =>
-            {
-                var id = context.Source.ValueId;
-                if (id.IsNullOrEmpty())
+            Field<DictionaryItemType>("dictionaryItem")
+                .Description("Associated dictionary item")
+                .ResolveAsync(async context =>
                 {
-                    return null;
-                }
+                    var id = context.Source.ValueId;
 
-                var items = await _dynamicPropertyDictionaryItemsService.GetDynamicPropertyDictionaryItemsAsync([id]);
+                    return string.IsNullOrEmpty(id)
+                        ? null
+                        : (await dynamicPropertyDictionaryItemsService.GetDynamicPropertyDictionaryItemsAsync([id])).FirstOrDefault();
+                });
 
-                return items.FirstOrDefault();
-            });
-
-            Field<DynamicPropertyType>("dynamicProperty").Description("Associated dynamic property").ResolveAsync(async context =>
+            Field<DynamicPropertyType>("dynamicProperty")
+                .Description("Associated dynamic property")
+                .ResolveAsync(async context =>
             {
                 var id = context.Source.PropertyId;
-                if (id.IsNullOrEmpty())
+                if (string.IsNullOrEmpty(id))
                 {
                     return null;
                 }

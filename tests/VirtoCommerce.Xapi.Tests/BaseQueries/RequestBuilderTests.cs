@@ -18,8 +18,6 @@ namespace VirtoCommerce.Xapi.Tests.BaseQueries
         [Fact]
         public async Task GetResponseAsync_ResolvesMediatorFromRequestScope_NotFromConstructor()
         {
-            // Proves the RequestBuilder fix: the mediator used to dispatch the request comes from
-            // context.RequestServices (the per-request scope), never from a constructor-captured field.
             var expectedResponse = new TestResponse { Value = "expected" };
             var mediatorMock = new Mock<IMediator>();
             mediatorMock

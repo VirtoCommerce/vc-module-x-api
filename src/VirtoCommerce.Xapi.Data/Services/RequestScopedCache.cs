@@ -7,12 +7,16 @@ namespace VirtoCommerce.Xapi.Data.Services;
 
 public class RequestScopedCache : IRequestScopedCache
 {
-    // Lazy<Task<object>> -> the factory runs at most once per key even under a concurrent same-key miss.
-    private readonly ConcurrentDictionary<string, Lazy<Task<object>>> _cache = new();
+    // Lazy<Task> -> the factory runs at most once per key even under a concurrent same-key miss.
+    // The Task<T> itself is stored (not its unwrapped result), so value-type results are never boxed.
+    private readonly ConcurrentDictionary<string, Lazy<Task>> _cache = new();
 
-    public virtual async Task<T> GetOrAddAsync<T>(string key, Func<Task<T>> factory)
+    public virtual Task<T> GetOrAddAsync<T>(string key, Func<Task<T>> factory)
     {
-        var lazy = _cache.GetOrAdd(key, _ => new Lazy<Task<object>>(async () => await factory()));
-        return (T)await lazy.Value;
+        ArgumentNullException.ThrowIfNull(factory);
+
+        var lazy = _cache.GetOrAdd(key, static (_, arg) => new Lazy<Task>(arg), factory);
+
+        return (Task<T>)lazy.Value;
     }
 }

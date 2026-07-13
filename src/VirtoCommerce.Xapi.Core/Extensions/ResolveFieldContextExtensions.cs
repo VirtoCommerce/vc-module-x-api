@@ -17,184 +17,185 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 {
     public static class ResolveFieldContextExtensions
     {
-        /// <summary>
-        /// Resolves <see cref="IMediator"/> from the per-request DI scope (<see cref="IResolveFieldContext.RequestServices"/>).
-        /// GraphQL types and schema builders are built once and act as singletons, so <see cref="IMediator"/> must never be
-        /// constructor-injected there: a mediator captured at construction time is bound to the root service provider, and any
-        /// Scoped dependency of a handler it dispatches to would fail to resolve (or be silently promoted to a singleton).
-        /// Call this from inside a resolver/DataLoader closure, which runs per request, never at construction time.
-        /// </summary>
-        public static IMediator GetMediator(this IResolveFieldContext context)
+        extension(IResolveFieldContext context)
         {
-            return context.RequestServices?.GetRequiredService<IMediator>()
-                ?? throw new InvalidOperationException(
-                    "Cannot resolve IMediator: IResolveFieldContext.RequestServices is null. " +
-                    "Resolvers that dispatch requests require a request-scoped service provider (ExecutionOptions.RequestServices); " +
-                    "the GraphQL HTTP middleware populates it - in tests, set RequestServices on the ResolveFieldContext explicitly.");
-        }
-
-        /// <summary>
-        /// Get value from user context
-        /// </summary>
-        /// <typeparam name="T">Type of T</typeparam>
-        /// <param name="resolveContext">GraphQL UserContext</param>
-        /// <param name="key">Search key</param>
-        /// <param name="defaultValue">Default return if value not founded in UserContext</param>
-        /// <returns>Return value of type <typeparamref name="T"/> from UserContext or <paramref name="defaultValue"/></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static T GetValue<T>(this IResolveFieldContext resolveContext, string key, T defaultValue)
-        {
-            ArgumentNullException.ThrowIfNull(resolveContext);
-
-            if (resolveContext.UserContext.TryGetValue(key, out var value))
+            /// <summary>
+            /// Resolves <see cref="IMediator"/> from the per-request DI scope (<see cref="IResolveFieldContext.RequestServices"/>).
+            /// GraphQL types and schema builders are built once and act as singletons, so <see cref="IMediator"/> must never be
+            /// constructor-injected there: a mediator captured at construction time is bound to the root service provider, and any
+            /// Scoped dependency of a handler it dispatches to would fail to resolve (or be silently promoted to a singleton).
+            /// Call this from inside a resolver/DataLoader closure, which runs per request, never at construction time.
+            /// </summary>
+            public IMediator GetMediator()
             {
-                return CastValue(value, defaultValue);
+                return context.RequestServices?.GetRequiredService<IMediator>()
+                       ?? throw new InvalidOperationException(
+                           "Cannot resolve IMediator: IResolveFieldContext.RequestServices is null. " +
+                           "Resolvers that dispatch requests require a request-scoped service provider (ExecutionOptions.RequestServices); " +
+                           "the GraphQL HTTP middleware populates it - in tests, set RequestServices on the ResolveFieldContext explicitly.");
             }
 
-            return defaultValue;
-
-            static T CastValue(object value, T defaultValue)
+            /// <summary>
+            /// Get value from user context
+            /// </summary>
+            /// <typeparam name="T">Type of T</typeparam>
+            /// <param name="key">Search key</param>
+            /// <param name="defaultValue">Default return if value not founded in UserContext</param>
+            /// <returns>Return value of type <typeparamref name="T"/> from UserContext or <paramref name="defaultValue"/></returns>
+            /// <exception cref="ArgumentNullException"></exception>
+            public T GetValue<T>(string key, T defaultValue)
             {
-                return value is ArgumentValue argumentValue ? (T)argumentValue.Value : CastValueAsTyped(value, defaultValue);
+                ArgumentNullException.ThrowIfNull(context);
 
-                static T CastValueAsTyped(object value, T defaultValue)
+                return context.UserContext.TryGetValue(key, out var value)
+                    ? CastValue(value, defaultValue)
+                    : defaultValue;
+
+                static T CastValue(object value, T defaultValue)
                 {
-                    return value is T typedObject ? typedObject : defaultValue;
-                }
-            }
-        }
+                    return value is ArgumentValue argumentValue ? (T)argumentValue.Value : CastValueAsTyped(value, defaultValue);
 
-        public static T GetValue<T>(this IResolveFieldContext resolveContext, string key)
-        {
-            return resolveContext.GetValue(key, default(T));
-        }
-
-        public static T GetArgument<T>(this IResolveFieldContext context, string name) where T : class
-        {
-            var type = GenericTypeHelper.GetActualType<T>();
-            var command = context.GetArgument(type, name) as T;
-            return command;
-        }
-
-        public static bool IsAuthenticated(this IResolveFieldContext resolveContext)
-        {
-            return resolveContext.GetCurrentPrincipal()?.Identity?.IsAuthenticated == true;
-        }
-
-        public static string GetCurrentUserId(this IResolveFieldContext resolveContext)
-        {
-            return resolveContext.GetCurrentPrincipal()?.GetCurrentUserId();
-        }
-
-        public static string GetCurrentOrganizationId(this IResolveFieldContext resolveContext)
-        {
-            return resolveContext.GetCurrentPrincipal()?.GetCurrentOrganizationId();
-        }
-
-        public static ClaimsPrincipal GetCurrentPrincipal(this IResolveFieldContext resolveContext)
-        {
-            return ((GraphQLUserContext)resolveContext.UserContext).User;
-        }
-
-        public static T GetArgumentOrValue<T>(this IResolveFieldContext resolveContext, string key)
-        {
-            return resolveContext.GetArgument<T>(key) ?? resolveContext.GetValue<T>(key);
-        }
-
-        //PT-1606:  Need to check what there is no any alternative way to access to the original request arguments in sub selection
-        public static void CopyArgumentsToUserContext(this IResolveFieldContext resolveContext)
-        {
-            if (!resolveContext.Arguments.IsNullOrEmpty())
-            {
-                foreach (var pair in resolveContext.Arguments)
-                {
-                    resolveContext.UserContext.TryAdd(pair.Key, pair.Value);
+                    static T CastValueAsTyped(object value, T defaultValue)
+                    {
+                        return value is T typedObject ? typedObject : defaultValue;
+                    }
                 }
             }
 
-            // try to copy "command" variables from parent context
-            var commandVariables = resolveContext.Variables?.FirstOrDefault(x => x.Name == "command");
-            if (commandVariables != null && commandVariables.Value is Dictionary<string, object> variables)
+            public T GetValue<T>(string key)
             {
-                foreach (var pair in variables)
+                return context.GetValue(key, default(T));
+            }
+
+            public T GetArgument<T>(string name) where T : class
+            {
+                var type = GenericTypeHelper.GetActualType<T>();
+                var command = context.GetArgument(type, name) as T;
+
+                return command;
+            }
+
+            public bool IsAuthenticated()
+            {
+                return context.GetCurrentPrincipal()?.Identity?.IsAuthenticated == true;
+            }
+
+            public string GetCurrentUserId()
+            {
+                return context.GetCurrentPrincipal()?.GetCurrentUserId();
+            }
+
+            public string GetCurrentOrganizationId()
+            {
+                return context.GetCurrentPrincipal()?.GetCurrentOrganizationId();
+            }
+
+            public ClaimsPrincipal GetCurrentPrincipal()
+            {
+                return ((GraphQLUserContext)context.UserContext).User;
+            }
+
+            public T GetArgumentOrValue<T>(string key)
+            {
+                return context.GetArgument<T>(key) ?? context.GetValue<T>(key);
+            }
+
+            //PT-1606:  Need to check what there is no any alternative way to access to the original request arguments in sub selection
+            public void CopyArgumentsToUserContext()
+            {
+                if (!context.Arguments.IsNullOrEmpty())
                 {
-                    resolveContext.UserContext.TryAdd(pair.Key, pair.Value);
+                    foreach (var pair in context.Arguments)
+                    {
+                        context.UserContext.TryAdd(pair.Key, pair.Value);
+                    }
+                }
+
+                // try to copy "command" variables from parent context
+                var commandVariables = context.Variables?.FirstOrDefault(x => x.Name == "command");
+                if (commandVariables is { Value: Dictionary<string, object> variables })
+                {
+                    foreach (var pair in variables)
+                    {
+                        context.UserContext.TryAdd(pair.Key, pair.Value);
+                    }
                 }
             }
-        }
 
-        public static void SetExpandedObjectGraph<T>(this IResolveFieldContext resolveContext, T value)
-        {
-            var entities = value.GetFlatObjectsListWithInterface<IEntity>();
-
-            foreach (var key in entities.Where(x => !string.IsNullOrEmpty(x.Id)))
+            public void SetExpandedObjectGraph<T>(T value)
             {
-                resolveContext.UserContext.TryAdd(key.Id, value);
+                var entities = value.GetFlatObjectsListWithInterface<IEntity>();
+
+                foreach (var entity in entities)
+                {
+                    if (!string.IsNullOrEmpty(entity.Id))
+                    {
+                        context.UserContext.TryAdd(entity.Id, value);
+                    }
+                }
+
+                var valueObjects = value.GetFlatObjectsListWithInterface<IValueObject>();
+                foreach (var @object in valueObjects)
+                {
+                    if (@object is ValueObject valueObject)
+                    {
+                        context.UserContext.TryAdd(valueObject.GetCacheKey(), value);
+                    }
+                }
             }
 
-            var valueObjects = value.GetFlatObjectsListWithInterface<IValueObject>();
-            foreach (var valueObject in valueObjects)
+            public TResult GetValueForSource<TResult>()
             {
-                resolveContext.UserContext.TryAdd(((ValueObject)valueObject).GetCacheKey(), value);
-            }
-        }
+                ArgumentNullException.ThrowIfNull(context);
 
-        public static TResult GetValueForSource<TResult>(this IResolveFieldContext resolveContext)
-        {
-            ArgumentNullException.ThrowIfNull(resolveContext);
+                var result = context.Source switch
+                {
+                    IEntity entity => context.GetValue<TResult>(entity.Id),
+                    ValueObject valueObject => context.GetValue<TResult>(valueObject.GetCacheKey()),
+                    _ => default
+                };
 
-            TResult result = default;
-
-            if (resolveContext.Source is IEntity entity)
-            {
-                result = resolveContext.GetValue<TResult>(entity.Id);
-            }
-            else if (resolveContext.Source is IValueObject valueObject)
-            {
-                result = resolveContext.GetValue<TResult>(((ValueObject)valueObject).GetCacheKey());
+                return result;
             }
 
-            return result;
-        }
+            public void SetCurrencies(IEnumerable<Currency> currencies, string cultureName)
+            {
+                ArgumentNullException.ThrowIfNull(currencies);
 
-        public static void SetCurrencies(this IResolveFieldContext context, IEnumerable<Currency> currencies, string cultureName)
-        {
-            ArgumentNullException.ThrowIfNull(currencies);
+                var currencyList = currencies as ICollection<Currency> ?? currencies.ToList();
+                var currenciesWithCulture = currencyList.Select(x => currencyList.GetCurrencyForLanguage(x.Code, cultureName)).ToArray();
 
-            var currenciesWithCulture = currencies.Select(x => currencies.GetCurrencyForLanguage(x.Code, cultureName)).ToArray();
+                context.UserContext["allCurrencies"] = currenciesWithCulture;
+            }
 
-            context.UserContext["allCurrencies"] = currenciesWithCulture;
-        }
+            public void SetCurrency(Currency currency)
+            {
+                ArgumentNullException.ThrowIfNull(currency);
 
-        public static void SetCurrency(this IResolveFieldContext context, Currency currency)
-        {
-            ArgumentNullException.ThrowIfNull(currency);
+                context.UserContext["currencyCode"] = currency.Code;
+            }
 
-            context.UserContext["currencyCode"] = currency.Code;
+            public T GetDynamicPropertiesQuery<T>() where T : IDynamicPropertiesQuery
+            {
+                var result = AbstractTypeFactory<T>.TryCreateInstance();
+                result.CultureName = context.GetCultureName();
+
+                return result;
+            }
+
+            public string GetCultureName()
+            {
+                return context.GetArgumentOrValue<string>(Constants.CultureName);
+            }
         }
 
         public static Currency GetCurrencyByCode<T>(this IResolveFieldContext<T> userContext, string currencyCode)
         {
             var allCurrencies = userContext.GetValue<IEnumerable<Currency>>("allCurrencies");
-            var result = allCurrencies?.FirstOrDefault(x => x.Code.EqualsIgnoreCase(currencyCode));
-            if (result == null)
-            {
-                throw new OperationCanceledException($"the currency with code '{currencyCode}' is not registered");
-            }
+            var result = allCurrencies?.FirstOrDefault(x => x.Code.EqualsIgnoreCase(currencyCode))
+                         ?? throw new OperationCanceledException($"The currency with code '{currencyCode}' is not registered");
 
             return result;
-        }
-
-        public static T GetDynamicPropertiesQuery<T>(this IResolveFieldContext context) where T : IDynamicPropertiesQuery
-        {
-            var result = AbstractTypeFactory<T>.TryCreateInstance();
-            result.CultureName = context.GetCultureName();
-            return result;
-        }
-
-        public static string GetCultureName(this IResolveFieldContext context)
-        {
-            return context.GetArgumentOrValue<string>(Constants.CultureName);
         }
     }
 }

@@ -72,7 +72,7 @@ public abstract class CommandBuilder<TCommand, TResult, TResultGraphType>
     protected override IEnumerable<QueryArgument> GetArguments()
     {
         // no arguments needed for this type of command builder
-        return Array.Empty<QueryArgument>();
+        return [];
     }
 
     protected override TCommand GetRequest(IResolveFieldContext<object> context)

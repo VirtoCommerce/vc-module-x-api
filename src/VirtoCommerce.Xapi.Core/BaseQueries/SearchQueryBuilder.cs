@@ -38,6 +38,7 @@ public abstract class SearchQueryBuilder<TQuery, TResult, TItem, TItemGraphType>
         builder.ResolveAsync(async context =>
         {
             var (query, response) = await Resolve(context);
+
             return new PagedConnection<TItem>(response.Results, query.Skip, query.Take, response.TotalCount);
         });
 

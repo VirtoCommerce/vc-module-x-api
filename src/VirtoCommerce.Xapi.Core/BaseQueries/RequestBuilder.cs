@@ -27,9 +27,7 @@ public abstract class RequestBuilder<TRequest, TResponse, TResponseGraphType> : 
     }
 
     [Obsolete("Use the constructor without IMediator. The mediator is resolved from context.RequestServices per request.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
-    protected RequestBuilder(
-        IMediator mediator,
-        IAuthorizationService authorizationService)
+    protected RequestBuilder(IMediator mediator, IAuthorizationService authorizationService)
         : this(authorizationService)
     {
     }
@@ -43,6 +41,7 @@ public abstract class RequestBuilder<TRequest, TResponse, TResponseGraphType> : 
             .ResolveAsync(async context =>
             {
                 var (_, response) = await Resolve(context);
+
                 return response;
             });
 
@@ -53,7 +52,7 @@ public abstract class RequestBuilder<TRequest, TResponse, TResponseGraphType> : 
 
     protected virtual void ConfigureArguments(FieldType builder)
     {
-        builder.Arguments ??= new QueryArguments();
+        builder.Arguments ??= [];
 
         foreach (var argument in GetArguments())
         {
@@ -88,8 +87,7 @@ public abstract class RequestBuilder<TRequest, TResponse, TResponseGraphType> : 
 
     protected virtual async Task<TResponse> GetResponseAsync(IResolveFieldContext<object> context, TRequest request)
     {
-        // Resolved from the per-request scope, not ctor-injected: this builder is a singleton (built once with the
-        // schema), so a ctor-captured mediator would be root-bound and unable to reach Scoped handler dependencies.
+        // Not ctor-injected: builders are singletons, a ctor-captured mediator would be root-bound (see GetMediator docs).
         return await context.GetMediator().Send(request);
     }
 
