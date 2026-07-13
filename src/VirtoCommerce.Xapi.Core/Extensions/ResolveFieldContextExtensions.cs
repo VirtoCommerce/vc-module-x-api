@@ -4,6 +4,8 @@ using System.Linq;
 using System.Security.Claims;
 using GraphQL;
 using GraphQL.Execution;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.CoreModule.Core.Currency;
 using VirtoCommerce.CustomerModule.Core.Extensions;
 using VirtoCommerce.Platform.Core.Common;
@@ -15,6 +17,22 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 {
     public static class ResolveFieldContextExtensions
     {
+        /// <summary>
+        /// Resolves <see cref="IMediator"/> from the per-request DI scope (<see cref="IResolveFieldContext.RequestServices"/>).
+        /// GraphQL types and schema builders are built once and act as singletons, so <see cref="IMediator"/> must never be
+        /// constructor-injected there: a mediator captured at construction time is bound to the root service provider, and any
+        /// Scoped dependency of a handler it dispatches to would fail to resolve (or be silently promoted to a singleton).
+        /// Call this from inside a resolver/DataLoader closure, which runs per request, never at construction time.
+        /// </summary>
+        public static IMediator GetMediator(this IResolveFieldContext context)
+        {
+            return context.RequestServices?.GetRequiredService<IMediator>()
+                ?? throw new InvalidOperationException(
+                    "Cannot resolve IMediator: IResolveFieldContext.RequestServices is null. " +
+                    "Resolvers that dispatch requests require a request-scoped service provider (ExecutionOptions.RequestServices); " +
+                    "the GraphQL HTTP middleware populates it - in tests, set RequestServices on the ResolveFieldContext explicitly.");
+        }
+
         /// <summary>
         /// Get value from user context
         /// </summary>

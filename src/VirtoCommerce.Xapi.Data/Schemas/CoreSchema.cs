@@ -1,3 +1,4 @@
+using System;
 using GraphQL;
 using GraphQL.Resolvers;
 using GraphQL.Types;
@@ -12,11 +13,14 @@ namespace VirtoCommerce.Xapi.Data.Schemas
 {
     public class CoreSchema : ISchemaBuilder
     {
-        private readonly IMediator _mediator;
-
-        public CoreSchema(IMediator mediator)
+        public CoreSchema()
         {
-            _mediator = mediator;
+        }
+
+        [Obsolete("Use the constructor without IMediator. The mediator is resolved from context.RequestServices per request.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+        public CoreSchema(IMediator mediator)
+            : this()
+        {
         }
 
         public void Build(ISchema schema)
@@ -39,7 +43,7 @@ namespace VirtoCommerce.Xapi.Data.Schemas
                 Type = GraphTypeExtensionHelper.GetActualComplexType<NonNullGraphType<ListGraphType<NonNullGraphType<CountryType>>>>(),
                 Resolver = new FuncFieldResolver<object>(async context =>
                 {
-                    var result = await _mediator.Send(new GetCountriesQuery());
+                    var result = await context.GetMediator().Send(new GetCountriesQuery());
 
                     return result.Countries;
                 })
@@ -64,7 +68,7 @@ namespace VirtoCommerce.Xapi.Data.Schemas
                 Type = GraphTypeExtensionHelper.GetActualComplexType<NonNullGraphType<ListGraphType<NonNullGraphType<CountryRegionType>>>>(),
                 Resolver = new FuncFieldResolver<object>(async context =>
                 {
-                    var result = await _mediator.Send(new GetRegionsQuery
+                    var result = await context.GetMediator().Send(new GetRegionsQuery
                     {
                         CountryId = context.GetArgument<string>("countryId"),
                     });

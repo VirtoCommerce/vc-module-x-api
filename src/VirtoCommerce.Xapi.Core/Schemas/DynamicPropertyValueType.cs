@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using GraphQL.Types;
 using MediatR;
@@ -13,7 +14,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
     {
         private readonly IDynamicPropertyDictionaryItemsService _dynamicPropertyDictionaryItemsService;
 
-        public DynamicPropertyValueType(IMediator mediator, IDynamicPropertyDictionaryItemsService dynamicPropertyDictionaryItemsService)
+        public DynamicPropertyValueType(IDynamicPropertyDictionaryItemsService dynamicPropertyDictionaryItemsService)
         {
             _dynamicPropertyDictionaryItemsService = dynamicPropertyDictionaryItemsService;
 
@@ -54,10 +55,16 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                 var query = context.GetDynamicPropertiesQuery<GetDynamicPropertyQuery>();
                 query.IdOrName = id;
 
-                var response = await mediator.Send(query);
+                var response = await context.GetMediator().Send(query);
 
                 return response.DynamicProperty;
             });
+        }
+
+        [Obsolete("Use the constructor without IMediator. The mediator is resolved from context.RequestServices per request.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+        public DynamicPropertyValueType(IMediator mediator, IDynamicPropertyDictionaryItemsService dynamicPropertyDictionaryItemsService)
+            : this(dynamicPropertyDictionaryItemsService)
+        {
         }
     }
 }

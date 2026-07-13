@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL;
@@ -16,17 +17,21 @@ public abstract class RequestBuilder<TRequest, TResponse, TResponseGraphType> : 
     where TRequest : IRequest<TResponse>
     where TResponseGraphType : IGraphType
 {
-    private readonly IMediator _mediator;
     private readonly IAuthorizationService _authorizationService;
 
     protected abstract string Name { get; }
 
+    protected RequestBuilder(IAuthorizationService authorizationService)
+    {
+        _authorizationService = authorizationService;
+    }
+
+    [Obsolete("Use the constructor without IMediator. The mediator is resolved from context.RequestServices per request.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
     protected RequestBuilder(
         IMediator mediator,
         IAuthorizationService authorizationService)
+        : this(authorizationService)
     {
-        _authorizationService = authorizationService;
-        _mediator = mediator;
     }
 
     public abstract void Build(ISchema schema);
@@ -83,7 +88,9 @@ public abstract class RequestBuilder<TRequest, TResponse, TResponseGraphType> : 
 
     protected virtual async Task<TResponse> GetResponseAsync(IResolveFieldContext<object> context, TRequest request)
     {
-        return await _mediator.Send(request);
+        // Resolved from the per-request scope, not ctor-injected: this builder is a singleton (built once with the
+        // schema), so a ctor-captured mediator would be root-bound and unable to reach Scoped handler dependencies.
+        return await context.GetMediator().Send(request);
     }
 
     protected virtual async Task Authorize(IResolveFieldContext context, object resource, IAuthorizationRequirement requirement)
