@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace VirtoCommerce.Xapi.Core.Services
 {
     /// <summary>
-    /// Request-scoped memoization for expensive loads: deduplicates a load that is re-issued with identical
+    /// Request-scoped cache for expensive loads: deduplicates a load that is re-issued with identical
     /// arguments many times within one GraphQL request. Concurrent same-key calls share a single factory invocation.
     /// </summary>
     /// <remarks>
