@@ -52,7 +52,7 @@ public abstract class RequestBuilder<TRequest, TResponse, TResponseGraphType> : 
 
     protected virtual void ConfigureArguments(FieldType builder)
     {
-        builder.Arguments ??= [];
+        builder.Arguments ??= new QueryArguments();
 
         foreach (var argument in GetArguments())
         {
