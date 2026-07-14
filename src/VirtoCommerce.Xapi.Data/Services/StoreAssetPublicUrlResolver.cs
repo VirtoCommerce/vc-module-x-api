@@ -14,7 +14,7 @@ public class StoreAssetPublicUrlResolver : IStoreAssetPublicUrlResolver
 {
     public virtual string GetAbsoluteUrl(Store store, string url)
     {
-        ArgumentNullException.ThrowIfNull(store, nameof(store));
+        ArgumentNullException.ThrowIfNull(store);
 
         // null/empty is returned as-is
         if (string.IsNullOrEmpty(url))
