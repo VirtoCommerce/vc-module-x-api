@@ -1,6 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Data.Services;
 using Xunit;
 
@@ -92,6 +97,322 @@ namespace VirtoCommerce.Xapi.Tests.Services
 
             stringResult.Should().Be("text");
             intResult.Should().Be(7);
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_LoadsAllMissingIdsInOneBatch()
+        {
+            var sut = new RequestScopedCache();
+            var batches = new List<string[]>();
+
+            var result = await sut.GetOrAddAsync("prefix", ["a", "b", "c"], x => x.Id, CreateLoader(batches));
+
+            batches.Should().ContainSingle().Which.Should().BeEquivalentTo("a", "b", "c");
+            result.Keys.Should().BeEquivalentTo("a", "b", "c");
+            result["a"].Id.Should().Be("a");
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_OverlappingCall_LoadsOnlyNotYetCachedIds()
+        {
+            var sut = new RequestScopedCache();
+            var batches = new List<string[]>();
+            var loadMissing = CreateLoader(batches);
+
+            var first = await sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, loadMissing);
+            var second = await sut.GetOrAddAsync("prefix", ["b", "c"], x => x.Id, loadMissing);
+            var third = await sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, loadMissing);
+
+            batches.Should().HaveCount(2, "the second call must load only the ids the first call did not cache, and the third call must load nothing");
+            batches[1].Should().BeEquivalentTo("c");
+            second.Keys.Should().BeEquivalentTo("b", "c");
+            second["b"].Should().BeSameAs(first["b"], "an overlapping id must be served from the cache, not re-loaded");
+            third["a"].Should().BeSameAs(first["a"]);
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_NotFoundId_OmittedAndNegativelyCached()
+        {
+            var sut = new RequestScopedCache();
+            var batches = new List<string[]>();
+            // The loader never returns an item for "ghost".
+            var loadMissing = CreateLoader(batches, x => x == "ghost" ? null : new Item(x));
+
+            var first = await sut.GetOrAddAsync("prefix", ["a", "ghost"], x => x.Id, loadMissing);
+            var second = await sut.GetOrAddAsync("prefix", ["a", "ghost"], x => x.Id, loadMissing);
+
+            first.Keys.Should().BeEquivalentTo("a");
+            second.Keys.Should().BeEquivalentTo("a");
+            batches.Should().ContainSingle("a not-found id must be negatively cached for the request, not re-loaded");
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_NullEmptyAndDuplicateIds_NormalizedWithinCall()
+        {
+            var sut = new RequestScopedCache();
+            var batches = new List<string[]>();
+
+            var result = await sut.GetOrAddAsync("prefix", [null, "", "a", "a", "b"], x => x.Id, CreateLoader(batches));
+
+            batches.Should().ContainSingle().Which.Should().BeEquivalentTo("a", "b");
+            result.Keys.Should().BeEquivalentTo("a", "b");
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_EmptyIds_ReturnsEmptyWithoutLoad()
+        {
+            var sut = new RequestScopedCache();
+            var batches = new List<string[]>();
+
+            var result = await sut.GetOrAddAsync("prefix", Array.Empty<string>(), x => x.Id, CreateLoader(batches));
+
+            result.Should().BeEmpty();
+            batches.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_FaultedLoad_CachedForTheRequestAndRethrown()
+        {
+            var sut = new RequestScopedCache();
+            var callCount = 0;
+
+            Task<IEnumerable<Item>> LoadMissing(IReadOnlyCollection<string> missingIds)
+            {
+                Interlocked.Increment(ref callCount);
+                throw new InvalidOperationException("boom");
+            }
+
+            var firstCall = () => sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
+            var secondCall = () => sut.GetOrAddAsync("prefix", ["a"], x => x.Id, LoadMissing);
+
+            await firstCall.Should().ThrowAsync<InvalidOperationException>().WithMessage("boom");
+            await secondCall.Should().ThrowAsync<InvalidOperationException>().WithMessage("boom");
+            callCount.Should().Be(1, "a faulted load must be cached for the request - same-id calls rethrow without re-loading");
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_NullLoaderResult_TreatedAsEmptyAndNegativelyCached()
+        {
+            var sut = new RequestScopedCache();
+            var callCount = 0;
+
+            Task<IEnumerable<Item>> LoadMissing(IReadOnlyCollection<string> missingIds)
+            {
+                Interlocked.Increment(ref callCount);
+                return Task.FromResult<IEnumerable<Item>>(null);
+            }
+
+            var first = await sut.GetOrAddAsync("prefix", ["a"], x => x.Id, LoadMissing);
+            var second = await sut.GetOrAddAsync("prefix", ["a"], x => x.Id, LoadMissing);
+
+            first.Should().BeEmpty();
+            second.Should().BeEmpty();
+            callCount.Should().Be(1, "ids from a null (empty) load result are negatively cached for the request, not re-loaded");
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_InFlightLoad_SharedByLaterCallInsteadOfSecondLoad()
+        {
+            var sut = new RequestScopedCache();
+            var release = new TaskCompletionSource();
+            var callCount = 0;
+
+            async Task<IEnumerable<Item>> LoadMissing(IReadOnlyCollection<string> missingIds)
+            {
+                Interlocked.Increment(ref callCount);
+                await release.Task;
+                return missingIds.Select(x => new Item(x)).ToList();
+            }
+
+            // The first call dispatches the load synchronously up to the await, then stays in flight.
+            var firstTask = sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
+            var secondTask = sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
+
+            firstTask.IsCompleted.Should().BeFalse();
+            secondTask.IsCompleted.Should().BeFalse();
+            release.SetResult();
+
+            var first = await firstTask;
+            var second = await secondTask;
+
+            callCount.Should().Be(1, "the second caller must await the in-flight load, not start its own");
+            second["a"].Should().BeSameAs(first["a"]);
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_ConcurrentOverlappingCallers_EachIdLoadedAtMostOnce()
+        {
+            // Regression guard for per-caller full-batch amplification: under concurrent overlapping
+            // misses, each id must be loaded by exactly one caller, so the total load across all
+            // callers is the distinct union - never a caller's full missing set re-loaded.
+            const int callers = 8;
+            const int windowSize = 12;
+            const int windowStride = 4;
+            var sut = new RequestScopedCache();
+            var release = new TaskCompletionSource();
+            var batches = new List<string[]>();
+
+            async Task<IEnumerable<Item>> LoadMissing(IReadOnlyCollection<string> missingIds)
+            {
+                lock (batches)
+                {
+                    batches.Add([.. missingIds]);
+                }
+
+                await release.Task;
+                return missingIds.Select(x => new Item(x)).ToList();
+            }
+
+            var tasks = new Task<IReadOnlyDictionary<string, Item>>[callers];
+            for (var i = 0; i < callers; i++)
+            {
+                var callerIds = Enumerable.Range(i * windowStride, windowSize).Select(x => $"id-{x}").ToArray();
+                tasks[i] = Task.Run(() => sut.GetOrAddAsync("prefix", callerIds, x => x.Id, LoadMissing));
+            }
+
+            // Give every caller a chance to reserve its ids before any load completes.
+            await Task.Delay(20);
+            release.SetResult();
+
+            var results = await Task.WhenAll(tasks);
+
+            var idSpace = (callers - 1) * windowStride + windowSize;
+            var loadedIds = batches.SelectMany(x => x).ToList();
+            loadedIds.Should().OnlyHaveUniqueItems("an id must never appear in two batches within one request");
+            loadedIds.Should().BeEquivalentTo(
+                Enumerable.Range(0, idSpace).Select(x => $"id-{x}"),
+                "the union of all batches must be exactly the distinct union of requested ids");
+            batches.Count.Should().BeLessThanOrEqualTo(callers, "each caller dispatches at most one batch");
+
+            for (var i = 0; i < callers; i++)
+            {
+                results[i].Keys.Should().BeEquivalentTo(Enumerable.Range(i * windowStride, windowSize).Select(x => $"id-{x}"));
+            }
+
+            // Overlapping ids resolve to the same shared instance across callers.
+            results[1]["id-4"].Should().BeSameAs(results[0]["id-4"]);
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_TupleKeys_DoNotCollideAcrossPrefixesOrWithByKeyEntries()
+        {
+            var sut = new RequestScopedCache();
+            var batches = new List<string[]>();
+            var loadMissing = CreateLoader(batches);
+
+            // "P" + "A:B" and "P:A" + "B" would alias under naive string concatenation.
+            var first = await sut.GetOrAddAsync("P", ["A:B"], x => x.Id, loadMissing);
+            var second = await sut.GetOrAddAsync("P:A", ["B"], x => x.Id, loadMissing);
+            var byKey = await sut.GetOrAddAsync("P:A:B", () => Task.FromResult("by-key value"));
+
+            batches.Should().HaveCount(2, "entries under different prefixes must not alias");
+            first["A:B"].Id.Should().Be("A:B");
+            second["B"].Id.Should().Be("B");
+            byKey.Should().Be("by-key value");
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_ExtraAndDuplicateLoadedItems_FirstWinsAndExtrasIgnored()
+        {
+            var sut = new RequestScopedCache();
+            var requestedFirst = new Item("a");
+            var requestedDuplicate = new Item("a");
+            var batches = new List<string[]>();
+            var loadMissing = CreateLoader(batches);
+
+            var result = await sut.GetOrAddAsync(
+                "prefix",
+                ["a"],
+                x => x.Id,
+                _ => Task.FromResult<IEnumerable<Item>>([requestedFirst, requestedDuplicate, new Item("x")]));
+
+            result.Keys.Should().BeEquivalentTo("a");
+            result["a"].Should().BeSameAs(requestedFirst, "the first loaded item for an id wins");
+
+            // The unrequested extra item must not have been cached.
+            var extra = await sut.GetOrAddAsync("prefix", ["x"], x => x.Id, loadMissing);
+            batches.Should().ContainSingle().Which.Should().BeEquivalentTo("x");
+            extra["x"].Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_SamePrefixAndIdWithDifferentType_ThrowsInvalidCast()
+        {
+            var sut = new RequestScopedCache();
+
+            await sut.GetOrAddAsync("prefix", ["a"], x => x.Id, CreateLoader([]));
+
+            var act = () => sut.GetOrAddAsync<OtherItem>("prefix", ["a"], x => x.Id, _ => Task.FromResult(Enumerable.Empty<OtherItem>()));
+
+            await act.Should().ThrowAsync<InvalidCastException>();
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_InvalidArguments_Throw()
+        {
+            var sut = new RequestScopedCache();
+            var loadMissing = CreateLoader([]);
+
+            var emptyPrefix = () => sut.GetOrAddAsync("", ["a"], x => x.Id, loadMissing);
+            var nullIds = () => sut.GetOrAddAsync("prefix", null, x => x.Id, loadMissing);
+            var nullSelector = () => sut.GetOrAddAsync<Item>("prefix", ["a"], null, loadMissing);
+            var nullLoader = () => sut.GetOrAddAsync<Item>("prefix", ["a"], x => x.Id, null);
+
+            await emptyPrefix.Should().ThrowAsync<ArgumentException>();
+            await nullIds.Should().ThrowAsync<ArgumentNullException>();
+            await nullSelector.Should().ThrowAsync<ArgumentNullException>();
+            await nullLoader.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task GetOrAddAsync_ByIds_EntityOverload_KeysByEntityIdAndSharesEntries()
+        {
+            var sut = new RequestScopedCache();
+            var batches = new List<string[]>();
+
+            Task<IEnumerable<EntityItem>> LoadMissing(IReadOnlyCollection<string> missingIds)
+            {
+                lock (batches)
+                {
+                    batches.Add([.. missingIds]);
+                }
+
+                return Task.FromResult<IEnumerable<EntityItem>>(missingIds.Select(x => new EntityItem { Id = x }).ToList());
+            }
+
+            var viaEntityOverload = await sut.GetOrAddAsync("prefix", ["a", "b"], LoadMissing);
+            var viaCoreOverload = await sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
+
+            batches.Should().ContainSingle("the IEntity overload must delegate to the core overload and share its cache entries");
+            viaEntityOverload.Keys.Should().BeEquivalentTo("a", "b");
+            viaCoreOverload["a"].Should().BeSameAs(viaEntityOverload["a"]);
+        }
+
+        private static Func<IReadOnlyCollection<string>, Task<IEnumerable<Item>>> CreateLoader(
+            List<string[]> batches,
+            Func<string, Item> createItem = null)
+        {
+            createItem ??= x => new Item(x);
+
+            return missingIds =>
+            {
+                lock (batches)
+                {
+                    batches.Add([.. missingIds]);
+                }
+
+                var items = missingIds.Select(createItem).Where(x => x is not null).ToList();
+
+                return Task.FromResult<IEnumerable<Item>>(items);
+            };
+        }
+
+        private sealed record Item(string Id);
+
+        private sealed record OtherItem(string Id);
+
+        private sealed class EntityItem : Entity
+        {
         }
     }
 }
