@@ -90,6 +90,7 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
             StoreName = store.Name,
             CatalogId = store.Catalog,
             StoreUrl = store.Url,
+            AssetPublicUrl = store.AssetPublicUrl,
             DefaultCurrency = defaultCurrency,
             AvailableCurrencies = availableCurrencies,
             DefaultLanguage = defaultLanguage,

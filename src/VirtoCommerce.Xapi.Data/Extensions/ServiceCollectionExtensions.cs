@@ -58,6 +58,8 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             services.AddTransient<IStoreDomainResolverService, StoreDomainResolverService>();
             services.AddDistributedLockService(configuration);
 
+            services.AddSingleton<IStoreAssetPublicUrlResolver, StoreAssetPublicUrlResolver>();
+
             return services;
         }
     }
