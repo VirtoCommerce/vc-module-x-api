@@ -6,10 +6,9 @@ using GraphQL.Resolvers;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.StoreModule.Core.Model;
+using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Schemas.ScalarTypes;
-using VirtoCommerce.Xapi.Core.Services;
-using VirtoCommerce.Xapi.Data.Services;
 using Xunit;
 
 namespace VirtoCommerce.Xapi.Tests.Infrastructure
@@ -17,6 +16,18 @@ namespace VirtoCommerce.Xapi.Tests.Infrastructure
     public class StoreUrlSchemaVisitorTests
     {
         private readonly StoreUrlSchemaVisitor _visitor = new();
+
+        /// <summary>
+        /// Stub of the Store module resolver: prefixes the URL with the store's AssetPublicUrl.
+        /// The real implementation is tested in VirtoCommerce.StoreModule.Tests.
+        /// </summary>
+        private sealed class FakeStoreAssetPublicUrlResolver : IStoreAssetPublicUrlResolver
+        {
+            public string GetAbsoluteUrl(Store store, string url)
+            {
+                return string.IsNullOrEmpty(store.AssetPublicUrl) ? url : $"{store.AssetPublicUrl}/{url.TrimStart('/')}";
+            }
+        }
 
         private static FieldType CreateField(System.Type graphType, string resolvedValue)
         {
@@ -31,7 +42,7 @@ namespace VirtoCommerce.Xapi.Tests.Infrastructure
         private static ResolveFieldContext CreateContext(Store store)
         {
             var services = new ServiceCollection();
-            services.AddSingleton<IStoreAssetPublicUrlResolver, StoreAssetPublicUrlResolver>();
+            services.AddSingleton<IStoreAssetPublicUrlResolver, FakeStoreAssetPublicUrlResolver>();
 
             var userContext = new Dictionary<string, object>();
             if (store != null)

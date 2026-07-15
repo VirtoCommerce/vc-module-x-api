@@ -6,9 +6,9 @@ using GraphQL.Types;
 using GraphQL.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.StoreModule.Core.Model;
+using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Schemas.ScalarTypes;
-using VirtoCommerce.Xapi.Core.Services;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure
 {
