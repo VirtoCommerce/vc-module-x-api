@@ -100,12 +100,12 @@ namespace VirtoCommerce.Xapi.Tests.Services
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_LoadsAllMissingIdsInOneBatch()
+        public async Task GetOrLoadByIdsAsync_LoadsAllMissingIdsInOneBatch()
         {
             var sut = new RequestScopedCache();
             var batches = new List<string[]>();
 
-            var result = await sut.GetOrAddAsync("prefix", ["a", "b", "c"], x => x.Id, CreateLoader(batches));
+            var result = await sut.GetOrLoadByIdsAsync("prefix", ["a", "b", "c"], x => x.Id, CreateLoader(batches));
 
             batches.Should().ContainSingle().Which.Should().BeEquivalentTo("a", "b", "c");
             result.Keys.Should().BeEquivalentTo("a", "b", "c");
@@ -113,15 +113,15 @@ namespace VirtoCommerce.Xapi.Tests.Services
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_OverlappingCall_LoadsOnlyNotYetCachedIds()
+        public async Task GetOrLoadByIdsAsync_OverlappingCall_LoadsOnlyNotYetCachedIds()
         {
             var sut = new RequestScopedCache();
             var batches = new List<string[]>();
             var loadMissing = CreateLoader(batches);
 
-            var first = await sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, loadMissing);
-            var second = await sut.GetOrAddAsync("prefix", ["b", "c"], x => x.Id, loadMissing);
-            var third = await sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, loadMissing);
+            var first = await sut.GetOrLoadByIdsAsync("prefix", ["a", "b"], x => x.Id, loadMissing);
+            var second = await sut.GetOrLoadByIdsAsync("prefix", ["b", "c"], x => x.Id, loadMissing);
+            var third = await sut.GetOrLoadByIdsAsync("prefix", ["a", "b"], x => x.Id, loadMissing);
 
             batches.Should().HaveCount(2, "the second call must load only the ids the first call did not cache, and the third call must load nothing");
             batches[1].Should().BeEquivalentTo("c");
@@ -131,15 +131,15 @@ namespace VirtoCommerce.Xapi.Tests.Services
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_NotFoundId_OmittedAndNegativelyCached()
+        public async Task GetOrLoadByIdsAsync_NotFoundId_OmittedAndNegativelyCached()
         {
             var sut = new RequestScopedCache();
             var batches = new List<string[]>();
             // The loader never returns an item for "ghost".
             var loadMissing = CreateLoader(batches, x => x == "ghost" ? null : new Item(x));
 
-            var first = await sut.GetOrAddAsync("prefix", ["a", "ghost"], x => x.Id, loadMissing);
-            var second = await sut.GetOrAddAsync("prefix", ["a", "ghost"], x => x.Id, loadMissing);
+            var first = await sut.GetOrLoadByIdsAsync("prefix", ["a", "ghost"], x => x.Id, loadMissing);
+            var second = await sut.GetOrLoadByIdsAsync("prefix", ["a", "ghost"], x => x.Id, loadMissing);
 
             first.Keys.Should().BeEquivalentTo("a");
             second.Keys.Should().BeEquivalentTo("a");
@@ -147,31 +147,31 @@ namespace VirtoCommerce.Xapi.Tests.Services
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_NullEmptyAndDuplicateIds_NormalizedWithinCall()
+        public async Task GetOrLoadByIdsAsync_NullEmptyAndDuplicateIds_NormalizedWithinCall()
         {
             var sut = new RequestScopedCache();
             var batches = new List<string[]>();
 
-            var result = await sut.GetOrAddAsync("prefix", [null, "", "a", "a", "b"], x => x.Id, CreateLoader(batches));
+            var result = await sut.GetOrLoadByIdsAsync("prefix", [null, "", "a", "a", "b"], x => x.Id, CreateLoader(batches));
 
             batches.Should().ContainSingle().Which.Should().BeEquivalentTo("a", "b");
             result.Keys.Should().BeEquivalentTo("a", "b");
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_EmptyIds_ReturnsEmptyWithoutLoad()
+        public async Task GetOrLoadByIdsAsync_EmptyIds_ReturnsEmptyWithoutLoad()
         {
             var sut = new RequestScopedCache();
             var batches = new List<string[]>();
 
-            var result = await sut.GetOrAddAsync("prefix", Array.Empty<string>(), x => x.Id, CreateLoader(batches));
+            var result = await sut.GetOrLoadByIdsAsync("prefix", Array.Empty<string>(), x => x.Id, CreateLoader(batches));
 
             result.Should().BeEmpty();
             batches.Should().BeEmpty();
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_FaultedLoad_CachedForTheRequestAndRethrown()
+        public async Task GetOrLoadByIdsAsync_FaultedLoad_CachedForTheRequestAndRethrown()
         {
             var sut = new RequestScopedCache();
             var callCount = 0;
@@ -182,8 +182,8 @@ namespace VirtoCommerce.Xapi.Tests.Services
                 throw new InvalidOperationException("boom");
             }
 
-            var firstCall = () => sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
-            var secondCall = () => sut.GetOrAddAsync("prefix", ["a"], x => x.Id, LoadMissing);
+            var firstCall = () => sut.GetOrLoadByIdsAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
+            var secondCall = () => sut.GetOrLoadByIdsAsync("prefix", ["a"], x => x.Id, LoadMissing);
 
             await firstCall.Should().ThrowAsync<InvalidOperationException>().WithMessage("boom");
             await secondCall.Should().ThrowAsync<InvalidOperationException>().WithMessage("boom");
@@ -191,7 +191,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_NullLoaderResult_TreatedAsEmptyAndNegativelyCached()
+        public async Task GetOrLoadByIdsAsync_NullLoaderResult_TreatedAsEmptyAndNegativelyCached()
         {
             var sut = new RequestScopedCache();
             var callCount = 0;
@@ -202,8 +202,8 @@ namespace VirtoCommerce.Xapi.Tests.Services
                 return Task.FromResult<IEnumerable<Item>>(null);
             }
 
-            var first = await sut.GetOrAddAsync("prefix", ["a"], x => x.Id, LoadMissing);
-            var second = await sut.GetOrAddAsync("prefix", ["a"], x => x.Id, LoadMissing);
+            var first = await sut.GetOrLoadByIdsAsync("prefix", ["a"], x => x.Id, LoadMissing);
+            var second = await sut.GetOrLoadByIdsAsync("prefix", ["a"], x => x.Id, LoadMissing);
 
             first.Should().BeEmpty();
             second.Should().BeEmpty();
@@ -211,7 +211,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_InFlightLoad_SharedByLaterCallInsteadOfSecondLoad()
+        public async Task GetOrLoadByIdsAsync_InFlightLoad_SharedByLaterCallInsteadOfSecondLoad()
         {
             var sut = new RequestScopedCache();
             var release = new TaskCompletionSource();
@@ -225,8 +225,8 @@ namespace VirtoCommerce.Xapi.Tests.Services
             }
 
             // The first call dispatches the load synchronously up to the await, then stays in flight.
-            var firstTask = sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
-            var secondTask = sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
+            var firstTask = sut.GetOrLoadByIdsAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
+            var secondTask = sut.GetOrLoadByIdsAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
 
             firstTask.IsCompleted.Should().BeFalse();
             secondTask.IsCompleted.Should().BeFalse();
@@ -240,7 +240,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_ConcurrentOverlappingCallers_EachIdLoadedAtMostOnce()
+        public async Task GetOrLoadByIdsAsync_ConcurrentOverlappingCallers_EachIdLoadedAtMostOnce()
         {
             // Regression guard for per-caller full-batch amplification: under concurrent overlapping
             // misses, each id must be loaded by exactly one caller, so the total load across all
@@ -263,11 +263,11 @@ namespace VirtoCommerce.Xapi.Tests.Services
                 return missingIds.Select(x => new Item(x)).ToList();
             }
 
-            var tasks = new Task<IReadOnlyDictionary<string, Item>>[callers];
+            var tasks = new Task<IDictionary<string, Item>>[callers];
             for (var i = 0; i < callers; i++)
             {
                 var callerIds = Enumerable.Range(i * windowStride, windowSize).Select(x => $"id-{x}").ToArray();
-                tasks[i] = Task.Run(() => sut.GetOrAddAsync("prefix", callerIds, x => x.Id, LoadMissing));
+                tasks[i] = Task.Run(() => sut.GetOrLoadByIdsAsync("prefix", callerIds, x => x.Id, LoadMissing));
             }
 
             // Give every caller a chance to reserve its ids before any load completes.
@@ -294,15 +294,15 @@ namespace VirtoCommerce.Xapi.Tests.Services
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_TupleKeys_DoNotCollideAcrossPrefixesOrWithByKeyEntries()
+        public async Task GetOrLoadByIdsAsync_TupleKeys_DoNotCollideAcrossPrefixesOrWithByKeyEntries()
         {
             var sut = new RequestScopedCache();
             var batches = new List<string[]>();
             var loadMissing = CreateLoader(batches);
 
             // "P" + "A:B" and "P:A" + "B" would alias under naive string concatenation.
-            var first = await sut.GetOrAddAsync("P", ["A:B"], x => x.Id, loadMissing);
-            var second = await sut.GetOrAddAsync("P:A", ["B"], x => x.Id, loadMissing);
+            var first = await sut.GetOrLoadByIdsAsync("P", ["A:B"], x => x.Id, loadMissing);
+            var second = await sut.GetOrLoadByIdsAsync("P:A", ["B"], x => x.Id, loadMissing);
             var byKey = await sut.GetOrAddAsync("P:A:B", () => Task.FromResult("by-key value"));
 
             batches.Should().HaveCount(2, "entries under different prefixes must not alias");
@@ -312,7 +312,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_ExtraAndDuplicateLoadedItems_FirstWinsAndExtrasIgnored()
+        public async Task GetOrLoadByIdsAsync_ExtraAndDuplicateLoadedItems_FirstWinsAndExtrasIgnored()
         {
             var sut = new RequestScopedCache();
             var requestedFirst = new Item("a");
@@ -320,7 +320,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
             var batches = new List<string[]>();
             var loadMissing = CreateLoader(batches);
 
-            var result = await sut.GetOrAddAsync(
+            var result = await sut.GetOrLoadByIdsAsync(
                 "prefix",
                 ["a"],
                 x => x.Id,
@@ -330,33 +330,33 @@ namespace VirtoCommerce.Xapi.Tests.Services
             result["a"].Should().BeSameAs(requestedFirst, "the first loaded item for an id wins");
 
             // The unrequested extra item must not have been cached.
-            var extra = await sut.GetOrAddAsync("prefix", ["x"], x => x.Id, loadMissing);
+            var extra = await sut.GetOrLoadByIdsAsync("prefix", ["x"], x => x.Id, loadMissing);
             batches.Should().ContainSingle().Which.Should().BeEquivalentTo("x");
             extra["x"].Should().NotBeNull();
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_SamePrefixAndIdWithDifferentType_ThrowsInvalidCast()
+        public async Task GetOrLoadByIdsAsync_SamePrefixAndIdWithDifferentType_ThrowsInvalidCast()
         {
             var sut = new RequestScopedCache();
 
-            await sut.GetOrAddAsync("prefix", ["a"], x => x.Id, CreateLoader([]));
+            await sut.GetOrLoadByIdsAsync("prefix", ["a"], x => x.Id, CreateLoader([]));
 
-            var act = () => sut.GetOrAddAsync<OtherItem>("prefix", ["a"], x => x.Id, _ => Task.FromResult(Enumerable.Empty<OtherItem>()));
+            var act = () => sut.GetOrLoadByIdsAsync<OtherItem>("prefix", ["a"], x => x.Id, _ => Task.FromResult(Enumerable.Empty<OtherItem>()));
 
             await act.Should().ThrowAsync<InvalidCastException>();
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_InvalidArguments_Throw()
+        public async Task GetOrLoadByIdsAsync_InvalidArguments_Throw()
         {
             var sut = new RequestScopedCache();
             var loadMissing = CreateLoader([]);
 
-            var emptyPrefix = () => sut.GetOrAddAsync("", ["a"], x => x.Id, loadMissing);
-            var nullIds = () => sut.GetOrAddAsync("prefix", null, x => x.Id, loadMissing);
-            var nullSelector = () => sut.GetOrAddAsync<Item>("prefix", ["a"], null, loadMissing);
-            var nullLoader = () => sut.GetOrAddAsync<Item>("prefix", ["a"], x => x.Id, null);
+            var emptyPrefix = () => sut.GetOrLoadByIdsAsync("", ["a"], x => x.Id, loadMissing);
+            var nullIds = () => sut.GetOrLoadByIdsAsync("prefix", null, x => x.Id, loadMissing);
+            var nullSelector = () => sut.GetOrLoadByIdsAsync<Item>("prefix", ["a"], null, loadMissing);
+            var nullLoader = () => sut.GetOrLoadByIdsAsync<Item>("prefix", ["a"], x => x.Id, null);
 
             await emptyPrefix.Should().ThrowAsync<ArgumentException>();
             await nullIds.Should().ThrowAsync<ArgumentNullException>();
@@ -365,7 +365,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
         }
 
         [Fact]
-        public async Task GetOrAddAsync_ByIds_EntityOverload_KeysByEntityIdAndSharesEntries()
+        public async Task GetOrLoadByIdsAsync_EntityOverload_KeysByEntityIdAndSharesEntries()
         {
             var sut = new RequestScopedCache();
             var batches = new List<string[]>();
@@ -380,8 +380,8 @@ namespace VirtoCommerce.Xapi.Tests.Services
                 return Task.FromResult<IEnumerable<EntityItem>>(missingIds.Select(x => new EntityItem { Id = x }).ToList());
             }
 
-            var viaEntityOverload = await sut.GetOrAddAsync("prefix", ["a", "b"], LoadMissing);
-            var viaCoreOverload = await sut.GetOrAddAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
+            var viaEntityOverload = await sut.GetOrLoadByIdsAsync("prefix", ["a", "b"], LoadMissing);
+            var viaCoreOverload = await sut.GetOrLoadByIdsAsync("prefix", ["a", "b"], x => x.Id, LoadMissing);
 
             batches.Should().ContainSingle("the IEntity overload must delegate to the core overload and share its cache entries");
             viaEntityOverload.Keys.Should().BeEquivalentTo("a", "b");

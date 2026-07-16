@@ -26,9 +26,9 @@ public class RequestScopedCache : IRequestScopedCache
         return (Task<T>)lazy.Value;
     }
 
-    public virtual Task<IReadOnlyDictionary<string, T>> GetOrAddAsync<T>(
+    public virtual Task<IDictionary<string, T>> GetOrLoadByIdsAsync<T>(
         string keyPrefix,
-        IEnumerable<string> ids,
+        ICollection<string> ids,
         Func<T, string> idSelector,
         Func<IReadOnlyCollection<string>, Task<IEnumerable<T>>> loadMissing)
         where T : class
@@ -38,17 +38,17 @@ public class RequestScopedCache : IRequestScopedCache
         ArgumentNullException.ThrowIfNull(idSelector);
         ArgumentNullException.ThrowIfNull(loadMissing);
 
-        return GetOrAddByIdsAsync(keyPrefix, ids, idSelector, loadMissing);
+        return GetOrLoadByIdsCoreAsync(keyPrefix, ids, idSelector, loadMissing);
     }
 
-    private async Task<IReadOnlyDictionary<string, T>> GetOrAddByIdsAsync<T>(
+    private async Task<IDictionary<string, T>> GetOrLoadByIdsCoreAsync<T>(
         string keyPrefix,
-        IEnumerable<string> ids,
+        ICollection<string> ids,
         Func<T, string> idSelector,
         Func<IReadOnlyCollection<string>, Task<IEnumerable<T>>> loadMissing)
         where T : class
     {
-        var result = CreateResultDictionary<T>(ids);
+        var result = new Dictionary<string, T>(ids.Count);
         List<KeyValuePair<string, Task<T>>> pending = null;
         Dictionary<string, TaskCompletionSource<T>> owned = null;
 
@@ -76,7 +76,7 @@ public class RequestScopedCache : IRequestScopedCache
                 }
                 else
                 {
-                    (pending ??= []).Add(new(id, task));
+                    (pending ??= []).Add(new KeyValuePair<string, Task<T>>(id, task));
                 }
             }
 
@@ -96,19 +96,6 @@ public class RequestScopedCache : IRequestScopedCache
         await CollectPendingAsync(pending, result);
 
         return result;
-    }
-
-    private static Dictionary<string, T> CreateResultDictionary<T>(IEnumerable<string> ids)
-        where T : class
-    {
-        var capacity = ids switch
-        {
-            IReadOnlyCollection<string> collection => collection.Count,
-            ICollection<string> collection => collection.Count,
-            _ => 0,
-        };
-
-        return new Dictionary<string, T>(capacity);
     }
 
     private static async Task CollectHitAsync<T>(Dictionary<string, T> result, string id, Task<T> task)

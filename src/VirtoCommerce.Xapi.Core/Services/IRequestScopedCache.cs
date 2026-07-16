@@ -46,22 +46,23 @@ namespace VirtoCommerce.Xapi.Core.Services
         /// </summary>
         /// <remarks>
         /// An id the load does not return is negatively cached: omitted from results for the rest of the request,
-        /// not retried. Loaded items with unrequested ids are ignored; duplicate ids - first wins. Returned
-        /// instances are shared within the request - treat them as read-only. <paramref name="loadMissing"/> must
-        /// not call back into this cache for ids it was asked to load (it would await its own load).
+        /// not retried. Loaded items with unrequested ids are ignored; duplicate ids - first wins. The returned
+        /// dictionary is created per call and may be mutated; the item instances in it are shared within the
+        /// request - treat them as read-only. <paramref name="loadMissing"/> must not call back into this cache
+        /// for ids it was asked to load (it would await its own load).
         /// </remarks>
         /// <typeparam name="T">Item type, a reference type so a not-found id is representable as a cached null;
         /// every caller of the same (<paramref name="keyPrefix"/>, id) pair must use the same <typeparamref name="T"/>.</typeparam>
         /// <param name="keyPrefix">Type/purpose-discriminating prefix, unique per load kind.</param>
-        /// <param name="ids">Identifiers to resolve; enumerated once, null/empty entries skipped, duplicates collapsed.</param>
+        /// <param name="ids">Identifiers to resolve; null/empty entries skipped, duplicates collapsed.</param>
         /// <param name="idSelector">Extracts the cache id from a loaded item.</param>
         /// <param name="loadMissing">Batch load for the not-yet-cached ids; a null result counts as empty.</param>
         /// <returns>Found ids mapped to their items; not-found ids are omitted.</returns>
         /// <exception cref="ArgumentNullException">Any argument is null.</exception>
         /// <exception cref="InvalidCastException">A (<paramref name="keyPrefix"/>, id) pair was previously used with a different <typeparamref name="T"/>.</exception>
-        Task<IReadOnlyDictionary<string, T>> GetOrAddAsync<T>(
+        Task<IDictionary<string, T>> GetOrLoadByIdsAsync<T>(
             string keyPrefix,
-            IEnumerable<string> ids,
+            ICollection<string> ids,
             Func<T, string> idSelector,
             Func<IReadOnlyCollection<string>, Task<IEnumerable<T>>> loadMissing)
             where T : class;

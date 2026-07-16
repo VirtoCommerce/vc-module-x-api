@@ -10,15 +10,15 @@ public static class RequestScopedCacheExtensions
 {
     /// <summary>
     /// By-id form for items keyed by <see cref="IEntity.Id"/>: delegates to
-    /// <see cref="IRequestScopedCache.GetOrAddAsync{T}(string, IEnumerable{string}, Func{T, string}, Func{IReadOnlyCollection{string}, Task{IEnumerable{T}}})"/>.
+    /// <see cref="IRequestScopedCache.GetOrLoadByIdsAsync{T}(string, ICollection{string}, Func{T, string}, Func{IReadOnlyCollection{string}, Task{IEnumerable{T}}})"/>.
     /// </summary>
-    public static Task<IReadOnlyDictionary<string, T>> GetOrAddAsync<T>(
+    public static Task<IDictionary<string, T>> GetOrLoadByIdsAsync<T>(
         this IRequestScopedCache cache,
         string keyPrefix,
-        IEnumerable<string> ids,
+        ICollection<string> ids,
         Func<IReadOnlyCollection<string>, Task<IEnumerable<T>>> loadMissing)
         where T : class, IEntity
     {
-        return cache.GetOrAddAsync(keyPrefix, ids, static x => x.Id, loadMissing);
+        return cache.GetOrLoadByIdsAsync(keyPrefix, ids, static x => x.Id, loadMissing);
     }
 }
