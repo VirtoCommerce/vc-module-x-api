@@ -176,7 +176,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
             var sut = new RequestScopedCache();
             var callCount = 0;
 
-            Task<IEnumerable<Item>> LoadMissing(IReadOnlyCollection<string> missingIds)
+            Task<IList<Item>> LoadMissing(ICollection<string> missingIds)
             {
                 Interlocked.Increment(ref callCount);
                 throw new InvalidOperationException("boom");
@@ -196,10 +196,10 @@ namespace VirtoCommerce.Xapi.Tests.Services
             var sut = new RequestScopedCache();
             var callCount = 0;
 
-            Task<IEnumerable<Item>> LoadMissing(IReadOnlyCollection<string> missingIds)
+            Task<IList<Item>> LoadMissing(ICollection<string> missingIds)
             {
                 Interlocked.Increment(ref callCount);
-                return Task.FromResult<IEnumerable<Item>>(null);
+                return Task.FromResult<IList<Item>>(null);
             }
 
             var first = await sut.GetOrLoadByIdsAsync("prefix", ["a"], x => x.Id, LoadMissing);
@@ -217,7 +217,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
             var release = new TaskCompletionSource();
             var callCount = 0;
 
-            async Task<IEnumerable<Item>> LoadMissing(IReadOnlyCollection<string> missingIds)
+            async Task<IList<Item>> LoadMissing(ICollection<string> missingIds)
             {
                 Interlocked.Increment(ref callCount);
                 await release.Task;
@@ -252,7 +252,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
             var release = new TaskCompletionSource();
             var batches = new List<string[]>();
 
-            async Task<IEnumerable<Item>> LoadMissing(IReadOnlyCollection<string> missingIds)
+            async Task<IList<Item>> LoadMissing(ICollection<string> missingIds)
             {
                 lock (batches)
                 {
@@ -324,7 +324,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
                 "prefix",
                 ["a"],
                 x => x.Id,
-                _ => Task.FromResult<IEnumerable<Item>>([requestedFirst, requestedDuplicate, new Item("x")]));
+                _ => Task.FromResult<IList<Item>>([requestedFirst, requestedDuplicate, new Item("x")]));
 
             result.Keys.Should().BeEquivalentTo("a");
             result["a"].Should().BeSameAs(requestedFirst, "the first loaded item for an id wins");
@@ -342,7 +342,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
 
             await sut.GetOrLoadByIdsAsync("prefix", ["a"], x => x.Id, CreateLoader([]));
 
-            var act = () => sut.GetOrLoadByIdsAsync<OtherItem>("prefix", ["a"], x => x.Id, _ => Task.FromResult(Enumerable.Empty<OtherItem>()));
+            var act = () => sut.GetOrLoadByIdsAsync<OtherItem>("prefix", ["a"], x => x.Id, _ => Task.FromResult<IList<OtherItem>>([]));
 
             await act.Should().ThrowAsync<InvalidCastException>();
         }
@@ -370,14 +370,14 @@ namespace VirtoCommerce.Xapi.Tests.Services
             var sut = new RequestScopedCache();
             var batches = new List<string[]>();
 
-            Task<IEnumerable<EntityItem>> LoadMissing(IReadOnlyCollection<string> missingIds)
+            Task<IList<EntityItem>> LoadMissing(ICollection<string> missingIds)
             {
                 lock (batches)
                 {
                     batches.Add([.. missingIds]);
                 }
 
-                return Task.FromResult<IEnumerable<EntityItem>>(missingIds.Select(x => new EntityItem { Id = x }).ToList());
+                return Task.FromResult<IList<EntityItem>>(missingIds.Select(x => new EntityItem { Id = x }).ToList());
             }
 
             var viaEntityOverload = await sut.GetOrLoadByIdsAsync("prefix", ["a", "b"], LoadMissing);
@@ -388,7 +388,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
             viaCoreOverload["a"].Should().BeSameAs(viaEntityOverload["a"]);
         }
 
-        private static Func<IReadOnlyCollection<string>, Task<IEnumerable<Item>>> CreateLoader(
+        private static Func<ICollection<string>, Task<IList<Item>>> CreateLoader(
             List<string[]> batches,
             Func<string, Item> createItem = null)
         {
@@ -403,7 +403,7 @@ namespace VirtoCommerce.Xapi.Tests.Services
 
                 var items = missingIds.Select(createItem).Where(x => x is not null).ToList();
 
-                return Task.FromResult<IEnumerable<Item>>(items);
+                return Task.FromResult<IList<Item>>(items);
             };
         }
 

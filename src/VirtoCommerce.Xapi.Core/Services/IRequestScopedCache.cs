@@ -64,7 +64,7 @@ namespace VirtoCommerce.Xapi.Core.Services
             string keyPrefix,
             ICollection<string> ids,
             Func<T, string> idSelector,
-            Func<IReadOnlyCollection<string>, Task<IEnumerable<T>>> loadMissing)
+            Func<ICollection<string>, Task<IList<T>>> loadMissing)
             where T : class;
     }
 }

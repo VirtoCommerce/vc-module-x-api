@@ -30,7 +30,7 @@ public class RequestScopedCache : IRequestScopedCache
         string keyPrefix,
         ICollection<string> ids,
         Func<T, string> idSelector,
-        Func<IReadOnlyCollection<string>, Task<IEnumerable<T>>> loadMissing)
+        Func<ICollection<string>, Task<IList<T>>> loadMissing)
         where T : class
     {
         ArgumentException.ThrowIfNullOrEmpty(keyPrefix);
@@ -45,7 +45,7 @@ public class RequestScopedCache : IRequestScopedCache
         string keyPrefix,
         ICollection<string> ids,
         Func<T, string> idSelector,
-        Func<IReadOnlyCollection<string>, Task<IEnumerable<T>>> loadMissing)
+        Func<ICollection<string>, Task<IList<T>>> loadMissing)
         where T : class
     {
         var result = new Dictionary<string, T>(ids.Count);
@@ -131,7 +131,7 @@ public class RequestScopedCache : IRequestScopedCache
     private static async Task LoadAndPublishAsync<T>(
         Dictionary<string, TaskCompletionSource<T>> owned,
         Func<T, string> idSelector,
-        Func<IReadOnlyCollection<string>, Task<IEnumerable<T>>> loadMissing)
+        Func<ICollection<string>, Task<IList<T>>> loadMissing)
         where T : class
     {
         // Null result counts as empty, mirroring the platform's GetOrLoadByIdsAsync.
