@@ -72,6 +72,9 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
                 builder.Build(schema);
             }
 
+            // Resolves StoreUrlType fields against the store's asset public URL
+            schema.RegisterVisitor(new StoreUrlSchemaVisitor());
+
             // Map custom optional Graph Types for partial mutations support
             schema.RegisterTypeMapping<Optional<string>, OptionalStringGraphType>();
             schema.RegisterTypeMapping<Optional<decimal>, OptionalDecimalGraphType>();
