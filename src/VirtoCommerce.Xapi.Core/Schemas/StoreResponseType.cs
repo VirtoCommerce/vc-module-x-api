@@ -12,6 +12,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
             Field(x => x.StoreName, nullable: false).Description("Store name");
             Field(x => x.CatalogId, nullable: false).Description("Store catalog ID");
             Field(x => x.StoreUrl, nullable: true).Description("Store URL");
+            Field(x => x.AssetPublicUrl, nullable: true).Description("Base URL used to serve this store's public asset (image) URLs. Overrides the global asset CDN.");
 
             Field<NonNullGraphType<LanguageType>>(nameof(StoreResponse.DefaultLanguage)).Description("Language").Resolve(context => context.Source.DefaultLanguage);
             Field<NonNullGraphType<ListGraphType<NonNullGraphType<LanguageType>>>>(nameof(StoreResponse.AvailableLanguages)).Description("Available languages").Resolve(context => context.Source.AvailableLanguages);
