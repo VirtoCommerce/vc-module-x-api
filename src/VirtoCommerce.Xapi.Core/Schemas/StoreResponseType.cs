@@ -1,4 +1,7 @@
+using System.Linq;
+using GraphQL;
 using GraphQL.Types;
+using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Core.Services;
 
@@ -6,7 +9,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
 {
     public class StoreResponseType : ExtendableGraphType<StoreResponse>
     {
-        public StoreResponseType(IDynamicPropertyResolverService dynamicPropertyResolverService)
+        public StoreResponseType(IDynamicPropertyResolverService dynamicPropertyResolverService, IAppManifestService appManifestService)
         {
             Field(x => x.StoreId, nullable: false).Description("Store ID");
             Field(x => x.StoreName, nullable: false).Description("Store name");
@@ -24,6 +27,16 @@ namespace VirtoCommerce.Xapi.Core.Schemas
             Field<NonNullGraphType<GraphQLSettingsType>>(nameof(StoreResponse.GraphQLSettings)).Description("GraphQL settings").Resolve(context => context.Source.GraphQLSettings);
 
             Field<ListGraphType<DynamicPropertyValueType>>(nameof(StoreResponse.DynamicProperties)).Description("Store dynamic property values").Resolve(context => context.Source.DynamicProperties);
+
+            Field<NonNullGraphType<ListGraphType<NonNullGraphType<StorePluginType>>>>("plugins")
+                .Argument<StringGraphType>("appId", $"Frontend host app id whose plugins to return.")
+                .Resolve(context =>
+                {
+                    var appId = context.GetArgument<string>("appId");
+
+                    var manifest = appManifestService.GetManifest(appId);
+                    return manifest?.Plugins.Select(StorePlugin.FromDescriptor).ToList() ?? [];
+                });
         }
     }
 }
