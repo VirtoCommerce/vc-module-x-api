@@ -1,3 +1,4 @@
+using System;
 using GraphQL.Types;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -16,8 +17,14 @@ public abstract class SearchQueryBuilder<TQuery, TResult, TItem, TItemGraphType>
 {
     protected virtual int DefaultPageSize => Connections.DefaultPageSize;
 
+    protected SearchQueryBuilder(IAuthorizationService authorizationService)
+        : base(authorizationService)
+    {
+    }
+
+    [Obsolete("Use the constructor without IMediator. The mediator is resolved from context.RequestServices per request.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
     protected SearchQueryBuilder(IMediator mediator, IAuthorizationService authorizationService)
-        : base(mediator, authorizationService)
+        : this(authorizationService)
     {
     }
 
@@ -31,6 +38,7 @@ public abstract class SearchQueryBuilder<TQuery, TResult, TItem, TItemGraphType>
         builder.ResolveAsync(async context =>
         {
             var (query, response) = await Resolve(context);
+
             return new PagedConnection<TItem>(response.Results, query.Skip, query.Take, response.TotalCount);
         });
 
