@@ -17,8 +17,14 @@ public abstract class CommandBuilder<TCommand, TResult, TCommandGraphType, TResu
 {
     private const string _argumentName = "command";
 
+    protected CommandBuilder(IAuthorizationService authorizationService)
+        : base(authorizationService)
+    {
+    }
+
+    [Obsolete("Use the constructor without IMediator. The mediator is resolved from context.RequestServices per request.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
     protected CommandBuilder(IMediator mediator, IAuthorizationService authorizationService)
-        : base(mediator, authorizationService)
+        : this(authorizationService)
     {
     }
 
@@ -47,8 +53,14 @@ public abstract class CommandBuilder<TCommand, TResult, TResultGraphType>
     where TCommand : IRequest<TResult>
     where TResultGraphType : IGraphType
 {
+    protected CommandBuilder(IAuthorizationService authorizationService)
+        : base(authorizationService)
+    {
+    }
+
+    [Obsolete("Use the constructor without IMediator. The mediator is resolved from context.RequestServices per request.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
     protected CommandBuilder(IMediator mediator, IAuthorizationService authorizationService)
-        : base(mediator, authorizationService)
+        : this(authorizationService)
     {
     }
 
@@ -60,7 +72,7 @@ public abstract class CommandBuilder<TCommand, TResult, TResultGraphType>
     protected override IEnumerable<QueryArgument> GetArguments()
     {
         // no arguments needed for this type of command builder
-        return Array.Empty<QueryArgument>();
+        return [];
     }
 
     protected override TCommand GetRequest(IResolveFieldContext<object> context)

@@ -1,6 +1,6 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Types;
 using MediatR;
@@ -15,7 +15,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
 {
     public class DynamicPropertyType : ExtendableGraphType<DynamicProperty>
     {
-        public DynamicPropertyType(IMediator mediator)
+        public DynamicPropertyType()
         {
             Field(x => x.Id, nullable: false).Description("Id");
             Field<NonNullGraphType<StringGraphType>>("Name").Resolve(context => context.Source.Name);
@@ -25,6 +25,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                 .Resolve(context =>
                 {
                     var culture = context.GetValue<string>("cultureName");
+
                     return context.Source.DisplayNames.FirstOrDefault(x => culture.IsNullOrEmpty() || x.Locale.EqualsIgnoreCase(culture))?.Name;
                 });
             Field(x => x.DisplayOrder, nullable: true).Description("The order for the dynamic property to display");
@@ -42,13 +43,16 @@ namespace VirtoCommerce.Xapi.Core.Schemas
               .Argument<StringGraphType>("cultureName", "")
               .Argument<StringGraphType>("sort", "")
               .PageSize(Connections.DefaultPageSize)
-              .ResolveAsync(async context =>
-              {
-                  return await ResolveConnectionAsync(mediator, context);
-              });
+              .ResolveAsync(async context => await ResolveConnectionAsync(context));
         }
 
-        private static async Task<object> ResolveConnectionAsync(IMediator mediator, IResolveConnectionContext<DynamicProperty> context)
+        [Obsolete("Use the constructor without IMediator. The mediator is resolved from context.RequestServices per request.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+        public DynamicPropertyType(IMediator mediator)
+            : this()
+        {
+        }
+
+        private static async Task<object> ResolveConnectionAsync(IResolveConnectionContext<DynamicProperty> context)
         {
             _ = int.TryParse(context.After, out var skip);
 
@@ -61,7 +65,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
 
             context.CopyArgumentsToUserContext();
 
-            var response = await mediator.Send(query);
+            var response = await context.GetMediator().Send(query);
 
             return new PagedConnection<DynamicPropertyDictionaryItem>(response.Results, query.Skip, query.Take, response.TotalCount);
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using GraphQL.Builders;
 using GraphQL.Resolvers;
@@ -15,11 +16,14 @@ namespace VirtoCommerce.Xapi.Data.Schemas
 {
     public class DynamicPropertySchema : ISchemaBuilder
     {
-        private readonly IMediator _mediator;
-
-        public DynamicPropertySchema(IMediator mediator)
+        public DynamicPropertySchema()
         {
-            _mediator = mediator;
+        }
+
+        [Obsolete("Use the constructor without IMediator. The mediator is resolved from context.RequestServices per request.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+        public DynamicPropertySchema(IMediator mediator)
+            : this()
+        {
         }
 
         public void Build(ISchema schema)
@@ -41,7 +45,7 @@ namespace VirtoCommerce.Xapi.Data.Schemas
                     query.IdOrName = context.GetArgument<string>("idOrName");
                     query.ObjectType = context.GetArgument<string>("objectType");
 
-                    var response = await _mediator.Send(query);
+                    var response = await context.GetMediator().Send(query);
 
                     return response.DynamicProperty;
                 })
@@ -55,12 +59,12 @@ namespace VirtoCommerce.Xapi.Data.Schemas
                 .Argument<StringGraphType>("objectType", "Object type of the dynamic property")
                 .PageSize(Connections.DefaultPageSize);
 
-            dynamicPropertiesConnectionBuilder.ResolveAsync(async context => await ResolveDynamicPropertiesConnectionAsync(_mediator, context));
+            dynamicPropertiesConnectionBuilder.ResolveAsync(async context => await ResolveDynamicPropertiesConnectionAsync(context));
 
             schema.Query.AddField(dynamicPropertiesConnectionBuilder.FieldType);
         }
 
-        private static async Task<object> ResolveDynamicPropertiesConnectionAsync(IMediator mediator, IResolveConnectionContext<object> context)
+        private static async Task<object> ResolveDynamicPropertiesConnectionAsync(IResolveConnectionContext<object> context)
         {
             int.TryParse(context.After, out var skip);
 
@@ -73,7 +77,7 @@ namespace VirtoCommerce.Xapi.Data.Schemas
 
             context.CopyArgumentsToUserContext();
 
-            var response = await mediator.Send(query);
+            var response = await context.GetMediator().Send(query);
 
             return new PagedConnection<DynamicProperty>(response.Results, query.Skip, query.Take, response.TotalCount);
         }
