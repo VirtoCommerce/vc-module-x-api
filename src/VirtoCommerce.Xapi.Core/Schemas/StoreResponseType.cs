@@ -35,7 +35,7 @@ namespace VirtoCommerce.Xapi.Core.Schemas
                     var appId = context.GetArgument<string>("appId");
 
                     var manifest = appManifestService.GetManifest(appId);
-                    return manifest?.Plugins.Select(StorePlugin.FromDescriptor).ToList() ?? [];
+                    return manifest?.Plugins?.Select(StorePlugin.FromDescriptor).ToList() ?? [];
                 });
         }
     }

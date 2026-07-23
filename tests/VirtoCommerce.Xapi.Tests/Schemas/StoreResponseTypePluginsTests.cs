@@ -58,6 +58,21 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
             result.Should().NotBeNull().And.BeEmpty();
         }
 
+        [Fact]
+        public async Task Plugins_ShouldReturnEmptyList_WhenManifestHasNullPlugins()
+        {
+            // Arrange - manifest present but its Plugins collection is null
+            _appManifestService.Setup(x => x.GetManifest(It.IsAny<string>()))
+                .Returns(new AppManifestDescriptor { Plugins = null });
+            var context = new ResolveFieldContext<StoreResponse> { Source = new StoreResponse() };
+
+            // Act
+            var result = await ResolvePluginsAsync(context);
+
+            // Assert
+            result.Should().NotBeNull().And.BeEmpty();
+        }
+
         private async Task<IList<StorePlugin>> ResolvePluginsAsync(IResolveFieldContext<StoreResponse> context)
         {
             var field = _storeResponseType.Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("plugins"));
