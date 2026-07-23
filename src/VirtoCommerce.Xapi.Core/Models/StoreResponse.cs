@@ -13,6 +13,8 @@ namespace VirtoCommerce.Xapi.Core.Models
 
         public string StoreUrl { get; set; }
 
+        public string AssetPublicUrl { get; set; }
+
         public string CatalogId { get; set; }
 
         public Currency DefaultCurrency { get; set; }
