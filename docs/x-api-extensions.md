@@ -111,6 +111,26 @@ The system uses Platform's abstract type factory to instantiate validators. Ther
 ```
 
 
+## Run MediatR request pre-processors
+`AddSchema` registers your module's assembly with MediatR. To enable options that registration depends on, pass a configuration callback instead of calling `AddMediatR` yourself:
+
+```csharp
+builder.AddSchema(services, typeof(AssemblyMarker), cfg =>
+{
+    cfg.AutoRegisterRequestProcessors = true;
+    cfg.AddOpenBehavior(typeof(RequestPreProcessorBehavior<,>));
+});
+```
+
+Both lines are needed: the flag registers the `IRequestPreProcessor<>` implementations, `AddOpenBehavior` registers the pipeline stage that invokes them. With the flag alone they sit in the container and nothing calls them — no error, no log.
+
+Prefer the callback to a second `AddMediatR` over the same assembly: request handlers dedupe, notification handlers do not and would run twice.
+
+Use it for additive registration — behaviors, processors, extra assemblies. Container-wide options such as `Lifetime`, `MediatorImplementationType` and `NotificationPublisher` are applied with `TryAdd`, so the first module to call `AddSchema` wins and every later module's value is silently ignored.
+
+This is MediatR's own pipeline, not the `AddPipeline<T>` middleware chains described below.
+
+
 ## Generic behavior pipelines
 xAPI extension points are not limited to data structure extensions. You can also change behavior and business logic outside from  the your custom module without touching the original source code.
 
