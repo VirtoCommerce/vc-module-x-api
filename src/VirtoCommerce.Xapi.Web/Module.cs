@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DeveloperTools;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Settings;
@@ -142,6 +143,9 @@ namespace VirtoCommerce.Xapi.Web
             serviceCollection.Configure<StoresOptions>(Configuration.GetSection(ConfigKeys.Stores));
 
             serviceCollection.AddAuthenticationFilter(Configuration);
+
+            // explicit registration with AbstractTypeFactory to use constructor with arguments
+            AbstractTypeFactory<ProductPrice>.RegisterType<ProductPrice>();
         }
 
         public void PostInitialize(IApplicationBuilder appBuilder)
