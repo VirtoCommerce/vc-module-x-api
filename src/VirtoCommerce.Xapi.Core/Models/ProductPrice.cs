@@ -22,6 +22,11 @@ namespace VirtoCommerce.Xapi.Core.Models
         }
 
         /// <summary>
+        /// Number of decimal digits in the relative discount value (0.3333 = 33.33%).
+        /// </summary>
+        private const int _discountPercentDecimalDigits = 4;
+
+        /// <summary>
         /// Price list id
         /// </summary>
         public string PricelistId { get; set; }
@@ -48,7 +53,7 @@ namespace VirtoCommerce.Xapi.Core.Models
         /// <summary>
         /// Relative benefit. 30%
         /// </summary>
-        public decimal DiscountPercent => ListPrice.Amount > 0 ? Math.Round(DiscountAmount.Amount / ListPrice.Amount, 2) : 0;
+        public decimal DiscountPercent => GetDiscountPercent();
 
         /// <summary>
         /// Original product price (old price)
@@ -163,6 +168,13 @@ namespace VirtoCommerce.Xapi.Core.Models
         public ICollection<Discount> Discounts { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+
+        protected virtual decimal GetDiscountPercent()
+        {
+            return ListPrice.Amount > 0
+                ? Math.Round(DiscountAmount.Amount / ListPrice.Amount, _discountPercentDecimalDigits, MidpointRounding.AwayFromZero)
+                : 0;
+        }
 
         protected override IEnumerable<object> GetEqualityComponents()
         {
