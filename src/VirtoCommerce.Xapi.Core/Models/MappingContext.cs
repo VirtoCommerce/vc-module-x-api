@@ -12,5 +12,13 @@ namespace VirtoCommerce.Xapi.Core.Models
     public abstract class MappingContext
     {
         public string CultureName { get; set; }
+
+        /// <summary>
+        /// The unresolved currency code. Every concern that needs currency shares this one
+        /// primitive spelling; a concern that needs a resolved <c>Currency</c> (or a store's
+        /// full currency set) keeps that resolved form on its own derived context instead of
+        /// re-declaring the code here.
+        /// </summary>
+        public string CurrencyCode { get; set; }
     }
 }
