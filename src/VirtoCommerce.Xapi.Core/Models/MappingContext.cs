@@ -9,7 +9,7 @@ namespace VirtoCommerce.Xapi.Core.Models
     /// derived type with extra ambient fields; populate it through a <c>protected virtual</c> creation
     /// hook on the mapper, not inline at each call site, so overriding it is a one-method change.
     /// </summary>
-    public class MappingContext
+    public abstract class MappingContext
     {
         public string CultureName { get; set; }
     }
