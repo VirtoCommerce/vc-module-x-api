@@ -13,7 +13,6 @@ namespace VirtoCommerce.Xapi.Data.Services
 {
     public class UserManagerCore : IUserManagerCore
     {
-        // Every argument the check reads, so a second field of the same document cannot get a false hit.
         private const string CheckUserStateCacheKeyPrefix = "UserManagerCore.CheckUserState";
 
         private readonly Func<UserManager<ApplicationUser>> _userManagerFactory;
@@ -62,6 +61,11 @@ namespace VirtoCommerce.Xapi.Data.Services
         /// <summary>
         /// Throws when the account behind the current token is unusable: missing, password expired, or locked out.
         /// </summary>
+        /// <remarks>
+        /// An override must decide from these parameters alone. The caller memoizes the outcome under a key built
+        /// from them, so anything else it reads yields false cache hits - a wrong authorization answer - unless
+        /// that input is added to the key as well.
+        /// </remarks>
         protected virtual async Task ValidateUserStateAsync(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
         {
             var userManager = _userManagerFactory();
@@ -89,11 +93,10 @@ namespace VirtoCommerce.Xapi.Data.Services
         }
 
         // Callers run this once per GraphQL root field, so a document selecting several fields repeats the same
-        // check. Each run resolves the platform's UserManager factory, which opens a DI scope and constructs a
-        // UserManager - and that constructor takes process-wide Meter locks per instrument. Memoizing per
-        // request collapses it to one. A faulted check stays cached, so a refused caller is refused for every
-        // field of the document rather than only the first.
-        protected virtual Task CheckUserState(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
+        // check. Each run resolves the platform's UserManager factory, which opens a DI scope and builds a
+        // UserManager over its own SecurityDbContext. Memoizing per request collapses it to one, and a refusal
+        // stays cached so every field of the document is refused rather than only the first.
+        protected virtual async Task CheckUserState(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
         {
             // Null outside a request - a background job or startup - where there is nothing to bound the cache
             // to and the check simply runs uncached.
@@ -101,17 +104,35 @@ namespace VirtoCommerce.Xapi.Data.Services
 
             if (cache == null)
             {
-                return ValidateUserStateAsync(userId, allowAnonymous, isExternalSignIn, isImpersonated);
-            }
-
-            var key = string.Join('|', CheckUserStateCacheKeyPrefix, userId, allowAnonymous, isExternalSignIn, isImpersonated);
-
-            return cache.GetOrAddAsync(key, async () =>
-            {
                 await ValidateUserStateAsync(userId, allowAnonymous, isExternalSignIn, isImpersonated);
 
-                return true;
+                return;
+            }
+
+            // Every argument the check reads, so a second field of the same document cannot get a false hit.
+            var key = string.Join('|', CheckUserStateCacheKeyPrefix, userId, allowAnonymous, isExternalSignIn, isImpersonated);
+
+            // What is cached is the refusal, not the exception raised for it: GraphQL.NET stamps Path and
+            // Locations onto the ExecutionError it catches, so one instance shared by concurrent sibling fields
+            // would report a single field's path for all of them. Each caller throws its own error instead.
+            var refusal = await cache.GetOrAddAsync<AuthorizationError>(key, async () =>
+            {
+                try
+                {
+                    await ValidateUserStateAsync(userId, allowAnonymous, isExternalSignIn, isImpersonated);
+
+                    return null;
+                }
+                catch (AuthorizationError error)
+                {
+                    return error;
+                }
             });
+
+            if (refusal != null)
+            {
+                throw new AuthorizationError(refusal.Message, refusal.Code);
+            }
         }
     }
 }

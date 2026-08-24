@@ -1,11 +1,9 @@
-using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
 using Moq;
 using VirtoCommerce.Platform.Caching;
 using VirtoCommerce.Platform.Core.Caching;
-using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Xapi.Core.Security.Authorization;
 using VirtoCommerce.Xapi.Data.Services;
 using Xunit;
@@ -13,8 +11,9 @@ using Xunit;
 namespace VirtoCommerce.Xapi.Tests.Services
 {
     // The state check runs once per GraphQL root field, and each run constructs a UserManager through the
-    // platform factory - a DI scope plus per-instrument Meter locks. These pin that a document selecting many
-    // fields pays for it once, and that memoizing does not let a refused caller through on the second field.
+    // platform factory - a DI scope plus its own SecurityDbContext. These pin that a document selecting many
+    // fields pays for it once, that memoizing does not let a refused caller through on the second field, and
+    // that every argument the check reads takes part in the cache key.
     public class UserManagerCoreTests
     {
         private const string UserId = "user-1";
@@ -22,20 +21,19 @@ namespace VirtoCommerce.Xapi.Tests.Services
         [Fact]
         public async Task CheckUserState_WithinOneRequest_ValidatesOnce()
         {
-            var sut = CreateSut(out var cache);
+            var sut = CreateSut();
 
             await sut.CheckUserStateAsync(UserId);
             await sut.CheckUserStateAsync(UserId);
             await sut.CheckUserStateAsync(UserId);
 
             sut.Validations.Should().Be(1);
-            cache.Should().NotBeNull();
         }
 
         [Fact]
         public async Task CheckUserState_ForDifferentUsers_ValidatesEach()
         {
-            var sut = CreateSut(out _);
+            var sut = CreateSut();
 
             await sut.CheckUserStateAsync(UserId);
             await sut.CheckUserStateAsync("user-2");
@@ -44,18 +42,94 @@ namespace VirtoCommerce.Xapi.Tests.Services
             sut.Validations.Should().Be(2);
         }
 
+        // One test per remaining key component. Each would collapse to a single validation if that component
+        // were dropped from the key - a false cache hit, which on an authorization check is a wrong answer.
+        [Fact]
+        public async Task CheckUserState_ForDifferentAllowAnonymous_ValidatesEach()
+        {
+            var sut = CreateSut();
+
+            await sut.CheckUserStateAsync(UserId, allowAnonymous: false);
+            await sut.CheckUserStateAsync(UserId, allowAnonymous: true);
+
+            sut.Validations.Should().Be(2);
+        }
+
+        [Fact]
+        public async Task CheckUserState_ForDifferentExternalSignIn_ValidatesEach()
+        {
+            var sut = CreateSut();
+
+            await sut.CheckUserStateAsync(UserId, isExternalSignIn: false);
+            await sut.CheckUserStateAsync(UserId, isExternalSignIn: true);
+
+            sut.Validations.Should().Be(2);
+        }
+
+        [Fact]
+        public async Task CheckUserState_ForDifferentImpersonated_ValidatesEach()
+        {
+            var sut = CreateSut();
+
+            await sut.CheckUserStateAsync(UserId, isImpersonated: false);
+            await sut.CheckUserStateAsync(UserId, isImpersonated: true);
+
+            sut.Validations.Should().Be(2);
+        }
+
+        [Fact]
+        public async Task CheckUserState_ConcurrentCallers_ValidatesOnce()
+        {
+            // GraphQL executes sibling root fields concurrently, so a same-key burst is the live case.
+            var sut = CreateSut();
+            sut.BlockValidation = true;
+
+            const int callers = 20;
+            var calls = new Task[callers];
+            for (var i = 0; i < callers; i++)
+            {
+                // Task.Run forces the callers onto distinct pool threads so they race for real, instead of
+                // entering the check cooperatively from one thread.
+                calls[i] = Task.Run(() => sut.CheckUserStateAsync(UserId));
+            }
+
+            // Give every caller a chance to reach the check before the one validation in flight completes.
+            await Task.Delay(20);
+            sut.ReleaseValidation();
+
+            await Task.WhenAll(calls);
+
+            sut.Validations.Should().Be(1);
+        }
+
         [Fact]
         public async Task CheckUserState_WhenTheAccountIsRefused_RefusesEveryCall()
         {
-            var sut = CreateSut(out _);
+            var sut = CreateSut();
             sut.Refuse = true;
 
-            // A faulted check stays cached for the request, so the second field of the same document is refused
-            // as well - the memoization must not turn a refusal into a single-field failure.
+            // The refusal stays cached for the request, so the second field of the same document is refused as
+            // well - memoizing must not turn a refusal into a single-field failure.
             await Assert.ThrowsAsync<AuthorizationError>(() => sut.CheckUserStateAsync(UserId));
             await Assert.ThrowsAsync<AuthorizationError>(() => sut.CheckUserStateAsync(UserId));
 
             sut.Validations.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task CheckUserState_WhenTheAccountIsRefused_ThrowsItsOwnErrorPerCall()
+        {
+            var sut = CreateSut();
+            sut.Refuse = true;
+
+            // GraphQL.NET stamps Path and Locations onto the ExecutionError it catches, so sibling fields
+            // sharing one instance would each report the path of whichever field wrote to it last.
+            var first = await Assert.ThrowsAsync<AuthorizationError>(() => sut.CheckUserStateAsync(UserId));
+            var second = await Assert.ThrowsAsync<AuthorizationError>(() => sut.CheckUserStateAsync(UserId));
+
+            second.Should().NotBeSameAs(first);
+            second.Message.Should().Be(first.Message);
+            second.Code.Should().Be(first.Code);
         }
 
         [Fact]
@@ -83,18 +157,21 @@ namespace VirtoCommerce.Xapi.Tests.Services
             sut.Validations.Should().Be(2);
         }
 
-        private static TestableUserManagerCore CreateSut(out IRequestScopedCache cache)
+        private static TestableUserManagerCore CreateSut()
         {
-            cache = new RequestScopedCache();
-
+            // The real RequestScopedCache, not a fake: the single-flight and cached-refusal behaviour under
+            // test belongs to it, and a fake would only restate what this code assumes about it.
             var accessor = new Mock<IRequestScopedCacheAccessor>();
-            accessor.SetupGet(x => x.Cache).Returns(cache);
+            accessor.SetupGet(x => x.Cache).Returns(new RequestScopedCache());
 
             return new TestableUserManagerCore(accessor.Object);
         }
 
         private sealed class TestableUserManagerCore : UserManagerCore
         {
+            private readonly TaskCompletionSource _validationGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            private int _validations;
+
             public TestableUserManagerCore(IRequestScopedCacheAccessor accessor)
                 : base(() => null, accessor)
             {
@@ -107,22 +184,32 @@ namespace VirtoCommerce.Xapi.Tests.Services
             }
 #pragma warning restore VC0015
 
-            public int Validations { get; private set; }
+            public int Validations => _validations;
 
             public bool Refuse { get; set; }
 
-            public Task CheckUserStateAsync(string userId) =>
-                CheckUserState(userId, allowAnonymous: false, isExternalSignIn: false, isImpersonated: false);
+            public bool BlockValidation { get; set; }
+
+            public void ReleaseValidation() => _validationGate.TrySetResult();
+
+            public Task CheckUserStateAsync(string userId, bool allowAnonymous = false, bool isExternalSignIn = false, bool isImpersonated = false) =>
+                CheckUserState(userId, allowAnonymous, isExternalSignIn, isImpersonated);
 
             // Replaces the only part that touches the platform UserManager, so the tests measure how often the
             // check runs rather than what it decides.
-            protected override Task ValidateUserStateAsync(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
+            protected override async Task ValidateUserStateAsync(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
             {
-                Validations++;
+                Interlocked.Increment(ref _validations);
 
-                return Refuse
-                    ? Task.FromException(AuthorizationError.UserLocked())
-                    : Task.CompletedTask;
+                if (BlockValidation)
+                {
+                    await _validationGate.Task;
+                }
+
+                if (Refuse)
+                {
+                    throw AuthorizationError.UserLocked();
+                }
             }
         }
     }
