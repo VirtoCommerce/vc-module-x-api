@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using GraphQL;
 using Microsoft.AspNetCore.Identity;
+using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Security.Extensions;
 using VirtoCommerce.Xapi.Core.Extensions;
@@ -12,11 +13,25 @@ namespace VirtoCommerce.Xapi.Data.Services
 {
     public class UserManagerCore : IUserManagerCore
     {
-        private readonly Func<UserManager<ApplicationUser>> _userManagerFactory;
+        // Every argument the check reads, so a second field of the same document cannot get a false hit.
+        private const string CheckUserStateCacheKeyPrefix = "UserManagerCore.CheckUserState";
 
-        public UserManagerCore(Func<UserManager<ApplicationUser>> userManagerFactory)
+        private readonly Func<UserManager<ApplicationUser>> _userManagerFactory;
+        private readonly IRequestScopedCacheAccessor _requestScopedCacheAccessor;
+
+        // Takes the accessor rather than IRequestScopedCache itself: the schema builders and schemas that
+        // consume IUserManagerCore are registered as singletons, so a constructor-injected scoped cache would be
+        // captured against the root scope and shared by every request.
+        public UserManagerCore(Func<UserManager<ApplicationUser>> userManagerFactory, IRequestScopedCacheAccessor requestScopedCacheAccessor)
         {
             _userManagerFactory = userManagerFactory;
+            _requestScopedCacheAccessor = requestScopedCacheAccessor;
+        }
+
+        [Obsolete("Use the constructor with IRequestScopedCacheAccessor. Without it the user state is re-checked for every GraphQL root field.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
+        public UserManagerCore(Func<UserManager<ApplicationUser>> userManagerFactory)
+            : this(userManagerFactory, requestScopedCacheAccessor: null)
+        {
         }
 
         public virtual async Task<bool> IsLockedOutAsync(ApplicationUser user)
@@ -44,8 +59,10 @@ namespace VirtoCommerce.Xapi.Data.Services
             return CheckUserState(userId, allowAnonymous, isExternalSignIn, isImpersonated);
         }
 
-
-        private async Task CheckUserState(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
+        /// <summary>
+        /// Throws when the account behind the current token is unusable: missing, password expired, or locked out.
+        /// </summary>
+        protected virtual async Task ValidateUserStateAsync(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
         {
             var userManager = _userManagerFactory();
             var user = await userManager.FindByIdAsync(userId);
@@ -69,6 +86,32 @@ namespace VirtoCommerce.Xapi.Data.Services
             {
                 throw AuthorizationError.UserLocked();
             }
+        }
+
+        // Callers run this once per GraphQL root field, so a document selecting several fields repeats the same
+        // check. Each run resolves the platform's UserManager factory, which opens a DI scope and constructs a
+        // UserManager - and that constructor takes process-wide Meter locks per instrument. Memoizing per
+        // request collapses it to one. A faulted check stays cached, so a refused caller is refused for every
+        // field of the document rather than only the first.
+        protected virtual Task CheckUserState(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
+        {
+            // Null outside a request - a background job or startup - where there is nothing to bound the cache
+            // to and the check simply runs uncached.
+            var cache = _requestScopedCacheAccessor?.Cache;
+
+            if (cache == null)
+            {
+                return ValidateUserStateAsync(userId, allowAnonymous, isExternalSignIn, isImpersonated);
+            }
+
+            var key = string.Join('|', CheckUserStateCacheKeyPrefix, userId, allowAnonymous, isExternalSignIn, isImpersonated);
+
+            return cache.GetOrAddAsync(key, async () =>
+            {
+                await ValidateUserStateAsync(userId, allowAnonymous, isExternalSignIn, isImpersonated);
+
+                return true;
+            });
         }
     }
 }
