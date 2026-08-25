@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Xapi.Core.Extensions;
@@ -88,15 +89,30 @@ public class FacetMapper : IFacetMapper
 
         result.Count = source.Count;
         result.IsSelected = source.IsApplied;
-        result.From = Convert.ToInt64(source.RequestedLowerBound);
+        result.From = ToNullableDecimal(source.RequestedLowerBound);
         result.IncludeFrom = source.IncludeLower;
         result.FromStr = source.RequestedLowerBound;
-        result.To = Convert.ToInt64(source.RequestedUpperBound);
+        result.To = ToNullableDecimal(source.RequestedUpperBound);
         result.IncludeTo = source.IncludeUpper;
         result.ToStr = source.RequestedUpperBound;
         result.Label = source.Value?.ToString();
 
         return result;
+    }
+
+    /// <summary>
+    /// The still-live AutoMapper profile parses with <c>Convert.ToInt64</c>, which throws on a null,
+    /// empty, or fractional bound; VCST-2608 fixed that for x-catalog, and this is that fix, not the
+    /// profile's behaviour.
+    /// </summary>
+    protected virtual decimal? ToNullableDecimal(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
     }
 
     protected virtual RangeFacetStatistics ToRangeFacetStatistics(AggregationFacetStatistics source)

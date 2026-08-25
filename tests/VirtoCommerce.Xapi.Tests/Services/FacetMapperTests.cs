@@ -4,7 +4,6 @@ using AutoMapper;
 using FluentAssertions;
 using VirtoCommerce.SearchModule.Core.Model;
 using VirtoCommerce.Xapi.Core.Models.Facets;
-using VirtoCommerce.Xapi.Data.Mapping;
 using VirtoCommerce.Xapi.Data.Services;
 using Xunit;
 
@@ -204,13 +203,49 @@ public class FacetMapperTests
     }
 
     [Fact]
-    public void ToFacetResult_RangeAggregation_EmptyLowerBound_ThrowsFormatException()
+    public void ToFacetResult_RangeAggregation_EmptyOrNullBound_LeavesFromToNull()
     {
         var source = new AggregationFacetSource
         {
             AggregationType = "range",
             Field = "price",
-            Items = [new AggregationFacetItem { RequestedLowerBound = "", RequestedUpperBound = "100" }],
+            Items =
+            [
+                new AggregationFacetItem { RequestedLowerBound = "", RequestedUpperBound = "100" },
+                new AggregationFacetItem { RequestedLowerBound = null, RequestedUpperBound = "100" },
+            ],
+        };
+
+        var result = _mapper.ToFacetResult(source, new FacetMappingContext { CultureName = "en-US" }) as RangeFacetResult;
+
+        result.Ranges[0].From.Should().BeNull();
+        result.Ranges[0].To.Should().Be(100m);
+        result.Ranges[1].From.Should().BeNull();
+    }
+
+    [Fact]
+    public void ToFacetResult_RangeAggregation_FractionalBound_ParsesAsDecimal()
+    {
+        var source = new AggregationFacetSource
+        {
+            AggregationType = "range",
+            Field = "price",
+            Items = [new AggregationFacetItem { RequestedLowerBound = "9.5", RequestedUpperBound = "100" }],
+        };
+
+        var result = _mapper.ToFacetResult(source, new FacetMappingContext { CultureName = "en-US" }) as RangeFacetResult;
+
+        result.Ranges[0].From.Should().Be(9.5m);
+    }
+
+    [Fact]
+    public void ToFacetResult_RangeAggregation_NonNumericBound_ThrowsFormatException()
+    {
+        var source = new AggregationFacetSource
+        {
+            AggregationType = "range",
+            Field = "price",
+            Items = [new AggregationFacetItem { RequestedLowerBound = "not-a-number", RequestedUpperBound = "100" }],
         };
 
         var act = () => _mapper.ToFacetResult(source, new FacetMappingContext { CultureName = "en-US" });
@@ -251,45 +286,8 @@ public class FacetMapperTests
         actual.Should().BeEquivalentTo(expected, options => options.RespectingRuntimeTypes());
     }
 
-    [Fact]
-    public void ToFacetResult_RangeAggregation_ProducesSameResultAsLegacyAutoMapperProfile()
-    {
-        var source = new Aggregation
-        {
-            AggregationType = "range",
-            Field = "price",
-            Statistics = new AggregationStatistics { Min = 1.5, Max = 99.5 },
-            Items =
-            [
-                new AggregationItem
-                {
-                    Value = "1-10",
-                    Count = 3,
-                    IsApplied = false,
-                    RequestedLowerBound = "1",
-                    RequestedUpperBound = "10",
-                    IncludeLower = true,
-                    IncludeUpper = false,
-                },
-                new AggregationItem
-                {
-                    Value = "TO-100",
-                    Count = 7,
-                    IsApplied = false,
-                    RequestedLowerBound = null,
-                    RequestedUpperBound = "100",
-                    IncludeLower = true,
-                    IncludeUpper = false,
-                },
-            ],
-        };
-
-        var expected = _legacyMapper.Map<FacetResult>(source, options => options.Items["cultureName"] = "en-US");
-
-        var actual = _mapper.ToFacetResult(ToAggregationFacetSource(source), new FacetMappingContext { CultureName = "en-US" });
-
-        actual.Should().BeEquivalentTo(expected, options => options.RespectingRuntimeTypes());
-    }
+    // No range-aggregation parity test against _legacyMapper: its Convert.ToInt64 parsing is the
+    // pre-VCST-2608 behaviour, not what this mapper does - see the range tests above instead.
 
     private static AggregationFacetSource ToAggregationFacetSource(Aggregation source)
     {
