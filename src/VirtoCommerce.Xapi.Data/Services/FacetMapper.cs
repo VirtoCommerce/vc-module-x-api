@@ -1,0 +1,133 @@
+using System;
+using System.Linq;
+using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Xapi.Core.Extensions;
+using VirtoCommerce.Xapi.Core.Models.Facets;
+using VirtoCommerce.Xapi.Core.Services;
+
+namespace VirtoCommerce.Xapi.Data.Services;
+
+public class FacetMapper : IFacetMapper
+{
+    private const string TermValuesSortingTypeNameAscending = "NameAscending";
+    private const string TermValuesSortingTypeNameDescending = "NameDescending";
+
+    public virtual FacetResult ToFacetResult(AggregationFacetSource source, FacetMappingContext context)
+    {
+        if (source == null)
+        {
+            return null;
+        }
+
+        var result = CreateFacetResultByAggregationType(source, context);
+        if (result == null)
+        {
+            return null;
+        }
+
+        result.Name = source.Field;
+        result.Label = source.Labels?.FirstBestMatchForLanguage(x => x.Language, context?.CultureName)?.Label ?? result.Name;
+
+        SortTermFacetResultByLabels(source, result);
+
+        return result;
+    }
+
+    public virtual FacetMappingContext CreateFacetMappingContext(string cultureName)
+    {
+        var context = AbstractTypeFactory<FacetMappingContext>.TryCreateInstance();
+        context.CultureName = cultureName;
+
+        return context;
+    }
+
+    protected virtual FacetResult CreateFacetResultByAggregationType(AggregationFacetSource source, FacetMappingContext context)
+    {
+        return source.AggregationType switch
+        {
+            "attr" => ToTermFacetResult(source, context),
+            "range" or "pricerange" => ToRangeFacetResult(source),
+            _ => null,
+        };
+    }
+
+    protected virtual TermFacetResult ToTermFacetResult(AggregationFacetSource source, FacetMappingContext context)
+    {
+        var result = AbstractTypeFactory<TermFacetResult>.TryCreateInstance();
+
+        result.Terms = source.Items?.Select(x => ToFacetTerm(x, context)).ToArray() ?? [];
+
+        return result;
+    }
+
+    protected virtual FacetTerm ToFacetTerm(AggregationFacetItem source, FacetMappingContext context)
+    {
+        var result = AbstractTypeFactory<FacetTerm>.TryCreateInstance();
+
+        result.Count = source.Count;
+        result.IsSelected = source.IsApplied;
+        result.Term = source.Value?.ToString();
+        result.Label = source.Labels?.FirstBestMatchForLanguage(x => x.Language, context?.CultureName)?.Label ?? source.Value?.ToString();
+
+        return result;
+    }
+
+    protected virtual RangeFacetResult ToRangeFacetResult(AggregationFacetSource source)
+    {
+        var result = AbstractTypeFactory<RangeFacetResult>.TryCreateInstance();
+
+        result.Ranges = source.Items?.Select(ToFacetRange).ToArray() ?? [];
+        result.Statistics = source.Statistics == null ? null : ToRangeFacetStatistics(source.Statistics);
+
+        return result;
+    }
+
+    protected virtual FacetRange ToFacetRange(AggregationFacetItem source)
+    {
+        var result = AbstractTypeFactory<FacetRange>.TryCreateInstance();
+
+        result.Count = source.Count;
+        result.IsSelected = source.IsApplied;
+        result.From = Convert.ToInt64(source.RequestedLowerBound);
+        result.IncludeFrom = source.IncludeLower;
+        result.FromStr = source.RequestedLowerBound;
+        result.To = Convert.ToInt64(source.RequestedUpperBound);
+        result.IncludeTo = source.IncludeUpper;
+        result.ToStr = source.RequestedUpperBound;
+        result.Label = source.Value?.ToString();
+
+        return result;
+    }
+
+    protected virtual RangeFacetStatistics ToRangeFacetStatistics(AggregationFacetStatistics source)
+    {
+        var result = AbstractTypeFactory<RangeFacetStatistics>.TryCreateInstance();
+
+        result.Max = source.Max;
+        result.Min = source.Min;
+
+        return result;
+    }
+
+    /// <summary>
+    /// Not part of the original AutoMapper profile (which never reordered terms) - this is x-catalog's
+    /// own historical behavior. A null <see cref="AggregationFacetSource.TermValuesSortingType"/> is
+    /// left unsorted; callers wanting x-catalog's "null means ascending" default must set it explicitly.
+    /// </summary>
+    protected virtual void SortTermFacetResultByLabels(AggregationFacetSource source, FacetResult result)
+    {
+        if (result is not TermFacetResult termFacetResult || termFacetResult.Terms.IsNullOrEmpty())
+        {
+            return;
+        }
+
+        if (source.TermValuesSortingType.EqualsIgnoreCase(TermValuesSortingTypeNameAscending))
+        {
+            termFacetResult.Terms = termFacetResult.Terms.OrderBy(x => x.Label).ToArray();
+        }
+        else if (source.TermValuesSortingType.EqualsIgnoreCase(TermValuesSortingTypeNameDescending))
+        {
+            termFacetResult.Terms = termFacetResult.Terms.OrderByDescending(x => x.Label).ToArray();
+        }
+    }
+}
