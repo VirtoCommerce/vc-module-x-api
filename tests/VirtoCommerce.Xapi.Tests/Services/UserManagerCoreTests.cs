@@ -92,6 +92,9 @@ namespace VirtoCommerce.Xapi.Tests.Services
             sut.BlockValidation = true;
 
             const int callers = 20;
+            using var arrived = new CountdownEvent(callers);
+            sut.Arrived = arrived;
+
             var calls = new Task[callers];
             for (var i = 0; i < callers; i++)
             {
@@ -100,8 +103,9 @@ namespace VirtoCommerce.Xapi.Tests.Services
                 calls[i] = Task.Run(() => sut.CheckUserStateAsync(UserId));
             }
 
-            // Give every caller a chance to reach the check before the one validation in flight completes.
-            await Task.Delay(20);
+            // Counted, not timed: every caller has entered the check before the one validation in flight is let
+            // go, so the single validation cannot be an artefact of callers arriving late to a finished entry.
+            arrived.Wait(TimeSpan.FromSeconds(30)).Should().BeTrue();
             sut.ReleaseValidation();
 
             await Task.WhenAll(calls);
@@ -267,10 +271,21 @@ namespace VirtoCommerce.Xapi.Tests.Services
 
             public bool BlockValidation { get; set; }
 
+            public CountdownEvent Arrived { get; set; }
+
             public void ReleaseValidation() => _validationGate.TrySetResult();
 
             public Task CheckUserStateAsync(string userId, bool allowAnonymous = false, bool isExternalSignIn = false, bool isImpersonated = false) =>
                 CheckUserState(userId, allowAnonymous, isExternalSignIn, isImpersonated);
+
+            // Signals at the memo's own entry, one statement ahead of the cache read, so a counted barrier can
+            // be tighter than the test's own call site.
+            protected override Task CheckUserState(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
+            {
+                Arrived?.Signal();
+
+                return base.CheckUserState(userId, allowAnonymous, isExternalSignIn, isImpersonated);
+            }
 
             // Replaces the only part that touches the platform UserManager, so the tests measure how often the
             // check runs rather than what it decides.
