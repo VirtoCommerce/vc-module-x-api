@@ -116,7 +116,10 @@ namespace VirtoCommerce.Xapi.Data.Services
             // What is cached is the refusal, not the exception raised for it: GraphQL.NET stamps Path and
             // Locations onto the ExecutionError it catches, so one instance shared by concurrent sibling fields
             // would report a single field's path for all of them. Each caller throws its own error instead.
-            var refusal = await cache.GetOrAddAsync<AuthorizationError>(key, async () =>
+            // The catch spans ExecutionError, not just AuthorizationError, because an override may raise any of
+            // them and every one is used as-is. Anything else faults the cached task - GraphQL.NET wraps a
+            // non-ExecutionError per field, so it aliases nothing, and the fault is the documented no-retry.
+            var refusal = await cache.GetOrAddAsync<ExecutionError>(key, async () =>
             {
                 try
                 {
@@ -124,7 +127,7 @@ namespace VirtoCommerce.Xapi.Data.Services
 
                     return null;
                 }
-                catch (AuthorizationError error)
+                catch (ExecutionError error)
                 {
                     return error;
                 }
@@ -132,7 +135,11 @@ namespace VirtoCommerce.Xapi.Data.Services
 
             if (refusal != null)
             {
-                throw new AuthorizationError(refusal.Message, refusal.Code);
+                // A subclass carrying more than message and code is rebuilt as a plain ExecutionError - for every
+                // caller alike, the first included, so no field reports a richer error than its siblings.
+                throw refusal is AuthorizationError
+                    ? new AuthorizationError(refusal.Message, refusal.Code)
+                    : new ExecutionError(refusal.Message) { Code = refusal.Code };
             }
         }
     }

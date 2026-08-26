@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using GraphQL;
 using Moq;
 using VirtoCommerce.Platform.Caching;
 using VirtoCommerce.Platform.Core.Caching;
@@ -133,6 +134,28 @@ namespace VirtoCommerce.Xapi.Tests.Services
         }
 
         [Fact]
+        public async Task CheckUserState_WhenTheOverrideThrowsAnotherExecutionError_ThrowsItsOwnErrorPerCall()
+        {
+            var sut = CreateSut();
+            sut.RefuseWithCustomError = true;
+
+            // ValidateUserStateAsync is a published seam, so an override may raise any ExecutionError - and
+            // GraphQL.NET stamps Path and Locations onto every one of them as-is, not only onto ours.
+            var first = await Assert.ThrowsAnyAsync<ExecutionError>(() => sut.CheckUserStateAsync(UserId));
+            var second = await Assert.ThrowsAnyAsync<ExecutionError>(() => sut.CheckUserStateAsync(UserId));
+
+            second.Should().NotBeSameAs(first);
+            second.Message.Should().Be(first.Message);
+            second.Code.Should().Be(first.Code);
+            sut.Validations.Should().Be(1);
+
+            // The accepted loss: a subclass is rebuilt as a plain ExecutionError, for the first caller as well
+            // as the rest, so no field reports a richer error than its siblings.
+            first.Should().BeOfType<ExecutionError>();
+            second.Should().BeOfType<ExecutionError>();
+        }
+
+        [Fact]
         public async Task CheckUserState_WithoutAnAmbientRequest_ValidatesEveryTime()
         {
             // A background job or startup has no request to bound a cache to; the check still runs, uncached.
@@ -188,6 +211,8 @@ namespace VirtoCommerce.Xapi.Tests.Services
 
             public bool Refuse { get; set; }
 
+            public bool RefuseWithCustomError { get; set; }
+
             public bool BlockValidation { get; set; }
 
             public void ReleaseValidation() => _validationGate.TrySetResult();
@@ -209,6 +234,21 @@ namespace VirtoCommerce.Xapi.Tests.Services
                 if (Refuse)
                 {
                     throw AuthorizationError.UserLocked();
+                }
+
+                if (RefuseWithCustomError)
+                {
+                    throw new CustomExecutionError();
+                }
+            }
+
+            // Any ExecutionError an override might raise instead of ours.
+            private sealed class CustomExecutionError : ExecutionError
+            {
+                public CustomExecutionError()
+                    : base("Refused by the override")
+                {
+                    Code = "custom-refusal";
                 }
             }
         }
