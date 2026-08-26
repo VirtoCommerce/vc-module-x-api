@@ -23,15 +23,6 @@ public class FacetMapperTests
     }
 
     [Fact]
-    public void CreateFacetMappingContext_PopulatesCultureName_ViaAbstractTypeFactory()
-    {
-        var context = _mapper.CreateFacetMappingContext("en-US");
-
-        context.Should().NotBeNull();
-        context.CultureName.Should().Be("en-US");
-    }
-
-    [Fact]
     public void ToFacetResult_NullContext_FallsBackToRawValuesWithoutThrowing()
     {
         // Null context means "no localization available", not an error - labels fall back to raw values.

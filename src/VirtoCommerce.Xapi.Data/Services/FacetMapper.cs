@@ -13,6 +13,10 @@ public class FacetMapper : IFacetMapper
     private const string TermValuesSortingTypeNameAscending = "NameAscending";
     private const string TermValuesSortingTypeNameDescending = "NameDescending";
 
+    /// <summary>
+    /// <paramref name="context"/> is optional: a null context means no localization is available, not
+    /// an error - term/result labels fall back to the raw aggregation value/name instead of throwing.
+    /// </summary>
     public virtual FacetResult ToFacetResult(AggregationFacetSource source, FacetMappingContext context)
     {
         if (source == null)
@@ -29,17 +33,9 @@ public class FacetMapper : IFacetMapper
         result.Name = source.Field;
         result.Label = source.Labels?.FirstBestMatchForLanguage(x => x.Language, context?.CultureName)?.Label ?? result.Name;
 
-        SortTermFacetResultByLabels(source, result);
+        SortTermFacetResultByLabels(source, result, context);
 
         return result;
-    }
-
-    public virtual FacetMappingContext CreateFacetMappingContext(string cultureName)
-    {
-        var context = AbstractTypeFactory<FacetMappingContext>.TryCreateInstance();
-        context.CultureName = cultureName;
-
-        return context;
     }
 
     protected virtual FacetResult CreateFacetResultByAggregationType(AggregationFacetSource source, FacetMappingContext context)
@@ -47,7 +43,7 @@ public class FacetMapper : IFacetMapper
         return source.AggregationType switch
         {
             "attr" => ToTermFacetResult(source, context),
-            "range" or "pricerange" => ToRangeFacetResult(source),
+            "range" or "pricerange" => ToRangeFacetResult(source, context),
             _ => null,
         };
     }
@@ -73,17 +69,17 @@ public class FacetMapper : IFacetMapper
         return result;
     }
 
-    protected virtual RangeFacetResult ToRangeFacetResult(AggregationFacetSource source)
+    protected virtual RangeFacetResult ToRangeFacetResult(AggregationFacetSource source, FacetMappingContext context)
     {
         var result = AbstractTypeFactory<RangeFacetResult>.TryCreateInstance();
 
-        result.Ranges = source.Items?.Select(ToFacetRange).ToArray() ?? [];
-        result.Statistics = source.Statistics == null ? null : ToRangeFacetStatistics(source.Statistics);
+        result.Ranges = source.Items?.Select(x => ToFacetRange(x, context)).ToArray() ?? [];
+        result.Statistics = source.Statistics == null ? null : ToRangeFacetStatistics(source.Statistics, context);
 
         return result;
     }
 
-    protected virtual FacetRange ToFacetRange(AggregationFacetItem source)
+    protected virtual FacetRange ToFacetRange(AggregationFacetItem source, FacetMappingContext context)
     {
         var result = AbstractTypeFactory<FacetRange>.TryCreateInstance();
 
@@ -115,7 +111,7 @@ public class FacetMapper : IFacetMapper
         return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
     }
 
-    protected virtual RangeFacetStatistics ToRangeFacetStatistics(AggregationFacetStatistics source)
+    protected virtual RangeFacetStatistics ToRangeFacetStatistics(AggregationFacetStatistics source, FacetMappingContext context)
     {
         var result = AbstractTypeFactory<RangeFacetStatistics>.TryCreateInstance();
 
@@ -130,7 +126,7 @@ public class FacetMapper : IFacetMapper
     /// own historical behavior. A null <see cref="AggregationFacetSource.TermValuesSortingType"/> is
     /// left unsorted; callers wanting x-catalog's "null means ascending" default must set it explicitly.
     /// </summary>
-    protected virtual void SortTermFacetResultByLabels(AggregationFacetSource source, FacetResult result)
+    protected virtual void SortTermFacetResultByLabels(AggregationFacetSource source, FacetResult result, FacetMappingContext context)
     {
         if (result is not TermFacetResult termFacetResult || termFacetResult.Terms.IsNullOrEmpty())
         {
