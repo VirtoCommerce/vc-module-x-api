@@ -65,6 +65,10 @@ namespace VirtoCommerce.Xapi.Data.Services
         /// An override must decide from these parameters alone. The caller memoizes the outcome under a key built
         /// from them, so anything else it reads yields false cache hits - a wrong authorization answer - unless
         /// that input is added to the key as well.
+        /// <br/><br/>
+        /// A refusal is signalled by raising an <see cref="ExecutionError"/>, and that instance is never the one
+        /// re-raised: every caller, the first included, gets a new base <see cref="AuthorizationError"/> - or a
+        /// base <see cref="ExecutionError"/> for any other type - carrying Message and Code only.
         /// </remarks>
         protected virtual async Task ValidateUserStateAsync(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
         {
