@@ -1,11 +1,17 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using GraphQL;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
 using VirtoCommerce.Platform.Caching;
 using VirtoCommerce.Platform.Core.Caching;
+using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Xapi.Core.Security.Authorization;
+using VirtoCommerce.Xapi.Core.Services;
 using VirtoCommerce.Xapi.Data.Services;
 using Xunit;
 
@@ -178,6 +184,52 @@ namespace VirtoCommerce.Xapi.Tests.Services
             await sut.CheckUserStateAsync(UserId);
 
             sut.Validations.Should().Be(2);
+        }
+
+        [Fact]
+        public async Task ServiceCollection_GenericRegistration_SelectsTheCachingConstructor()
+        {
+            // The obsolete constructor's parameter set is a strict subset of the caching one's, so resolution
+            // is deterministic and needs no explicit factory - but nothing else pins it, and falling back to
+            // the obsolete one would drop memoization with no diagnostic at all.
+            var userManagerCalls = 0;
+
+            var accessor = new Mock<IRequestScopedCacheAccessor>();
+            accessor.SetupGet(x => x.Cache).Returns(new RequestScopedCache());
+
+            var services = new ServiceCollection();
+            services.AddSingleton<Func<UserManager<ApplicationUser>>>(() =>
+            {
+                userManagerCalls++;
+
+                return CreateUserManager();
+            });
+            services.AddSingleton(accessor.Object);
+            services.AddTransient<IUserManagerCore, UserManagerCore>();
+
+            using var provider = services.BuildServiceProvider(validateScopes: true);
+            var sut = provider.GetRequiredService<IUserManagerCore>();
+
+#pragma warning disable VC0009 // the id-taking entry point, so the check runs without a GraphQL context
+            await sut.CheckUserState(UserId, allowAnonymous: true);
+            await sut.CheckUserState(UserId, allowAnonymous: true);
+#pragma warning restore VC0009
+
+            // One UserManager built for two calls: the resolved instance memoizes, so DI handed it the accessor.
+            userManagerCalls.Should().Be(1);
+        }
+
+        // A UserManager over a store that finds nobody: with allowAnonymous the check passes without touching
+        // anything else, so the test measures how often one is built rather than what it decides.
+        private static UserManager<ApplicationUser> CreateUserManager()
+        {
+            var store = new Mock<IUserStore<ApplicationUser>>();
+            store.Setup(x => x.FindByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((ApplicationUser)null);
+
+            var options = new Mock<IOptions<IdentityOptions>>();
+            options.Setup(x => x.Value).Returns(new IdentityOptions());
+
+            return new UserManager<ApplicationUser>(store.Object, options.Object, null, null, null, null, null, null, null);
         }
 
         private static TestableUserManagerCore CreateSut()
