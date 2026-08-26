@@ -109,7 +109,8 @@ namespace VirtoCommerce.Xapi.Data.Services
                 return;
             }
 
-            // Every argument the check reads, so a second field of the same document cannot get a false hit.
+            // The key covers every argument; the memo also freezes the state the check reads, so a mid-request
+            // SecurityCacheRegion.ExpireUser is observed on the next request rather than the next root field.
             var key = string.Join('|', CheckUserStateCacheKeyPrefix, userId, allowAnonymous, isExternalSignIn, isImpersonated);
 
             // What is cached is the refusal, not the exception raised for it: GraphQL.NET stamps Path and
