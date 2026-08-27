@@ -69,6 +69,8 @@ public class FacetMapper : IFacetMapper
         return result;
     }
 
+    /// <remarks><paramref name="context"/> may be null - see <see cref="ToFacetResult"/>. An override
+    /// reading it must guard accordingly.</remarks>
     protected virtual RangeFacetResult ToRangeFacetResult(AggregationFacetSource source, FacetMappingContext context)
     {
         var result = AbstractTypeFactory<RangeFacetResult>.TryCreateInstance();
@@ -79,6 +81,8 @@ public class FacetMapper : IFacetMapper
         return result;
     }
 
+    /// <remarks><paramref name="context"/> may be null - see <see cref="ToFacetResult"/>. An override
+    /// reading it must guard accordingly.</remarks>
     protected virtual FacetRange ToFacetRange(AggregationFacetItem source, FacetMappingContext context)
     {
         var result = AbstractTypeFactory<FacetRange>.TryCreateInstance();
@@ -111,6 +115,8 @@ public class FacetMapper : IFacetMapper
         return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
     }
 
+    /// <remarks><paramref name="context"/> may be null - see <see cref="ToFacetResult"/>. An override
+    /// reading it must guard accordingly.</remarks>
     protected virtual RangeFacetStatistics ToRangeFacetStatistics(AggregationFacetStatistics source, FacetMappingContext context)
     {
         var result = AbstractTypeFactory<RangeFacetStatistics>.TryCreateInstance();
@@ -126,6 +132,8 @@ public class FacetMapper : IFacetMapper
     /// own historical behavior. A null <see cref="AggregationFacetSource.TermValuesSortingType"/> is
     /// left unsorted; callers wanting x-catalog's "null means ascending" default must set it explicitly.
     /// </summary>
+    /// <remarks><paramref name="context"/> may be null - see <see cref="ToFacetResult"/>. An override
+    /// reading it must guard accordingly.</remarks>
     protected virtual void SortTermFacetResultByLabels(AggregationFacetSource source, FacetResult result, FacetMappingContext context)
     {
         if (result is not TermFacetResult termFacetResult || termFacetResult.Terms.IsNullOrEmpty())
