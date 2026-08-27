@@ -72,7 +72,7 @@ namespace VirtoCommerce.Xapi.Data.Services
         /// </remarks>
         protected virtual async Task ValidateUserStateAsync(string userId, bool allowAnonymous, bool isExternalSignIn, bool isImpersonated)
         {
-            var userManager = _userManagerFactory();
+            using var userManager = _userManagerFactory();
             var user = await userManager.FindByIdAsync(userId);
 
             if (user == null)
