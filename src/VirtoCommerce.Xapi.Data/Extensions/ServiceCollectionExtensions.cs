@@ -56,6 +56,7 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             services.AddTransient<IExternalSignInUserBuilder, ExternalSignInUserBuilder>();
             services.AddTransient<ILoadUserToEvalContextService, LoadUserToEvalContextService>();
             services.AddTransient<IStoreDomainResolverService, StoreDomainResolverService>();
+            services.AddSingleton<IFacetMapper, FacetMapper>();
             services.AddDistributedLockService(configuration);
 
             return services;
