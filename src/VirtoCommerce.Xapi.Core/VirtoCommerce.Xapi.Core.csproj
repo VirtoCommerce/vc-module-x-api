@@ -11,6 +11,10 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
+    <!--Don't update. AutoMapper 15+ requires a paid license for commercial use.-->
+    <!--Kept only so the module still ships AutoMapper.dll for modules that haven't migrated off the shared host-wide IMapper yet (e.g. VirtoCommerce.FileExperienceApi) - x-api's own code no longer uses it.-->
+    <PackageReference Include="AutoMapper" Version="[12.0.1,15)" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="GraphQL" Version="8.8.3" />
     <PackageReference Include="GraphQL.DataLoader" Version="8.8.3" />
     <PackageReference Include="GraphQL.MicrosoftDI" Version="8.8.3" />

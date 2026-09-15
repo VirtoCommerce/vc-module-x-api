@@ -7,9 +7,6 @@
     <OutputPath>bin\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <!--Not shipped: GHSA-rvv3-g6hj-g44x doesn't apply to this test-only parity oracle against the pre-migration AutoMapper profiles.-->
-    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
-    <PackageReference Include="AutoMapper" Version="[12.0.1,15)" />
     <PackageReference Include="AutoFixture" Version="4.18.1" />
     <PackageReference Include="coverlet.collector" Version="10.0.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
