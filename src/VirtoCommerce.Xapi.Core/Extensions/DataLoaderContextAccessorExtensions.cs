@@ -34,20 +34,6 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             return loader;
         }
 
-        public static IDataLoaderResult<ExpVendor> LoadVendor(
-            this IDataLoaderContextAccessor dataLoader,
-            IMemberService memberService,
-            IXapiMapper mapper,
-            string loaderKey,
-            string vendorId)
-        {
-            var loader = dataLoader.GetVendorDataLoader(memberService, mapper, loaderKey);
-
-            return vendorId != null
-                ? loader.LoadAsync(vendorId)
-                : new DataLoaderResult<ExpVendor>(Task.FromResult<ExpVendor>(null));
-        }
-
         [Obsolete("Use the overload taking IXapiMapper. Kept for one compat cycle so modules still shipping the AutoMapper.IMapper overload don't break at runtime.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
         public static IDataLoader<string, ExpVendor> GetVendorDataLoader(
             this IDataLoaderContextAccessor dataLoader,
@@ -69,6 +55,20 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                 return memberByIds;
             });
             return loader;
+        }
+
+        public static IDataLoaderResult<ExpVendor> LoadVendor(
+            this IDataLoaderContextAccessor dataLoader,
+            IMemberService memberService,
+            IXapiMapper mapper,
+            string loaderKey,
+            string vendorId)
+        {
+            var loader = dataLoader.GetVendorDataLoader(memberService, mapper, loaderKey);
+
+            return vendorId != null
+                ? loader.LoadAsync(vendorId)
+                : new DataLoaderResult<ExpVendor>(Task.FromResult<ExpVendor>(null));
         }
 
         [Obsolete("Use the overload taking IXapiMapper. Kept for one compat cycle so modules still shipping the AutoMapper.IMapper overload don't break at runtime.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
