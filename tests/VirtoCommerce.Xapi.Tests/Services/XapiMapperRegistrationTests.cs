@@ -22,7 +22,7 @@ public class XapiMapperRegistrationTests
         var descriptor = services.SingleOrDefault(x => x.ServiceType == typeof(IXapiMapper));
 
         descriptor.Should().NotBeNull();
-        descriptor!.ImplementationType.Should().Be(typeof(XapiMapper));
+        descriptor!.ImplementationType.Should().Be<XapiMapper>();
         descriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
     }
 }
