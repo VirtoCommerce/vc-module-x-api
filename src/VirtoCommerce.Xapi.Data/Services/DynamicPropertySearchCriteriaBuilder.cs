@@ -1,21 +1,21 @@
 using System;
-using AutoMapper;
+using System.Linq;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
+using VirtoCommerce.SearchModule.Core.Model;
 using VirtoCommerce.SearchModule.Core.Services;
+using VirtoCommerce.Xapi.Core.Index;
 
 namespace VirtoCommerce.Xapi.Data.Services
 {
     public class DynamicPropertySearchCriteriaBuilder
     {
         private readonly ISearchPhraseParser _phraseParser;
-        private readonly IMapper _mapper;
         private readonly DynamicPropertySearchCriteria _searchCriteria;
 
-        public DynamicPropertySearchCriteriaBuilder(ISearchPhraseParser phraseParser, IMapper mapper) : this()
+        public DynamicPropertySearchCriteriaBuilder(ISearchPhraseParser phraseParser) : this()
         {
             _phraseParser = phraseParser;
-            _mapper = mapper;
         }
 
         public DynamicPropertySearchCriteriaBuilder()
@@ -40,7 +40,11 @@ namespace VirtoCommerce.Xapi.Data.Services
             }
 
             var parseResult = _phraseParser.Parse(filterPhrase);
-            _mapper.Map(parseResult.Filters, _searchCriteria);
+
+            foreach (var term in parseResult.Filters.OfType<TermFilter>())
+            {
+                term.MapTo(_searchCriteria);
+            }
 
             return this;
         }

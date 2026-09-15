@@ -60,7 +60,6 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                 configuration.RegisterServicesFromAssembly(assemblyMarker.Assembly);
                 configureMediatR?.Invoke(configuration);
             });
-            services.AddAutoMapper(assemblyMarker);
             services.AddSchemaBuilders(assemblyMarker);
 
             return builder;
@@ -80,7 +79,6 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                 configuration.RegisterServicesFromAssemblies(coreAssemblyMarker.Assembly, dataAssemblyMarker.Assembly);
                 configureMediatR?.Invoke(configuration);
             });
-            services.AddAutoMapper(coreAssemblyMarker, dataAssemblyMarker);
             services.AddSchemaBuilders(dataAssemblyMarker);
 
             return builder;

@@ -135,8 +135,6 @@ namespace VirtoCommerce.Xapi.Web
             //Register xApi boundaries
             serviceCollection.AddXCore(Configuration);
 
-            serviceCollection.AddAutoMapper(ModuleInfo.Assembly);
-
             serviceCollection.Configure<GraphQLPlaygroundOptions>(Configuration.GetSection(ConfigKeys.GraphQlPlayground));
             serviceCollection.Configure<GraphQLWebSocketOptions>(Configuration.GetSection(ConfigKeys.GraphQlWebSocket));
             serviceCollection.Configure<GraphQLComplexityValidationOptions>(Configuration.GetSection(ConfigKeys.GraphQlComplexityValidation));
