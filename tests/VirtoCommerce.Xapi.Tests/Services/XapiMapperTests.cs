@@ -2,6 +2,7 @@ using AutoMapper;
 using FluentAssertions;
 using VirtoCommerce.CustomerModule.Core.Model;
 using VirtoCommerce.Xapi.Core.Models;
+using VirtoCommerce.Xapi.Data.Mapping;
 using VirtoCommerce.Xapi.Data.Services;
 using Xunit;
 
@@ -38,6 +39,8 @@ public class XapiMapperTests
     [Fact]
     public void ToExpVendor_ProducesSameResultAsLegacyAutoMapperProfile()
     {
+        // LegacyVendorMappingProfile is the same profile the Obsolete AutoMapper.IMapper-typed
+        // DataLoaderContextAccessorExtensions overloads use in production - not a separate test double.
         var source = new Contact
         {
             Id = "vendor-2",
@@ -45,7 +48,7 @@ public class XapiMapperTests
         };
 
         var legacyMapper = new MapperConfiguration(cfg =>
-            cfg.AddProfile<LegacyXapiMappingProfile>()).CreateMapper();
+            cfg.AddProfile<LegacyVendorMappingProfile>()).CreateMapper();
 
         var expected = legacyMapper.Map<ExpVendor>(source);
         var actual = _mapper.ToExpVendor(source);
