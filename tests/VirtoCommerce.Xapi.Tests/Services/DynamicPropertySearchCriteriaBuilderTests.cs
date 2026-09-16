@@ -27,7 +27,7 @@ public class DynamicPropertySearchCriteriaBuilderTests
 
         var act = () => builder.ParseFilters("keyword:test");
 
-        act.Should().Throw<OperationCanceledException>();
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]

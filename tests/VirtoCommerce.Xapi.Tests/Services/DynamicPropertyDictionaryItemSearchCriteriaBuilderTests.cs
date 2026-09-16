@@ -27,7 +27,7 @@ public class DynamicPropertyDictionaryItemSearchCriteriaBuilderTests
 
         var act = () => builder.ParseFilters("propertyId:prop-1");
 
-        act.Should().Throw<OperationCanceledException>();
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]

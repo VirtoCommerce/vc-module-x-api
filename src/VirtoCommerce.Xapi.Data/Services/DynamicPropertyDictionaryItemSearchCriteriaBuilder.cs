@@ -34,10 +34,8 @@ namespace VirtoCommerce.Xapi.Data.Services
             {
                 return this;
             }
-            if (_phraseParser == null)
-            {
-                throw new OperationCanceledException("phrase parser must be set");
-            }
+
+            ArgumentNullException.ThrowIfNull(_phraseParser);
 
             var parseResult = _phraseParser.Parse(filterPhrase);
 

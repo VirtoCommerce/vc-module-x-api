@@ -12,7 +12,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!--Don't update. AutoMapper 15+ requires a paid license for commercial use.-->
-    <!--Kept only so the module still ships AutoMapper.dll for modules that haven't migrated off the shared host-wide IMapper yet (e.g. VirtoCommerce.FileExperienceApi) - x-api's own code no longer uses it.-->
+    <!--Kept until a couple of stable releases have passed: GraphQLBuilderExtensions.AddSchema still calls AddAutoMapper(...) itself, which every module calling AddSchema depends on. x-api's own production code no longer uses AutoMapper directly.-->
     <PackageReference Include="AutoMapper" Version="[12.0.1,15)" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="GraphQL" Version="8.8.3" />
