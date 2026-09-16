@@ -5,8 +5,12 @@ using VirtoCommerce.SearchModule.Core.Model;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Models.Facets;
 
-namespace VirtoCommerce.Xapi.Data.Mapping;
+namespace VirtoCommerce.Xapi.Tests.Services;
 
+/// <summary>
+/// The original AutoMapper profile this replaced, kept as the test-only parity oracle for
+/// <see cref="Data.Services.FacetMapper"/>'s <c>attr</c> path - not shipped, per this wave's convention.
+/// </summary>
 public class FacetMappingProfile : Profile
 {
     public FacetMappingProfile()
