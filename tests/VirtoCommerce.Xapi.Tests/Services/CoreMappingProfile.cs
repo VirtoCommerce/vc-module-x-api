@@ -24,5 +24,6 @@ public class CoreMappingProfile : Profile
             result.Type = src.MemberType;
             return result;
         });
+
     }
 }
