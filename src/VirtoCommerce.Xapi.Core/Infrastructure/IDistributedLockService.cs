@@ -11,7 +11,10 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
     /// <c>DistributedLockGraphQLExtensions.AcquireForGraphQLAsync</c>, or the
     /// <c>ResolveSynchronizedAsync</c> overload that takes <c>IDistributedLock</c>.
     /// </remarks>
-    [Obsolete("Use IDistributedLock from VirtoCommerce.Platform.Core.DistributedLock with AcquireForGraphQLAsync, or the ResolveSynchronized/ResolveSynchronizedAsync overloads that take IDistributedLock.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+    [Obsolete(
+        "Use IDistributedLock from VirtoCommerce.Platform.Core.DistributedLock with AcquireForGraphQLAsync, or the ResolveSynchronized/ResolveSynchronizedAsync overloads that take IDistributedLock.",
+        DiagnosticId = "VC0015",
+        UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
     public interface IDistributedLockService
     {
         T Execute<T>(string resourceKey, Func<T> resolver);

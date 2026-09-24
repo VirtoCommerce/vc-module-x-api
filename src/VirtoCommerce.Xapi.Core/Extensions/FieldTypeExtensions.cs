@@ -47,29 +47,6 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             }
         }
 
-        [Obsolete("Use the overload that takes IDistributedLock from VirtoCommerce.Platform.Core.DistributedLock.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
-        public static FieldBuilder<TSourceType, TReturnType> ResolveSynchronizedAsync<TSourceType, TReturnType>(
-            this FieldBuilder<TSourceType, TReturnType> fieldBuilder,
-            string resourceKeyPrefix,
-            string resourceKeyProperty,
-            IDistributedLockService distributedLockService,
-            Func<IResolveFieldContext<TSourceType>, Task<TReturnType>> resolve)
-        {
-            fieldBuilder.FieldType.Resolver = new FuncFieldResolver<TSourceType, TReturnType>(ctx => ResolveWrapperAsync(ctx));
-
-            return fieldBuilder;
-
-            async ValueTask<TReturnType> ResolveWrapperAsync(IResolveFieldContext<TSourceType> context)
-            {
-                // Find resource key in context
-                var resourceKey = GetResourceKey(context, resourceKeyPrefix, resourceKeyProperty);
-
-                return string.IsNullOrEmpty(resourceKey)
-                    ? await resolve(context)
-                    : await distributedLockService.ExecuteAsync(resourceKey, async () => await resolve(context));
-            }
-        }
-
         /// <summary>
         /// Resolves the field synchronously under the Platform distributed lock <c>{resourceKeyPrefix}:{command[resourceKeyProperty]}</c>,
         /// waiting <c>VirtoCommerce:GraphQLDistributedLock:Timeout</c> (10 seconds by default).
@@ -102,6 +79,29 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                 // The lock code awaits with ConfigureAwait(false), so blocking here cannot deadlock.
                 using var handle = distributedLock.AcquireForGraphQLAsync(resourceKey, context).GetAwaiter().GetResult();
                 return resolve(context);
+            }
+        }
+
+        [Obsolete("Use the overload that takes IDistributedLock from VirtoCommerce.Platform.Core.DistributedLock.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+        public static FieldBuilder<TSourceType, TReturnType> ResolveSynchronizedAsync<TSourceType, TReturnType>(
+            this FieldBuilder<TSourceType, TReturnType> fieldBuilder,
+            string resourceKeyPrefix,
+            string resourceKeyProperty,
+            IDistributedLockService distributedLockService,
+            Func<IResolveFieldContext<TSourceType>, Task<TReturnType>> resolve)
+        {
+            fieldBuilder.FieldType.Resolver = new FuncFieldResolver<TSourceType, TReturnType>(ctx => ResolveWrapperAsync(ctx));
+
+            return fieldBuilder;
+
+            async ValueTask<TReturnType> ResolveWrapperAsync(IResolveFieldContext<TSourceType> context)
+            {
+                // Find resource key in context
+                var resourceKey = GetResourceKey(context, resourceKeyPrefix, resourceKeyProperty);
+
+                return string.IsNullOrEmpty(resourceKey)
+                    ? await resolve(context)
+                    : await distributedLockService.ExecuteAsync(resourceKey, async () => await resolve(context));
             }
         }
 
