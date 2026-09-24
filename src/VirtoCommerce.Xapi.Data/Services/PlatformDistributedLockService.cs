@@ -13,6 +13,7 @@ namespace VirtoCommerce.Xapi.Data.Services;
 /// Redis when configured, otherwise an in-process lock; waits <c>VirtoCommerce:GraphQLDistributedLock:Timeout</c>
 /// (10 seconds by default) and throws <see cref="LockError"/> when the resource stays busy.
 /// </summary>
+[Obsolete("Compatibility implementation of the obsolete XAPI IDistributedLockService. Use IDistributedLock from VirtoCommerce.Platform.Core.DistributedLock.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
 public class PlatformDistributedLockService : IDistributedLockService
 {
     private readonly IDistributedLock _distributedLock;

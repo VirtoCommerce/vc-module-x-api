@@ -78,6 +78,46 @@ public class FieldTypeExtensionsTests
         await act.Should().ThrowAsync<LockError>();
     }
 
+    [Fact]
+    public async Task ResolveSynchronized_WithDistributedLock_LocksPrefixedKeyAndReleases()
+    {
+        var distributedLock = new TestDistributedLock();
+        var field = FieldBuilder<object, int>.Create("field", typeof(IntGraphType))
+            .ResolveSynchronized("Cart", "userId", distributedLock, _ => 7);
+
+        var result = await field.FieldType.Resolver!.ResolveAsync(CreateContext("user-1", CancellationToken.None));
+
+        result.Should().Be(7);
+        distributedLock.Resources.Should().ContainSingle().Which.Should().Be("Cart:user-1");
+        distributedLock.Timeouts.Should().ContainSingle().Which.Should().Be(TimeSpan.FromSeconds(10));
+        distributedLock.Released.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ResolveSynchronized_WithoutResourceKey_ResolvesWithoutLock()
+    {
+        var distributedLock = new TestDistributedLock();
+        var field = FieldBuilder<object, int>.Create("field", typeof(IntGraphType))
+            .ResolveSynchronized("Cart", "userId", distributedLock, _ => 7);
+
+        var result = await field.FieldType.Resolver!.ResolveAsync(CreateContext(userId: null, CancellationToken.None));
+
+        result.Should().Be(7);
+        distributedLock.Resources.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ResolveSynchronized_WhenBusy_ThrowsLockError()
+    {
+        var distributedLock = new TestDistributedLock { IsBusy = true };
+        var field = FieldBuilder<object, int>.Create("field", typeof(IntGraphType))
+            .ResolveSynchronized("Cart", "userId", distributedLock, _ => 7);
+
+        var act = async () => await field.FieldType.Resolver!.ResolveAsync(CreateContext("user-1", CancellationToken.None));
+
+        await act.Should().ThrowAsync<LockError>();
+    }
+
     private static ResolveFieldContext<object> CreateContext(string userId, CancellationToken cancellationToken)
     {
         var command = new Dictionary<string, object>();

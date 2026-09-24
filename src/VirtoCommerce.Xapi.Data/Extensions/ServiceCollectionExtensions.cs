@@ -35,7 +35,9 @@ namespace VirtoCommerce.Xapi.Data.Extensions
         public static IServiceCollection AddDistributedLockService(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddOptions<GraphQLDistributedLockOptions>().Bind(configuration.GetSection(ConfigKeys.GraphQlDistributedLock));
+#pragma warning disable VC0015 // Keep the obsolete XAPI lock service resolvable for existing callers
             services.AddSingleton<IDistributedLockService, PlatformDistributedLockService>();
+#pragma warning restore VC0015
 
             return services;
         }

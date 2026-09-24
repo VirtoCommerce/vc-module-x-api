@@ -5,10 +5,7 @@ using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Resolvers;
 using GraphQL.Types;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.Xapi.Core.Infrastructure;
-using VirtoCommerce.Xapi.Core.Models;
 using IDistributedLock = VirtoCommerce.Platform.Core.DistributedLock.IDistributedLock;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
@@ -27,6 +24,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             return fieldBuilder;
         }
 
+        [Obsolete("Use the overload that takes IDistributedLock from VirtoCommerce.Platform.Core.DistributedLock.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
         public static FieldBuilder<TSourceType, TReturnType> ResolveSynchronized<TSourceType, TReturnType>(
             this FieldBuilder<TSourceType, TReturnType> fieldBuilder,
             string resourceKeyPrefix,
@@ -49,6 +47,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             }
         }
 
+        [Obsolete("Use the overload that takes IDistributedLock from VirtoCommerce.Platform.Core.DistributedLock.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
         public static FieldBuilder<TSourceType, TReturnType> ResolveSynchronizedAsync<TSourceType, TReturnType>(
             this FieldBuilder<TSourceType, TReturnType> fieldBuilder,
             string resourceKeyPrefix,
@@ -72,6 +71,41 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         }
 
         /// <summary>
+        /// Resolves the field synchronously under the Platform distributed lock <c>{resourceKeyPrefix}:{command[resourceKeyProperty]}</c>,
+        /// waiting <c>VirtoCommerce:GraphQLDistributedLock:Timeout</c> (10 seconds by default).
+        /// Resolves without a lock when the command has no such property. A busy resource becomes <see cref="LockError"/>.
+        /// Prefer <see cref="ResolveSynchronizedAsync{TSourceType, TReturnType}(FieldBuilder{TSourceType, TReturnType}, string, string, IDistributedLock, Func{IResolveFieldContext{TSourceType}, Task{TReturnType}})"/>:
+        /// this overload blocks the resolver thread while it waits.
+        /// </summary>
+        public static FieldBuilder<TSourceType, TReturnType> ResolveSynchronized<TSourceType, TReturnType>(
+            this FieldBuilder<TSourceType, TReturnType> fieldBuilder,
+            string resourceKeyPrefix,
+            string resourceKeyProperty,
+            IDistributedLock distributedLock,
+            Func<IResolveFieldContext<TSourceType>, TReturnType> resolve)
+        {
+            ArgumentNullException.ThrowIfNull(distributedLock);
+            ArgumentNullException.ThrowIfNull(resolve);
+
+            fieldBuilder.FieldType.Resolver = new FuncFieldResolver<TSourceType, TReturnType>(ResolveWrapper);
+
+            return fieldBuilder;
+
+            TReturnType ResolveWrapper(IResolveFieldContext<TSourceType> context)
+            {
+                var resourceKey = GetResourceKey(context, resourceKeyPrefix, resourceKeyProperty);
+                if (string.IsNullOrEmpty(resourceKey))
+                {
+                    return resolve(context);
+                }
+
+                // The lock code awaits with ConfigureAwait(false), so blocking here cannot deadlock.
+                using var handle = distributedLock.AcquireForGraphQLAsync(resourceKey, context).GetAwaiter().GetResult();
+                return resolve(context);
+            }
+        }
+
+        /// <summary>
         /// Resolves the field under the Platform distributed lock <c>{resourceKeyPrefix}:{command[resourceKeyProperty]}</c>,
         /// waiting <c>VirtoCommerce:GraphQLDistributedLock:Timeout</c> (10 seconds by default).
         /// Resolves without a lock when the command has no such property. A busy resource becomes <see cref="LockError"/>.
@@ -83,6 +117,9 @@ namespace VirtoCommerce.Xapi.Core.Extensions
             IDistributedLock distributedLock,
             Func<IResolveFieldContext<TSourceType>, Task<TReturnType>> resolve)
         {
+            ArgumentNullException.ThrowIfNull(distributedLock);
+            ArgumentNullException.ThrowIfNull(resolve);
+
             fieldBuilder.FieldType.Resolver = new FuncFieldResolver<TSourceType, TReturnType>(ctx => ResolveWrapperAsync(ctx));
 
             return fieldBuilder;
@@ -95,14 +132,10 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                     return await resolve(context);
                 }
 
-                var timeout = context.RequestServices?.GetService<IOptions<GraphQLDistributedLockOptions>>()?.Value.Timeout
-                    ?? GraphQLDistributedLockOptions.DefaultTimeout;
-
-                await using var handle = await distributedLock.AcquireForGraphQLAsync(resourceKey, timeout, context.CancellationToken);
+                await using var handle = await distributedLock.AcquireForGraphQLAsync(resourceKey, context);
                 return await resolve(context);
             }
         }
-
 
         private static string GetResourceKey<TSourceType>(IResolveFieldContext<TSourceType> context, string resourceKeyPrefix, string resourceKeyProperty)
         {

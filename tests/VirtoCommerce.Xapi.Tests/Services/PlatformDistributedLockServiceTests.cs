@@ -1,3 +1,6 @@
+// PlatformDistributedLockService and the XAPI IDistributedLockService are obsolete but still ship; keep their tests until they are removed.
+#pragma warning disable VC0015
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
