@@ -16,12 +16,15 @@ public sealed class TestDistributedLock : IDistributedLock
 
     public ConcurrentQueue<CancellationToken> Tokens { get; } = new();
 
+    public ConcurrentQueue<TimeSpan?> Timeouts { get; } = new();
+
     public int Released => Volatile.Read(ref _released);
 
     public Task<IDistributedLockHandle> AcquireAsync(string resource, TimeSpan? timeout = null, CancellationToken cancellationToken = default)
     {
         Resources.Enqueue(resource);
         Tokens.Enqueue(cancellationToken);
+        Timeouts.Enqueue(timeout);
 
         return IsBusy
             ? Task.FromException<IDistributedLockHandle>(new DistributedLockTimeoutException(resource, timeout ?? TimeSpan.FromSeconds(30)))

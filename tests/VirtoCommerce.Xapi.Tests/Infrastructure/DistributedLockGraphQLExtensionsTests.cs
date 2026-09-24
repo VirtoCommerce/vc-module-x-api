@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -16,9 +17,10 @@ public class DistributedLockGraphQLExtensionsTests
     {
         var distributedLock = new TestDistributedLock();
 
-        await using var handle = await distributedLock.AcquireForGraphQLAsync("Cart:user-1", CancellationToken.None);
+        await using var handle = await distributedLock.AcquireForGraphQLAsync("Cart:user-1", TimeSpan.FromSeconds(10), CancellationToken.None);
 
         handle.Resource.Should().Be("Cart:user-1");
+        distributedLock.Timeouts.Should().ContainSingle().Which.Should().Be(TimeSpan.FromSeconds(10));
     }
 
     [Fact]
@@ -26,7 +28,7 @@ public class DistributedLockGraphQLExtensionsTests
     {
         var distributedLock = new TestDistributedLock { IsBusy = true };
 
-        var act = () => distributedLock.AcquireForGraphQLAsync("Cart:user-1", CancellationToken.None);
+        var act = () => distributedLock.AcquireForGraphQLAsync("Cart:user-1", TimeSpan.FromSeconds(10), CancellationToken.None);
 
         var error = (await act.Should().ThrowAsync<LockError>()).Which;
         error.Code.Should().Be(Constants.LockedCode);

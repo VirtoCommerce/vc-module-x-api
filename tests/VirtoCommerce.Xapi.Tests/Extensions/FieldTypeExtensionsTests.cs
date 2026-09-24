@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,8 +7,11 @@ using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Execution;
 using GraphQL.Types;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure;
+using VirtoCommerce.Xapi.Core.Models;
 using VirtoCommerce.Xapi.Tests.Helpers.Stubs;
 using Xunit;
 
@@ -28,7 +32,25 @@ public class FieldTypeExtensionsTests
         result.Should().Be(9);
         distributedLock.Resources.Should().ContainSingle().Which.Should().Be("Cart:user-1");
         distributedLock.Tokens.Should().ContainSingle().Which.Should().Be(cancellation.Token);
+        distributedLock.Timeouts.Should().ContainSingle().Which.Should().Be(TimeSpan.FromSeconds(10), "the default applies without configured options");
         distributedLock.Released.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ResolveSynchronizedAsync_WithDistributedLock_WaitsConfiguredTimeout()
+    {
+        var distributedLock = new TestDistributedLock();
+        var field = FieldBuilder<object, int>.Create("field", typeof(IntGraphType))
+            .ResolveSynchronizedAsync("Cart", "userId", distributedLock, _ => Task.FromResult(9));
+        using var requestServices = new ServiceCollection()
+            .AddSingleton(Options.Create(new GraphQLDistributedLockOptions { Timeout = TimeSpan.FromSeconds(3) }))
+            .BuildServiceProvider();
+        var context = CreateContext("user-1", CancellationToken.None);
+        context.RequestServices = requestServices;
+
+        await field.FieldType.Resolver!.ResolveAsync(context);
+
+        distributedLock.Timeouts.Should().ContainSingle().Which.Should().Be(TimeSpan.FromSeconds(3));
     }
 
     [Fact]

@@ -5,7 +5,10 @@ using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Resolvers;
 using GraphQL.Types;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.Xapi.Core.Infrastructure;
+using VirtoCommerce.Xapi.Core.Models;
 using IDistributedLock = VirtoCommerce.Platform.Core.DistributedLock.IDistributedLock;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
@@ -69,7 +72,8 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         }
 
         /// <summary>
-        /// Resolves the field under the Platform distributed lock <c>{resourceKeyPrefix}:{command[resourceKeyProperty]}</c>.
+        /// Resolves the field under the Platform distributed lock <c>{resourceKeyPrefix}:{command[resourceKeyProperty]}</c>,
+        /// waiting <c>VirtoCommerce:GraphQLDistributedLock:Timeout</c> (10 seconds by default).
         /// Resolves without a lock when the command has no such property. A busy resource becomes <see cref="LockError"/>.
         /// </summary>
         public static FieldBuilder<TSourceType, TReturnType> ResolveSynchronizedAsync<TSourceType, TReturnType>(
@@ -91,7 +95,10 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                     return await resolve(context);
                 }
 
-                await using var handle = await distributedLock.AcquireForGraphQLAsync(resourceKey, context.CancellationToken);
+                var timeout = context.RequestServices?.GetService<IOptions<GraphQLDistributedLockOptions>>()?.Value.Timeout
+                    ?? GraphQLDistributedLockOptions.DefaultTimeout;
+
+                await using var handle = await distributedLock.AcquireForGraphQLAsync(resourceKey, timeout, context.CancellationToken);
                 return await resolve(context);
             }
         }
