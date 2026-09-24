@@ -7,6 +7,7 @@ using VirtoCommerce.Xapi.Core.Infrastructure;
 
 namespace VirtoCommerce.Xapi.Data.Services;
 
+[Obsolete("No longer registered. XAPI uses PlatformDistributedLockService on the Platform IDistributedLock.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
 public class InMemoryLockService : IDistributedLockService
 {
     // Match the Redis implementation's bounded acquisition wait so the failure mode
