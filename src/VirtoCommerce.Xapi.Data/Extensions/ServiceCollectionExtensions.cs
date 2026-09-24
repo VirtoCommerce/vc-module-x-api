@@ -27,17 +27,13 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             return serviceCollection;
         }
 
+        /// <summary>
+        /// Registers the XAPI <see cref="IDistributedLockService"/> on the Platform <c>IDistributedLock</c>,
+        /// which selects Redis or the in-process lock from <c>ConnectionStrings:RedisConnectionString</c>.
+        /// </summary>
         public static IServiceCollection AddDistributedLockService(this IServiceCollection services, IConfiguration configuration)
         {
-            var redisConnectionString = configuration.GetConnectionString("RedisConnectionString");
-            if (!string.IsNullOrEmpty(redisConnectionString))
-            {
-                services.AddSingleton<IDistributedLockService, DistributedLockService>();
-            }
-            else
-            {
-                services.AddSingleton<IDistributedLockService, InMemoryLockService>();
-            }
+            services.AddSingleton<IDistributedLockService, PlatformDistributedLockService>();
 
             return services;
         }

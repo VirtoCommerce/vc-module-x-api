@@ -30,6 +30,7 @@
     <PackageReference Include="RedLock.net" Version="2.3.2" />
     <PackageReference Include="System.Reactive" Version="6.1.0" />
     <PackageReference Include="VirtoCommerce.CustomerModule.Core" Version="3.1010.0" />
+    <PackageReference Include="VirtoCommerce.Platform.Core" Version="3.1073.0-alpha.13400-vcst-6052" />
     <PackageReference Include="VirtoCommerce.SearchModule.Core" Version="3.1004.0" />
     <PackageReference Include="VirtoCommerce.Seo.Core" Version="3.1004.0" />
     <PackageReference Include="VirtoCommerce.StoreModule.Core" Version="3.1006.0" />

@@ -6,6 +6,7 @@ using GraphQL.Builders;
 using GraphQL.Resolvers;
 using GraphQL.Types;
 using VirtoCommerce.Xapi.Core.Infrastructure;
+using IDistributedLock = VirtoCommerce.Platform.Core.DistributedLock.IDistributedLock;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
 {
@@ -64,6 +65,34 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                 return string.IsNullOrEmpty(resourceKey)
                     ? await resolve(context)
                     : await distributedLockService.ExecuteAsync(resourceKey, async () => await resolve(context));
+            }
+        }
+
+        /// <summary>
+        /// Resolves the field under the Platform distributed lock <c>{resourceKeyPrefix}:{command[resourceKeyProperty]}</c>.
+        /// Resolves without a lock when the command has no such property. A busy resource becomes <see cref="LockError"/>.
+        /// </summary>
+        public static FieldBuilder<TSourceType, TReturnType> ResolveSynchronizedAsync<TSourceType, TReturnType>(
+            this FieldBuilder<TSourceType, TReturnType> fieldBuilder,
+            string resourceKeyPrefix,
+            string resourceKeyProperty,
+            IDistributedLock distributedLock,
+            Func<IResolveFieldContext<TSourceType>, Task<TReturnType>> resolve)
+        {
+            fieldBuilder.FieldType.Resolver = new FuncFieldResolver<TSourceType, TReturnType>(ctx => ResolveWrapperAsync(ctx));
+
+            return fieldBuilder;
+
+            async ValueTask<TReturnType> ResolveWrapperAsync(IResolveFieldContext<TSourceType> context)
+            {
+                var resourceKey = GetResourceKey(context, resourceKeyPrefix, resourceKeyProperty);
+                if (string.IsNullOrEmpty(resourceKey))
+                {
+                    return await resolve(context);
+                }
+
+                await using var handle = await distributedLock.AcquireForGraphQLAsync(resourceKey, context.CancellationToken);
+                return await resolve(context);
             }
         }
 
