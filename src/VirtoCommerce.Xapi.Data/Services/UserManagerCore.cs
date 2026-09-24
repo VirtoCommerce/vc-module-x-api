@@ -42,12 +42,6 @@ namespace VirtoCommerce.Xapi.Data.Services
             return result;
         }
 
-        [Obsolete("Use CheckCurrentUserState()", DiagnosticId = "VC0009", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
-        public Task CheckUserState(string userId, bool allowAnonymous)
-        {
-            return CheckUserState(userId, allowAnonymous, isExternalSignIn: false, isImpersonated: false);
-        }
-
         public Task CheckCurrentUserState(IResolveFieldContext context, bool allowAnonymous)
         {
             var principal = context.GetCurrentPrincipal();

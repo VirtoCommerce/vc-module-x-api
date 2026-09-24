@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -10,6 +11,7 @@ using Moq;
 using VirtoCommerce.Platform.Caching;
 using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Security;
+using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.Xapi.Core.Security.Authorization;
 using VirtoCommerce.Xapi.Core.Services;
 using VirtoCommerce.Xapi.Data.Services;
@@ -214,10 +216,13 @@ namespace VirtoCommerce.Xapi.Tests.Services
             using var provider = services.BuildServiceProvider(validateScopes: true);
             var sut = provider.GetRequiredService<IUserManagerCore>();
 
-#pragma warning disable VC0009 // the id-taking entry point, so the check runs without a GraphQL context
-            await sut.CheckUserState(UserId, allowAnonymous: true);
-            await sut.CheckUserState(UserId, allowAnonymous: true);
-#pragma warning restore VC0009
+            // Same context on both calls -> same cache key, so a memoizing instance builds one UserManager.
+            var principal = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, UserId)], "test"));
+            var context = new Mock<IResolveFieldContext>();
+            context.SetupGet(x => x.UserContext).Returns(new GraphQLUserContext(principal));
+
+            await sut.CheckCurrentUserState(context.Object, allowAnonymous: true);
+            await sut.CheckCurrentUserState(context.Object, allowAnonymous: true);
 
             // One UserManager built for two calls: the resolved instance memoizes, so DI handed it the accessor.
             userManagerCalls.Should().Be(1);

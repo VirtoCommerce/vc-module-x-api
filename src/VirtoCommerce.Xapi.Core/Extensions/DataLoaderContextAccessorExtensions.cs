@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using GraphQL;
 using GraphQL.DataLoader;
 using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.Xapi.Core.Models;
+using VirtoCommerce.Xapi.Core.Services;
 
 namespace VirtoCommerce.Xapi.Core.Extensions
 {
@@ -14,7 +14,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         public static IDataLoader<string, ExpVendor> GetVendorDataLoader(
             this IDataLoaderContextAccessor dataLoader,
             IMemberService memberService,
-            IMapper mapper,
+            IXapiMapper mapper,
             string loaderKey)
         {
             var loader = dataLoader.Context.GetOrAddBatchLoader<string, ExpVendor>(loaderKey, async (ids) =>
@@ -24,7 +24,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                 var members = await memberService.GetByIdsAsync(ids.ToArray());
                 foreach (var member in members)
                 {
-                    var vendor = mapper.Map<ExpVendor>(member);
+                    var vendor = mapper.ToExpVendor(member);
                     memberByIds.Add(member.Id, vendor);
                 }
 
@@ -36,7 +36,7 @@ namespace VirtoCommerce.Xapi.Core.Extensions
         public static IDataLoaderResult<ExpVendor> LoadVendor(
             this IDataLoaderContextAccessor dataLoader,
             IMemberService memberService,
-            IMapper mapper,
+            IXapiMapper mapper,
             string loaderKey,
             string vendorId)
         {

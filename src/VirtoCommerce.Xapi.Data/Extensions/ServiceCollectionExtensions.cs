@@ -57,6 +57,7 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             services.AddTransient<ILoadUserToEvalContextService, LoadUserToEvalContextService>();
             services.AddTransient<IStoreDomainResolverService, StoreDomainResolverService>();
             services.AddSingleton<IFacetMapper, FacetMapper>();
+            services.AddSingleton<IXapiMapper, XapiMapper>();
             services.AddDistributedLockService(configuration);
 
             return services;
