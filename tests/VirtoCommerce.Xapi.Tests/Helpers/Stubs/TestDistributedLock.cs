@@ -51,6 +51,9 @@ public sealed class TestDistributedLock : IDistributedLock
 
         public string Resource { get; }
 
+        // The test lock is never lost.
+        public CancellationToken HandleLostToken => CancellationToken.None;
+
         public void Dispose()
         {
             Interlocked.Increment(ref _owner._released);
