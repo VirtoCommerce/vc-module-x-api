@@ -27,17 +27,17 @@ namespace VirtoCommerce.Xapi.Data.Extensions
             return serviceCollection;
         }
 
+        /// <summary>
+        /// Registers the XAPI <see cref="IDistributedLockService"/> on the Platform <c>IDistributedLock</c>,
+        /// which selects Redis or the in-process lock from <c>ConnectionStrings:RedisConnectionString</c>.
+        /// The wait comes from <c>VirtoCommerce:GraphQLDistributedLock:Timeout</c> (10 seconds by default).
+        /// </summary>
         public static IServiceCollection AddDistributedLockService(this IServiceCollection services, IConfiguration configuration)
         {
-            var redisConnectionString = configuration.GetConnectionString("RedisConnectionString");
-            if (!string.IsNullOrEmpty(redisConnectionString))
-            {
-                services.AddSingleton<IDistributedLockService, DistributedLockService>();
-            }
-            else
-            {
-                services.AddSingleton<IDistributedLockService, InMemoryLockService>();
-            }
+            services.AddOptions<GraphQLDistributedLockOptions>().Bind(configuration.GetSection(ConfigKeys.GraphQlDistributedLock));
+#pragma warning disable VC0015 // Keep the obsolete XAPI lock service resolvable for existing callers
+            services.AddSingleton<IDistributedLockService, PlatformDistributedLockService>();
+#pragma warning restore VC0015
 
             return services;
         }
