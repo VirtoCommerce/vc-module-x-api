@@ -28,6 +28,11 @@ public class StorePlugin
     public StorePluginRemote Remote { get; set; }
 
     /// <summary>
+    /// The <c>contributions</c> object of <c>plugin.json</c> as JSON text, or <c>null</c>.
+    /// </summary>
+    public string Contributions { get; set; }
+
+    /// <summary>
     /// Maps a platform <see cref="PluginDescriptor"/> to its XAPI projection.
     /// Pure and null-tolerant so it can be unit-tested without a running schema.
     /// </summary>
@@ -52,6 +57,7 @@ public class StorePlugin
                     Name = descriptor.Remote.Name,
                     Exposed = descriptor.Remote.Exposed,
                 },
+            Contributions = descriptor.Contributions,
         };
     }
 
