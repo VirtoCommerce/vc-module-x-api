@@ -23,6 +23,7 @@ namespace VirtoCommerce.Xapi.Tests.Models
                     new() { Type = "style", Path = "/modules/$(VirtoCommerce.Sample)/plugins/vc-frontend/style.css", Hash = "DEF456" },
                 },
                 Remote = new PluginRemoteDescriptor { Name = "VirtoCommerce.Sample", Exposed = "./Module" },
+                Contributions = """{"format":1,"when":{"setting":"Sample.Enabled"}}""",
             };
 
             // Act
@@ -43,6 +44,7 @@ namespace VirtoCommerce.Xapi.Tests.Models
             result.Remote.Should().NotBeNull();
             result.Remote.Name.Should().Be("VirtoCommerce.Sample");
             result.Remote.Exposed.Should().Be("./Module");
+            result.Contributions.Should().Be("""{"format":1,"when":{"setting":"Sample.Enabled"}}""");
         }
 
         [Fact]
@@ -60,7 +62,7 @@ namespace VirtoCommerce.Xapi.Tests.Models
             {
                 Id = "VirtoCommerce.Minimal",
                 Version = "1.0.0",
-                // No Entry, no ContentFiles, no Remote, no Permission.
+                // No Entry, no ContentFiles, no Remote, no Permission, no Contributions.
                 ContentFiles = null,
             };
 
@@ -73,6 +75,7 @@ namespace VirtoCommerce.Xapi.Tests.Models
             result.Entry.Should().BeNull();
             result.Remote.Should().BeNull();
             result.Permission.Should().BeNull();
+            result.Contributions.Should().BeNull();
             result.ContentFiles.Should().NotBeNull().And.BeEmpty();
         }
     }

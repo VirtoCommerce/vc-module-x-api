@@ -13,5 +13,6 @@ public class StorePluginType : ExtendableGraphType<StorePlugin>
         Field<StorePluginFileType>(nameof(StorePlugin.Entry)).Description("The plugin's entry asset (its remoteEntry.js)").Resolve(context => context.Source.Entry);
         Field<NonNullGraphType<ListGraphType<NonNullGraphType<StorePluginFileType>>>>(nameof(StorePlugin.ContentFiles)).Description("Additional assets the plugin ships").Resolve(context => context.Source.ContentFiles);
         Field<StorePluginRemoteType>(nameof(StorePlugin.Remote)).Description("Module Federation remote coordinates").Resolve(context => context.Source.Remote);
+        Field(x => x.Contributions, nullable: true).Description("The plugin's declared contributions (the contributions object of its plugin.json) as JSON text; null when it declares none");
     }
 }
