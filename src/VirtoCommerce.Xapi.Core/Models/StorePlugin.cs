@@ -28,8 +28,7 @@ public class StorePlugin
     public StorePluginRemote Remote { get; set; }
 
     /// <summary>
-    /// The <c>contributions</c> object of the plugin's <c>plugin.json</c> as JSON text, or null when
-    /// it declares none. Defined by the consuming SPA; lets it act on a plugin before loading it.
+    /// The <c>contributions</c> object of <c>plugin.json</c> as JSON text, or <c>null</c>.
     /// </summary>
     public string Contributions { get; set; }
 

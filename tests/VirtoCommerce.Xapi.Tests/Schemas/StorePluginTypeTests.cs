@@ -12,13 +12,10 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
         [Fact]
         public void Contributions_ShouldBeANullableString()
         {
-            // The platform serves the object opaquely; the SPA parses it, so the schema does not
-            // model its shape and a plugin without contributions stays valid.
             var field = new StorePluginType().Fields.FirstOrDefault(x => x.Name.EqualsIgnoreCase("contributions"));
 
             field.Should().NotBeNull();
-            // Before schema initialization a CLR-inferred field carries a type reference; not wrapped
-            // in NonNullGraphType, it becomes a nullable String.
+            // Before schema init, an unwrapped CLR reference means a nullable String.
             field.Type.Should().Be<GraphQLClrOutputTypeReference<string>>();
         }
     }
