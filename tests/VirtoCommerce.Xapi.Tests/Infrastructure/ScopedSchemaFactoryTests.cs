@@ -45,27 +45,26 @@ namespace VirtoCommerce.Xapi.Tests.Infrastructure
             }
         }
 
-        // Records the builders that survive the scope filter and keeps them out of the schema build.
+        // Exposes the scope filter on demand and keeps every builder out of the schema build,
+        // so the result does not depend on when the base class builds its schema.
         private sealed class ProbeScopedSchemaFactory<TMarker> : ScopedSchemaFactory<TMarker>
         {
-            public List<ISchemaBuilder> ScopedBuilders { get; } = [];
-
             public ProbeScopedSchemaFactory(IEnumerable<ISchemaBuilder> schemaBuilders)
                 : base(schemaBuilders, new ServiceCollection().BuildServiceProvider(), Mock.Of<ISchemaFilter>())
             {
             }
 
+            public List<ISchemaBuilder> ApplyScope() => base.GetSchemaBuilders();
+
             protected override List<ISchemaBuilder> GetSchemaBuilders()
             {
-                ScopedBuilders.AddRange(base.GetSchemaBuilders());
-
                 return [];
             }
         }
 
         private static List<ISchemaBuilder> GetScopedBuilders<TMarker>(params ISchemaBuilder[] builders)
         {
-            return new ProbeScopedSchemaFactory<TMarker>(builders).ScopedBuilders;
+            return new ProbeScopedSchemaFactory<TMarker>(builders).ApplyScope();
         }
 
         [Fact]

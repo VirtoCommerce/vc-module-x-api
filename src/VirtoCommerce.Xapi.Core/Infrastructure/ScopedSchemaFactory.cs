@@ -20,7 +20,6 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
         {
             var schemaBuilders = base.GetSchemaBuilders();
 
-            // find all builders inside this assembly
             var currentAssembly = typeof(TMarker).Assembly;
 
             var subSchemaBuilders = schemaBuilders
