@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using GraphQL;
@@ -31,6 +33,10 @@ namespace VirtoCommerce.Xapi.Core.Index
                     }
                     value = actualValues;
                 }
+                else if (TryCreateList(propertyInfo.PropertyType, termFilter.Values, out var list))
+                {
+                    value = list;
+                }
                 else
                 {
                     value = termFilter.Values.FirstOrDefault().ChangeType(propertyInfo.PropertyType);
@@ -38,6 +44,31 @@ namespace VirtoCommerce.Xapi.Core.Index
             }
             propertyInfo.SetValue(obj, value, null);
             return obj;
+        }
+
+        private static bool TryCreateList(Type propertyType, IList<string> values, out IList list)
+        {
+            list = null;
+
+            if (!propertyType.IsGenericType || propertyType.GetGenericArguments().Length != 1)
+            {
+                return false;
+            }
+
+            var elementType = propertyType.GetGenericArguments()[0];
+            var listType = typeof(List<>).MakeGenericType(elementType);
+            if (!propertyType.IsAssignableFrom(listType))
+            {
+                return false;
+            }
+
+            list = (IList)Activator.CreateInstance(listType);
+            foreach (var item in values)
+            {
+                list.Add(item.ChangeType(elementType));
+            }
+
+            return true;
         }
 
         public static string Stringify(this IFilter filter)
