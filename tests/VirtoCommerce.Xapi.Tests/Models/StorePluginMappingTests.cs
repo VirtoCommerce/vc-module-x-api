@@ -23,7 +23,7 @@ namespace VirtoCommerce.Xapi.Tests.Models
                     new() { Type = "style", Path = "/modules/$(VirtoCommerce.Sample)/plugins/vc-frontend/style.css", Hash = "DEF456" },
                 },
                 Remote = new PluginRemoteDescriptor { Name = "VirtoCommerce.Sample", Exposed = "./Module" },
-                Contributions = """{"format":1,"when":{"setting":"Sample.Enabled"}}""",
+                Contributions = """{"format":1,"anything":{"nested":true}}""",
             };
 
             // Act
@@ -44,7 +44,7 @@ namespace VirtoCommerce.Xapi.Tests.Models
             result.Remote.Should().NotBeNull();
             result.Remote.Name.Should().Be("VirtoCommerce.Sample");
             result.Remote.Exposed.Should().Be("./Module");
-            result.Contributions.Should().Be("""{"format":1,"when":{"setting":"Sample.Enabled"}}""");
+            result.Contributions.Should().Be("""{"format":1,"anything":{"nested":true}}""");
         }
 
         [Fact]

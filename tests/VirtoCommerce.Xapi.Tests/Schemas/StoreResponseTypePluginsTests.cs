@@ -48,7 +48,7 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
         public async Task Plugins_ShouldCarryContributionsAsJsonText()
         {
             // Arrange
-            const string contributions = """{"format":1,"when":{"setting":"Sample.Enabled"}}""";
+            const string contributions = """{"format":1,"anything":{"nested":true}}""";
             _appManifestService.Setup(x => x.GetManifest(It.IsAny<string>()))
                 .Returns(new AppManifestDescriptor
                 {
