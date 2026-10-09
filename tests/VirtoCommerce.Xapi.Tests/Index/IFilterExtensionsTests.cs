@@ -48,6 +48,16 @@ public class IFilterExtensionsTests
         criteria.Name.Should().Be("first");
     }
 
+    [Fact]
+    public void MapTo_NullableIntProperty_ReceivesFirstValue()
+    {
+        var criteria = new TestCriteria();
+
+        new TermFilter { FieldName = "count", Values = ["7", "8"] }.MapTo(criteria);
+
+        criteria.Count.Should().Be(7);
+    }
+
     private sealed class TestCriteria
     {
         public IList<string> Tags { get; set; }
@@ -57,5 +67,7 @@ public class IFilterExtensionsTests
         public string Name { get; set; }
 
         public IList<int> Numbers { get; set; }
+
+        public int? Count { get; set; }
     }
 }
