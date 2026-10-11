@@ -144,22 +144,6 @@ public class GetStoreQueryHandler : IQueryHandler<GetStoreQuery, StoreResponse>
         return storeResolverRequest;
     }
 
-    [Obsolete("Not being called anymore. Use IStoreDomainResolverService.ResolveStoreByDomain(string domain) method.", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
-    protected virtual async Task<Store> ResolveStoreByDomain(string domain)
-    {
-        if (_storeOptions.Domains.TryGetValue(domain, out var storeId))
-        {
-            return await _storeService.GetByIdAsync(storeId, clone: false);
-        }
-
-        var criteria = AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance();
-        criteria.Domain = domain;
-        criteria.Take = 1;
-
-        var result = await _storeSearchService.SearchAsync(criteria, clone: false);
-        return result.Results.FirstOrDefault();
-    }
-
     protected virtual ModuleSettings[] ToModulesSettings(ICollection<ObjectSettingEntry> settings)
     {
         var result = new List<ModuleSettings>();

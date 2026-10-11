@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.SearchModule.Core.Services;
@@ -17,15 +16,13 @@ namespace VirtoCommerce.Xapi.Data.Queries
         IQueryHandler<SearchDynamicPropertiesQuery, SearchDynamicPropertiesResponse>,
         IQueryHandler<SearchDynamicPropertyDictionaryItemQuery, SearchDynamicPropertyDictionaryItemResponse>
     {
-        private readonly IMapper _mapper;
         private readonly ISearchPhraseParser _searchPhraseParser;
         private readonly IDynamicPropertyService _dynamicPropertyService;
         private readonly IDynamicPropertySearchService _dynamicPropertySearchService;
         private readonly IDynamicPropertyDictionaryItemsSearchService _dynamicPropertyDictionaryItemsSearchService;
 
-        public DynamicPropertyQueryHandler(IMapper mapper, ISearchPhraseParser searchPhraseParser, IDynamicPropertyService dynamicPropertyService, IDynamicPropertySearchService dynamicPropertySearchService, IDynamicPropertyDictionaryItemsSearchService dynamicPropertyDictionaryItemsSearchService)
+        public DynamicPropertyQueryHandler(ISearchPhraseParser searchPhraseParser, IDynamicPropertyService dynamicPropertyService, IDynamicPropertySearchService dynamicPropertySearchService, IDynamicPropertyDictionaryItemsSearchService dynamicPropertyDictionaryItemsSearchService)
         {
-            _mapper = mapper;
             _searchPhraseParser = searchPhraseParser;
             _dynamicPropertyService = dynamicPropertyService;
             _dynamicPropertySearchService = dynamicPropertySearchService;
@@ -57,7 +54,7 @@ namespace VirtoCommerce.Xapi.Data.Queries
         /// </summary>
         public virtual async Task<SearchDynamicPropertiesResponse> Handle(SearchDynamicPropertiesQuery request, CancellationToken cancellationToken)
         {
-            var searchCriteria = new DynamicPropertySearchCriteriaBuilder(_searchPhraseParser, _mapper)
+            var searchCriteria = new DynamicPropertySearchCriteriaBuilder(_searchPhraseParser)
                                         .ParseFilters(request.Filter)
                                         .WithLanguage(request.CultureName)
                                         .WithPaging(request.Skip, request.Take)
@@ -76,7 +73,7 @@ namespace VirtoCommerce.Xapi.Data.Queries
 
         public virtual async Task<SearchDynamicPropertyDictionaryItemResponse> Handle(SearchDynamicPropertyDictionaryItemQuery request, CancellationToken cancellationToken)
         {
-            var searchCriteria = new DynamicPropertyDictionaryItemSearchCriteriaBuilder(_searchPhraseParser, _mapper)
+            var searchCriteria = new DynamicPropertyDictionaryItemSearchCriteriaBuilder(_searchPhraseParser)
                                         .ParseFilters(request.Filter)
                                         .WithPropertyId(request.PropertyId)
                                         .WithLanguage(request.CultureName)

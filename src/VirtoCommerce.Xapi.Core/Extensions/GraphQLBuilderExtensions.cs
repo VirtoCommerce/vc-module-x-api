@@ -48,9 +48,18 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
         public static IGraphQLBuilder AddSchema(this IGraphQLBuilder builder, IServiceCollection services, Type assemblyMarker)
         {
+            return builder.AddSchema(services, assemblyMarker, configureMediatR: null);
+        }
+
+        public static IGraphQLBuilder AddSchema(this IGraphQLBuilder builder, IServiceCollection services, Type assemblyMarker, Action<MediatRServiceConfiguration> configureMediatR)
+        {
             builder.AddGraphTypes(assemblyMarker.Assembly);
             builder.AddOptionalGraphTypes(assemblyMarker);
-            services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(assemblyMarker.Assembly));
+            services.AddMediatR(configuration =>
+            {
+                configuration.RegisterServicesFromAssembly(assemblyMarker.Assembly);
+                configureMediatR?.Invoke(configuration);
+            });
             services.AddAutoMapper(assemblyMarker);
             services.AddSchemaBuilders(assemblyMarker);
 
@@ -59,9 +68,18 @@ namespace VirtoCommerce.Xapi.Core.Extensions
 
         public static IGraphQLBuilder AddSchema(this IGraphQLBuilder builder, IServiceCollection services, Type coreAssemblyMarker, Type dataAssemblyMarker)
         {
+            return builder.AddSchema(services, coreAssemblyMarker, dataAssemblyMarker, configureMediatR: null);
+        }
+
+        public static IGraphQLBuilder AddSchema(this IGraphQLBuilder builder, IServiceCollection services, Type coreAssemblyMarker, Type dataAssemblyMarker, Action<MediatRServiceConfiguration> configureMediatR)
+        {
             builder.AddGraphTypes(coreAssemblyMarker.Assembly);
             builder.AddOptionalGraphTypes(coreAssemblyMarker);
-            services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(coreAssemblyMarker.Assembly, dataAssemblyMarker.Assembly));
+            services.AddMediatR(configuration =>
+            {
+                configuration.RegisterServicesFromAssemblies(coreAssemblyMarker.Assembly, dataAssemblyMarker.Assembly);
+                configureMediatR?.Invoke(configuration);
+            });
             services.AddAutoMapper(coreAssemblyMarker, dataAssemblyMarker);
             services.AddSchemaBuilders(dataAssemblyMarker);
 
