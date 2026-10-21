@@ -3,7 +3,18 @@ The xAPI provides default GraphQL schemas for types,  queries, and mutations. Ho
 
 At the moment the xAPI project has the following main extensions points in addition to the extension points that platform provides [extensibility overview](https://virtocommerce.com/docs/latest/fundamentals/extensibility/overview/)
 
-Note: *However, unfortunately, there is no opportunity to extend AutoMapper's profiles using AbstractTypeFactory<> type.*
+Note: *xAPI no longer depends on AutoMapper.* Earlier versions of `AddSchema` called `services.AddAutoMapper(...)` on your behalf, which registered `IMapper` and every `Profile` in your assembly. That call has been removed and the `AutoMapper` package is no longer referenced transitively, so a module that still uses AutoMapper must reference and register it itself:
+
+```xml
+<PackageReference Include="AutoMapper" Version="[12.0.1,15)" />
+<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+```
+
+```csharp
+services.AddAutoMapper(typeof(YourModuleAssemblyMarker));
+```
+
+AutoMapper 15 and later require a paid license for commercial use, hence the upper bound above.
 
 [Sample code](https://github.com/VirtoCommerce/vc-module-experience-api/tree/dev/samples/VirtoCommerce.Exp.ExtensionSamples)
 
