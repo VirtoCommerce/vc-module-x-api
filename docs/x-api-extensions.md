@@ -3,7 +3,7 @@ The xAPI provides default GraphQL schemas for types,  queries, and mutations. Ho
 
 At the moment the xAPI project has the following main extensions points in addition to the extension points that platform provides [extensibility overview](https://virtocommerce.com/docs/latest/fundamentals/extensibility/overview/)
 
-Note: *xAPI no longer depends on AutoMapper.* Earlier versions of `AddSchema` called `services.AddAutoMapper(...)` on your behalf, which registered `IMapper` and every `Profile` in your assembly. That call has been removed and the `AutoMapper` package is no longer referenced transitively, so a module that still uses AutoMapper must reference and register it itself:
+Note: *xAPI no longer uses or registers AutoMapper.* Earlier versions of `AddSchema` called `services.AddAutoMapper(...)` on your behalf, which registered `IMapper` and every `Profile` in your assembly. That call has been removed, and `VirtoCommerce.Xapi.Core` / `VirtoCommerce.Xapi.Data` no longer carry AutoMapper as a NuGet dependency, so a module built against them does not inherit it. A module that uses AutoMapper must now reference and register it itself:
 
 ```xml
 <PackageReference Include="AutoMapper" Version="[12.0.1,15)" />
