@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using OpenTelemetry.Trace;
+using VirtoCommerce.ApplicationInsights.Core.Telemetry;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DeveloperTools;
 using VirtoCommerce.Platform.Core.Modularity;
@@ -30,10 +30,11 @@ using static VirtoCommerce.Xapi.Core.ModuleConstants;
 
 namespace VirtoCommerce.Xapi.Web
 {
-    public class Module : IModule, IHasConfiguration
+    public class Module : IModule, IHasConfiguration, IHasModuleService
     {
         public ManifestModuleInfo ModuleInfo { get; set; }
         public IConfiguration Configuration { get; set; }
+        public IModuleService ModuleService { get; set; }
 
         private bool IsSchemaIntrospectionEnabled
         {
@@ -53,7 +54,11 @@ namespace VirtoCommerce.Xapi.Web
 
         public void Initialize(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddOpenTelemetry().WithTracing(t => t.AddProcessor(new IgnorePlainCoreXapiGraphQLTelemetryProcessor()));
+            if (ModuleService.IsInstalled("VirtoCommerce.ApplicationInsights"))
+            {
+                // Skip plain "POST /graphql" requests not enriched by GraphQLHttpMiddlewareWithLogs to reduce telemetry flood
+                serviceCollection.AddIgnoreRequestTelemetry("/graphql", exceptWhenTag: "graphql.type");
+            }
 
 #pragma warning disable CS0618 // Type or member is obsolete
             // Use legacy type naming for backward compatibility

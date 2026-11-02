@@ -1,10 +1,2 @@
-Microsoft.AI.DependencyCollector.dll
-Microsoft.AI.EventCounterCollector.dll
-Microsoft.AI.PerfCounterCollector.dll
-Microsoft.AI.ServerTelemetryChannel.dll
-Microsoft.AI.WindowsServer.dll
-Microsoft.ApplicationInsights.AspNetCore.dll
-Microsoft.ApplicationInsights.dll
-Microsoft.Extensions.Logging.ApplicationInsights.dll
-Microsoft.Extensions.Logging.AzureAppServices.dll
+VirtoCommerce.ApplicationInsights.Core.dll
 VirtoCommerce.TaxModule.Core.dll
