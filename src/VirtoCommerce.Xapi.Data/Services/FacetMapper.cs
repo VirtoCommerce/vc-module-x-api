@@ -101,9 +101,8 @@ public class FacetMapper : IFacetMapper
     }
 
     /// <summary>
-    /// The still-live AutoMapper profile parses with <c>Convert.ToInt64</c>, which throws on a null,
-    /// empty, or fractional bound; VCST-2608 fixed that for x-catalog, and this is that fix, not the
-    /// profile's behaviour.
+    /// Parses a range bound leniently, per VCST-2608: a null or empty bound yields <c>null</c> rather
+    /// than throwing, and a fractional bound is preserved instead of being truncated to an integer.
     /// </summary>
     protected virtual decimal? ToNullableDecimal(string value)
     {
@@ -128,9 +127,9 @@ public class FacetMapper : IFacetMapper
     }
 
     /// <summary>
-    /// Not part of the original AutoMapper profile (which never reordered terms) - this is x-catalog's
-    /// own historical behavior. A null <see cref="AggregationFacetSource.TermValuesSortingType"/> is
-    /// left unsorted; callers wanting x-catalog's "null means ascending" default must set it explicitly.
+    /// Sorts term facets by label, reproducing x-catalog's own historical behavior. A null
+    /// <see cref="AggregationFacetSource.TermValuesSortingType"/> is left unsorted; callers wanting
+    /// x-catalog's "null means ascending" default must set it explicitly.
     /// </summary>
     /// <remarks><paramref name="context"/> may be null - see <see cref="ToFacetResult"/>. An override
     /// reading it must guard accordingly.</remarks>

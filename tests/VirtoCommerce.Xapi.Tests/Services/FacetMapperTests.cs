@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
-using AutoMapper;
 using FluentAssertions;
-using VirtoCommerce.SearchModule.Core.Model;
 using VirtoCommerce.Xapi.Core.Models.Facets;
 using VirtoCommerce.Xapi.Data.Services;
 using Xunit;
@@ -12,9 +10,6 @@ namespace VirtoCommerce.Xapi.Tests.Services;
 public class FacetMapperTests
 {
     private readonly FacetMapper _mapper = new();
-
-    private static readonly IMapper _legacyMapper = new MapperConfiguration(cfg =>
-        cfg.AddProfile<FacetMappingProfile>()).CreateMapper();
 
     [Fact]
     public void ToFacetResult_NullSource_ReturnsNull()
@@ -132,8 +127,8 @@ public class FacetMapperTests
     [Fact]
     public void ToFacetResult_AttrAggregation_NullSortingType_LeavesOriginalOrder()
     {
-        // The original AutoMapper profile never reordered terms - sorting is x-catalog's own addition,
-        // opted into via TermValuesSortingType. x-order/x-pickup (no sorting type set) stay untouched.
+        // Sorting is x-catalog's own addition, opted into via TermValuesSortingType;
+        // x-order/x-pickup (no sorting type set) stay untouched.
         var source = new AggregationFacetSource
         {
             AggregationType = "attr",
@@ -242,63 +237,5 @@ public class FacetMapperTests
         var act = () => _mapper.ToFacetResult(source, new FacetMappingContext { CultureName = "en-US" });
 
         act.Should().Throw<FormatException>();
-    }
-
-    [Fact]
-    public void ToFacetResult_AttrAggregation_ProducesSameResultAsLegacyAutoMapperProfile()
-    {
-        var source = new Aggregation
-        {
-            AggregationType = "attr",
-            Field = "color",
-            Labels = [new AggregationLabel { Language = "en-US", Label = "Color" }],
-            Items =
-            [
-                new AggregationItem
-                {
-                    Value = "red",
-                    Count = 5,
-                    IsApplied = true,
-                    Labels = [new AggregationLabel { Language = "en-US", Label = "Red" }],
-                },
-                new AggregationItem
-                {
-                    Value = "blue",
-                    Count = 2,
-                    IsApplied = false,
-                },
-            ],
-        };
-
-        var expected = _legacyMapper.Map<FacetResult>(source, options => options.Items["cultureName"] = "en-US");
-
-        var actual = _mapper.ToFacetResult(ToAggregationFacetSource(source), new FacetMappingContext { CultureName = "en-US" });
-
-        actual.Should().BeEquivalentTo(expected, options => options.RespectingRuntimeTypes());
-    }
-
-    // No range-aggregation parity test against _legacyMapper: its Convert.ToInt64 parsing is the
-    // pre-VCST-2608 behaviour, not what this mapper does - see the range tests above instead.
-
-    private static AggregationFacetSource ToAggregationFacetSource(Aggregation source)
-    {
-        return new AggregationFacetSource
-        {
-            AggregationType = source.AggregationType,
-            Field = source.Field,
-            Labels = source.Labels?.Select(x => new AggregationFacetLabel { Language = x.Language, Label = x.Label }).ToList(),
-            Items = source.Items?.Select(x => new AggregationFacetItem
-            {
-                Value = x.Value,
-                Count = x.Count,
-                IsApplied = x.IsApplied,
-                Labels = x.Labels?.Select(l => new AggregationFacetLabel { Language = l.Language, Label = l.Label }).ToList(),
-                RequestedLowerBound = x.RequestedLowerBound,
-                RequestedUpperBound = x.RequestedUpperBound,
-                IncludeLower = x.IncludeLower,
-                IncludeUpper = x.IncludeUpper,
-            }).ToList(),
-            Statistics = source.Statistics == null ? null : new AggregationFacetStatistics { Min = source.Statistics.Min, Max = source.Statistics.Max },
-        };
     }
 }

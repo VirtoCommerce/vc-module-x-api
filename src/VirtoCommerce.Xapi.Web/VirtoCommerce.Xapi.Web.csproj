@@ -8,6 +8,19 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <!--AutoMapper is NOT used by any x-api code. It is referenced here, in the non-packable module
+        host, purely so AutoMapper.dll keeps shipping inside the x-api module package: every module
+        released against Xapi.Core 3.1026.0 or earlier has AutoMapper in its own deps.json (it was a
+        transitive PackageReference of Xapi.Core back then) and resolves that assembly from this
+        module folder - see the AutoMapper.dll entries in dependent modules' module.ignore files.
+        Because the reference lives here and not in Xapi.Core/Xapi.Data, it is absent from their
+        NuGet dependencies, so newly built consumers no longer inherit it.
+        Remove these two lines only once every dependent module has been re-released against an
+        x-api that no longer flows AutoMapper - source-level cleanliness in those repos is NOT the
+        precondition; what matters is the deps.json of their published packages.-->
+    <!--Don't update. AutoMapper 15+ requires a paid license for commercial use.-->
+    <PackageReference Include="AutoMapper" Version="[12.0.1,15)" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="10.0.7" />
   </ItemGroup>
   <ItemGroup>

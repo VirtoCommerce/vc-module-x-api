@@ -45,6 +45,25 @@ namespace VirtoCommerce.Xapi.Tests.Schemas
         }
 
         [Fact]
+        public async Task Plugins_ShouldCarryContributionsAsJsonText()
+        {
+            // Arrange
+            const string contributions = """{"format":1,"anything":{"nested":true}}""";
+            _appManifestService.Setup(x => x.GetManifest(It.IsAny<string>()))
+                .Returns(new AppManifestDescriptor
+                {
+                    Plugins = [new PluginDescriptor { Id = "VirtoCommerce.Sample", Contributions = contributions }, new PluginDescriptor { Id = "VirtoCommerce.Plain" }],
+                });
+            var context = new ResolveFieldContext<StoreResponse> { Source = new StoreResponse() };
+
+            // Act
+            var result = await ResolvePluginsAsync(context);
+
+            // Assert
+            result.Select(x => x.Contributions).Should().Equal(contributions, null);
+        }
+
+        [Fact]
         public async Task Plugins_ShouldReturnEmptyList_WhenManifestIsNull()
         {
             // Arrange

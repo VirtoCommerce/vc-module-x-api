@@ -1,3 +1,6 @@
+// InMemoryLockService is obsolete (no longer registered) but still ships; keep its tests until it is removed.
+#pragma warning disable VC0015
+
 using System;
 using System.Diagnostics;
 using System.Reflection;
