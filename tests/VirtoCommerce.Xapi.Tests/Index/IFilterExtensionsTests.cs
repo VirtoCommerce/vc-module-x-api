@@ -9,16 +9,6 @@ namespace VirtoCommerce.Xapi.Tests.Index;
 public class IFilterExtensionsTests
 {
     [Fact]
-    public void MapTo_ListOfStringProperty_ReceivesAllValues()
-    {
-        var criteria = new TestCriteria();
-
-        new TermFilter { FieldName = "tags", Values = ["a", "b", "c"] }.MapTo(criteria);
-
-        criteria.Tags.Should().Equal("a", "b", "c");
-    }
-
-    [Fact]
     public void MapTo_ListOfIntProperty_ReceivesConvertedValues()
     {
         var criteria = new TestCriteria();
@@ -26,6 +16,22 @@ public class IFilterExtensionsTests
         new TermFilter { FieldName = "numbers", Values = ["1", "2", "3"] }.MapTo(criteria);
 
         criteria.Numbers.Should().Equal(1, 2, 3);
+    }
+
+    [Theory]
+    [InlineData("stringIList", nameof(TestCriteria.StringIList))]
+    [InlineData("stringList", nameof(TestCriteria.StringList))]
+    [InlineData("stringCollection", nameof(TestCriteria.StringCollection))]
+    [InlineData("stringEnumerable", nameof(TestCriteria.StringEnumerable))]
+    [InlineData("stringReadOnlyList", nameof(TestCriteria.StringReadOnlyList))]
+    public void MapTo_ListTypedProperty_ReceivesAllValues(string fieldName, string propertyName)
+    {
+        var criteria = new TestCriteria();
+
+        new TermFilter { FieldName = fieldName, Values = ["a", "b", "c"] }.MapTo(criteria);
+
+        var values = (IEnumerable<string>)typeof(TestCriteria).GetProperty(propertyName).GetValue(criteria);
+        values.Should().Equal("a", "b", "c");
     }
 
     [Fact]
@@ -60,7 +66,15 @@ public class IFilterExtensionsTests
 
     private sealed class TestCriteria
     {
-        public IList<string> Tags { get; set; }
+        public IList<string> StringIList { get; set; }
+
+        public List<string> StringList { get; set; }
+
+        public ICollection<string> StringCollection { get; set; }
+
+        public IEnumerable<string> StringEnumerable { get; set; }
+
+        public IReadOnlyList<string> StringReadOnlyList { get; set; }
 
         public string[] Codes { get; set; }
 
