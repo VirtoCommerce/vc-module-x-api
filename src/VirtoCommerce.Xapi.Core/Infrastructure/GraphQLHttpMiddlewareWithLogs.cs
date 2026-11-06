@@ -56,7 +56,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             if (activity != null && request?.OperationName.IsNullOrEmpty() == false)
             {
                 activity.DisplayName = $"POST graphql/{request.OperationName}";
-                activity.SetTag("url.path", $"graphql/{request.OperationName}");
+                activity.SetTag("http.route", $"graphql/{request.OperationName}");
                 activity.SetTag("graphql.type", "GraphQL");
             }
 
