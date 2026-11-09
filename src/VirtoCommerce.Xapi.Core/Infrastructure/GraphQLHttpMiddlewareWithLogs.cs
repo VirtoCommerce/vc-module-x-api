@@ -15,6 +15,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Xapi.Core.Helpers;
+using VirtoCommerce.Xapi.Core.Security.Authorization;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure
 {
@@ -69,6 +71,14 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             requestTelemetry.Success = result.Errors.IsNullOrEmpty();
             if (requestTelemetry.Success != true)
             {
+                // an authorization outcome is not a server fault: the client gets HTTP 200 with the error code, so no 500 and no exception
+                if (result.Errors.All(x => x is AuthorizationError))
+                {
+                    requestTelemetry.ResponseCode = result.Errors.All(x => x.Code == Constants.ForbiddenCode) ? "403" : "401";
+
+                    return result;
+                }
+
                 // pass an error response code to trigger AppInsights operation failure state
                 requestTelemetry.ResponseCode = "500";
 
