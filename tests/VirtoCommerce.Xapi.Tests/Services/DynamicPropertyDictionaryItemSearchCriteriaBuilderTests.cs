@@ -33,7 +33,7 @@ public class DynamicPropertyDictionaryItemSearchCriteriaBuilderTests
     [Fact]
     public void ParseFilters_TermFilter_AppliesMatchingCriteriaProperty()
     {
-        // Moved verbatim from the old AutoMapper profile's ConvertUsing - no AutoMapper behaviour to compare against.
+        // Behaviour carried over verbatim from the previous implementation.
         var parserMock = new Mock<ISearchPhraseParser>();
         parserMock.Setup(x => x.Parse(It.IsAny<string>())).Returns(new SearchPhraseParseResult
         {
