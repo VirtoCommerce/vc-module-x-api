@@ -11,10 +11,7 @@ namespace VirtoCommerce.Xapi.Core.Binding
         {
             var result = AbstractTypeFactory<TResult>.TryCreateInstance();
 
-            foreach (var boundProperty in result.GetType().GetBoundProperties())
-            {
-                boundProperty.Property.SetValue(result, boundProperty.Binder.BindModel(searchDocument));
-            }
+            result.BindIndexedProperties(searchDocument);
 
             return result;
         }

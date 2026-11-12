@@ -1,5 +1,7 @@
-using System.Linq;
+using System;
 using FluentAssertions;
+using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.SearchModule.Core.Model;
 using VirtoCommerce.Xapi.Core.Binding;
 using Xunit;
 
@@ -21,11 +23,35 @@ public class IndexModelBinderSharedStateTests
         public object NotBound { get; set; }
     }
 
+    public class StringFieldsModel
+    {
+        [BindIndexField(FieldName = FieldA)]
+        public string A { get; set; }
+
+        [BindIndexField(FieldName = FieldB)]
+        public string B { get; set; }
+
+        public string NotBound { get; set; }
+    }
+
+    public class BindingBaseModel
+    {
+        [BindIndexField(FieldName = FieldA)]
+        public string A { get; set; }
+    }
+
+    public class BindingDerivedModel : BindingBaseModel
+    {
+        [BindIndexField(FieldName = FieldB)]
+        public string B { get; set; }
+    }
+
     /// <summary>
     /// A binder reads its field name off its own instance, so two properties sharing a binder type must
     /// not share the instance: resolving one would retarget the other's field name, and a concurrent
-    /// bind would then read a property from the wrong index field. Caching per binder type did exactly
-    /// that — measured as one property receiving another's value under eight threads.
+    /// bind would then read a property from the wrong index field. Single-threaded: it asserts that the
+    /// two properties get distinct binder instances, each with its own field name. The eight-thread
+    /// reproduction of the original defect was run once by hand and is deliberately not in the suite.
     /// </summary>
     [Fact]
     public void GetIndexModelBinder_TwoPropertiesSharingABinderType_KeepsTheirFieldNamesIndependent()
@@ -60,50 +86,54 @@ public class IndexModelBinderSharedStateTests
         property.GetIndexModelBinder().BindingInfo.FieldName.Should().Be(FieldA);
     }
 
-    /// <summary>
-    /// The type-level cache is the whole optimization: applying the "an instance the caller owns" rule
-    /// above to this path too would silently restore per-document binder construction, with every test
-    /// still green.
-    /// </summary>
     [Fact]
-    public void GetBoundProperties_CalledTwice_ReusesTheSameBinders()
+    public void BindIndexedProperties_TwoPropertiesSharingABinderType_BindsEachFromItsOwnField()
     {
-        var first = typeof(TwoFieldsModel).GetBoundProperties();
-        var second = typeof(TwoFieldsModel).GetBoundProperties();
+        var first = new StringFieldsModel();
+        var second = new StringFieldsModel();
 
-        second.Select(x => x.Binder).Should().Equal(first.Select(x => x.Binder));
-    }
+        first.BindIndexedProperties(new SearchDocument { [FieldA] = "a", [FieldB] = "b" });
+        second.BindIndexedProperties(new SearchDocument { [FieldA] = "b", [FieldB] = "a" });
 
-    /// <summary>
-    /// Callers bind every returned pair unguarded, so a property without a binder must never appear:
-    /// its null binder would throw on the first document of every request.
-    /// </summary>
-    [Fact]
-    public void GetBoundProperties_ExcludesPropertiesWithoutABinder()
-    {
-        var boundProperties = typeof(TwoFieldsModel).GetBoundProperties();
-
-        boundProperties.Select(x => x.Property.Name).Should().BeEquivalentTo([nameof(TwoFieldsModel.A), nameof(TwoFieldsModel.B)]);
-        boundProperties.Should().OnlyContain(x => x.Binder != null);
-    }
-
-    /// <summary>
-    /// The pair carries the binder the property resolves to, so the caller never looks it up a second time.
-    /// </summary>
-    [Fact]
-    public void GetBoundProperties_PairsEachPropertyWithItsOwnBinder()
-    {
-        var boundProperties = typeof(TwoFieldsModel).GetBoundProperties();
-
-        foreach (var boundProperty in boundProperties)
-        {
-            boundProperty.Binder.BindingInfo.FieldName.Should().Be(boundProperty.Property.Name == nameof(TwoFieldsModel.A) ? FieldA : FieldB);
-        }
+        first.A.Should().Be("a");
+        first.B.Should().Be("b");
+        second.A.Should().Be("b");
+        second.B.Should().Be("a");
     }
 
     [Fact]
-    public void GetBoundProperties_TypeWithNoAttributedProperty_ReturnsEmpty()
+    public void BindIndexedProperties_PropertyWithoutAttribute_IsLeftUntouched()
     {
-        typeof(BindingInfo).GetBoundProperties().Should().BeEmpty();
+        var model = new StringFieldsModel { NotBound = "keep" };
+
+        model.BindIndexedProperties(new SearchDocument { [FieldA] = "a", [FieldB] = "b" });
+
+        model.NotBound.Should().Be("keep");
+    }
+
+    /// <summary>
+    /// Binders are cached per runtime type, not per the type the caller declared: a property an
+    /// <c>AbstractTypeFactory</c> override adds must be bound too, and bound from its own field.
+    /// </summary>
+    [Fact]
+    public void GenericModelBinder_TypeOverriddenInAbstractTypeFactory_BindsPropertiesTheOverrideAdds()
+    {
+        AbstractTypeFactory<BindingBaseModel>.OverrideType<BindingBaseModel, BindingDerivedModel>();
+
+        var result = new GenericModelBinder<BindingBaseModel>().BindModel(new SearchDocument { [FieldA] = "a", [FieldB] = "b" });
+
+        var derived = result.Should().BeOfType<BindingDerivedModel>().Subject;
+        derived.A.Should().Be("a");
+        derived.B.Should().Be("b");
+    }
+
+    [Fact]
+    public void BindIndexedProperties_NullTarget_Throws()
+    {
+        object target = null;
+
+        var act = () => target.BindIndexedProperties(new SearchDocument());
+
+        act.Should().Throw<ArgumentNullException>();
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using VirtoCommerce.SearchModule.Core.Model;
 
 namespace VirtoCommerce.Xapi.Core.Binding
 {
@@ -28,8 +29,8 @@ namespace VirtoCommerce.Xapi.Core.Binding
         /// <summary>
         /// A binder configured for <paramref name="propInfo"/>, created fresh on every call so that the
         /// caller owns it outright — nothing else reads the returned instance, including its
-        /// <see cref="IIndexModelBinder.BindingInfo"/>. Null when the property declares no binder.
-        /// Prefer <see cref="GetBoundProperties"/>, which resolves a whole type once.
+        /// <see cref="IIndexModelBinder.BindingInfo"/>. Null when the property carries no <see cref="BindIndexFieldAttribute"/>.
+        /// To bind every indexed property of an object, use <see cref="BindIndexedProperties"/>, which resolves a type once.
         /// </summary>
         public static IIndexModelBinder GetIndexModelBinder(this PropertyInfo propInfo)
         {
@@ -37,15 +38,23 @@ namespace VirtoCommerce.Xapi.Core.Binding
         }
 
         /// <summary>
-        /// The public instance properties of <paramref name="type"/> that carry a binder, each paired with
-        /// its binder, cached against the type — pass the runtime type so an <c>AbstractTypeFactory</c>
-        /// override is described by its own entry rather than by its base's.
-        /// <para>Each paired binder is shared by every document bound through it, so a binder
-        /// implementation must keep no per-call state — and a caller must not write to the binder or to
-        /// its <see cref="IIndexModelBinder.BindingInfo"/>, which would retarget that property for every
-        /// thread. Use <see cref="GetIndexModelBinder(PropertyInfo)"/> for an instance you own.</para>
+        /// Sets every public instance property of <paramref name="target"/> that declares a
+        /// <see cref="BindIndexFieldAttribute"/> to the value its binder reads from <paramref name="searchDocument"/>.
+        /// The binders are resolved once per runtime type of <paramref name="target"/> and reused by every call,
+        /// so a binder implementation must keep no per-call state; they are never handed out to callers.
+        /// The field name is read from the attribute once per type.
         /// </summary>
-        public static ImmutableArray<BoundProperty> GetBoundProperties(this Type type)
+        public static void BindIndexedProperties(this object target, SearchDocument searchDocument)
+        {
+            ArgumentNullException.ThrowIfNull(target);
+
+            foreach (var boundProperty in GetBoundProperties(target.GetType()))
+            {
+                boundProperty.Property.SetValue(target, boundProperty.Binder.BindModel(searchDocument));
+            }
+        }
+
+        private static ImmutableArray<BoundProperty> GetBoundProperties(Type type)
         {
             return _boundPropertiesCache.GetOrAdd(type, x => x
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
