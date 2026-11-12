@@ -8,7 +8,7 @@ namespace VirtoCommerce.Xapi.Core.Binding
 {
     public static class TypeExtensions
     {
-        private static readonly ConcurrentDictionary<Type, ImmutableArray<BoundProperty>> _boundPropertiesCache = new ConcurrentDictionary<Type, ImmutableArray<BoundProperty>>();
+        private static readonly ConcurrentDictionary<Type, ImmutableArray<BoundProperty>> _boundPropertiesCache = new();
 
         public static IIndexModelBinder GetIndexModelBinder(this Type type, IIndexModelBinder defaultBinder)
         {
@@ -19,10 +19,9 @@ namespace VirtoCommerce.Xapi.Core.Binding
             {
                 result = CreateBinder(bindAttr);
             }
-            if (result != null)
-            {
-                result.BindingInfo = type.GetBindingInfo() ?? result.BindingInfo;
-            }
+
+            result?.BindingInfo = type.GetBindingInfo() ?? result.BindingInfo;
+
             return result;
         }
 
@@ -58,7 +57,6 @@ namespace VirtoCommerce.Xapi.Core.Binding
         private static IIndexModelBinder CreateBinder(PropertyInfo propInfo)
         {
             var bindAttr = propInfo.GetCustomAttributes<BindIndexFieldAttribute>().FirstOrDefault();
-
             if (bindAttr == null)
             {
                 return null;
@@ -66,10 +64,7 @@ namespace VirtoCommerce.Xapi.Core.Binding
 
             var result = CreateBinder(bindAttr);
 
-            if (result != null)
-            {
-                result.BindingInfo = GetBindingInfo(bindAttr) ?? result.BindingInfo;
-            }
+            result?.BindingInfo = GetBindingInfo(bindAttr) ?? result.BindingInfo;
 
             return result;
         }
@@ -83,14 +78,9 @@ namespace VirtoCommerce.Xapi.Core.Binding
 
         private static BindingInfo GetBindingInfo(this Type type)
         {
-            BindingInfo result = null;
             var bindAttr = type.GetCustomAttributes<BindIndexFieldAttribute>().FirstOrDefault();
 
-            if (bindAttr != null)
-            {
-                result = GetBindingInfo(bindAttr);
-            }
-            return result;
+            return bindAttr != null ? GetBindingInfo(bindAttr) : null;
         }
 
         private static BindingInfo GetBindingInfo(BindIndexFieldAttribute attr)
