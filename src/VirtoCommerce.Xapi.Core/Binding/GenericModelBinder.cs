@@ -1,29 +1,18 @@
-using System.Reflection;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.SearchModule.Core.Model;
 
-namespace VirtoCommerce.Xapi.Core.Binding
+namespace VirtoCommerce.Xapi.Core.Binding;
+
+public class GenericModelBinder<TResult> : IIndexModelBinder
 {
-    public class GenericModelBinder<TResult> : IIndexModelBinder
+    public BindingInfo BindingInfo { get; set; }
+
+    public virtual object BindModel(SearchDocument searchDocument)
     {
-        public BindingInfo BindingInfo { get; set; }
+        var result = AbstractTypeFactory<TResult>.TryCreateInstance();
 
-        public virtual object BindModel(SearchDocument searchDocument)
-        {
-            var result = AbstractTypeFactory<TResult>.TryCreateInstance();
-            var properties = result.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        result.BindIndexedProperties(searchDocument);
 
-            foreach (var property in properties)
-            {
-                var binder = property.GetIndexModelBinder();
-
-                if (binder != null)
-                {
-                    property.SetValue(result, binder.BindModel(searchDocument));
-                }
-            }
-
-            return result;
-        }
+        return result;
     }
 }
