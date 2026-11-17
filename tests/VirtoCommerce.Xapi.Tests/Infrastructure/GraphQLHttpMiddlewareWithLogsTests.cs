@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using FluentAssertions;
 using GraphQL;
@@ -9,10 +8,6 @@ using GraphQL.NewtonsoftJson;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Transport;
 using GraphQL.Types;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -28,41 +23,56 @@ namespace VirtoCommerce.Xapi.Tests.Infrastructure
     {
         public static TheoryData<ExecutionError[], string> AuthorizationErrors => new()
         {
-            { [AuthorizationError.PasswordExpired()], "401" },
-            { [AuthorizationError.AnonymousAccessDenied(), AuthorizationError.AnonymousAccessDenied()], "401" },
-            { [AuthorizationError.UserLocked()], "401" },
-            { [AuthorizationError.Forbidden(), AuthorizationError.PermissionRequired("order:read")], "403" },
-            { [AuthorizationError.Forbidden(), AuthorizationError.AnonymousAccessDenied()], "401" },
+            { [AuthorizationError.PasswordExpired()], "PasswordExpired" },
+            { [AuthorizationError.AnonymousAccessDenied(), AuthorizationError.AnonymousAccessDenied()], "Unauthorized" },
+            { [AuthorizationError.UserLocked()], "UserLocked" },
+            { [AuthorizationError.Forbidden(), AuthorizationError.PermissionRequired("order:read")], "Forbidden" },
+            { [AuthorizationError.Forbidden(), AuthorizationError.AnonymousAccessDenied()], "Forbidden,Unauthorized" },
         };
 
         [Theory]
         [MemberData(nameof(AuthorizationErrors))]
-        public async Task ExecuteRequestAsync_OnlyAuthorizationErrors_TracksFailedRequestWithAuthCodeAndNoException(ExecutionError[] errors, string expectedResponseCode)
+        public async Task ExecuteRequestAsync_OnlyAuthorizationErrors_LeavesStatusUnsetAndRecordsNoException(ExecutionError[] errors, string expectedCodes)
         {
-            var (middleware, channel) = CreateMiddleware(errors);
+            using var activity = StartActivity();
 
-            await middleware.ExecuteAsync();
+            await CreateMiddleware(errors).ExecuteAsync();
 
-            var request = channel.Items.OfType<RequestTelemetry>().Single();
-            request.Success.Should().BeFalse();
-            request.ResponseCode.Should().Be(expectedResponseCode);
-            channel.Items.OfType<ExceptionTelemetry>().Should().BeEmpty();
+            activity.Status.Should().Be(ActivityStatusCode.Unset);
+            activity.Events.Should().NotContain(x => x.Name == "exception");
+            activity.GetTagItem("graphql.error.codes").Should().Be(expectedCodes);
         }
 
         [Fact]
-        public async Task ExecuteRequestAsync_AuthorizationAndOtherErrors_TracksServerErrorAndException()
+        public async Task ExecuteRequestAsync_AuthorizationAndOtherErrors_SetsErrorStatusAndRecordsException()
         {
-            var (middleware, channel) = CreateMiddleware([AuthorizationError.AnonymousAccessDenied(), new ExecutionError("Boom")]);
+            using var activity = StartActivity();
 
-            await middleware.ExecuteAsync();
+            await CreateMiddleware([AuthorizationError.AnonymousAccessDenied(), new ExecutionError("Boom")]).ExecuteAsync();
 
-            var request = channel.Items.OfType<RequestTelemetry>().Single();
-            request.Success.Should().BeFalse();
-            request.ResponseCode.Should().Be("500");
-            channel.Items.OfType<ExceptionTelemetry>().Should().ContainSingle();
+            activity.Status.Should().Be(ActivityStatusCode.Error);
+            activity.Events.Should().ContainSingle(x => x.Name == "exception");
         }
 
-        private static (TestMiddleware Middleware, CapturingChannel Channel) CreateMiddleware(ExecutionError[] errors)
+        [Fact]
+        public async Task ExecuteRequestAsync_SingleOtherError_SetsErrorStatusWithItsMessage()
+        {
+            using var activity = StartActivity();
+
+            await CreateMiddleware([new ExecutionError("Boom")]).ExecuteAsync();
+
+            activity.Status.Should().Be(ActivityStatusCode.Error);
+            activity.StatusDescription.Should().Be("Boom");
+            activity.Events.Should().ContainSingle(x => x.Name == "exception");
+        }
+
+        private static Activity StartActivity()
+        {
+            // Activity.Current is set without any listener when started directly
+            return new Activity("test").Start();
+        }
+
+        private static TestMiddleware CreateMiddleware(ExecutionError[] errors)
         {
             var documentExecuter = new Mock<IDocumentExecuter<ISchema>>();
             documentExecuter
@@ -78,21 +88,10 @@ namespace VirtoCommerce.Xapi.Tests.Infrastructure
                     return result;
                 });
 
-            var channel = new CapturingChannel();
-            var telemetryConfiguration = new TelemetryConfiguration
-            {
-                TelemetryChannel = channel,
-                ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000",
-            };
-
-            var middleware = new TestMiddleware(
-                documentExecuter.Object,
-                new TelemetryClient(telemetryConfiguration));
-
-            return (middleware, channel);
+            return new TestMiddleware(documentExecuter.Object);
         }
 
-        private sealed class TestMiddleware(IDocumentExecuter<ISchema> documentExecuter, TelemetryClient telemetryClient)
+        private sealed class TestMiddleware(IDocumentExecuter<ISchema> documentExecuter)
             : GraphQLHttpMiddlewareWithLogs<ISchema>(
                 _ => Task.CompletedTask,
                 new GraphQLSerializer(),
@@ -100,37 +99,15 @@ namespace VirtoCommerce.Xapi.Tests.Infrastructure
                 Mock.Of<IServiceScopeFactory>(),
                 new GraphQLHttpMiddlewareOptions(),
                 Mock.Of<IHostApplicationLifetime>(),
-                NullLogger<GraphQLHttpMiddlewareWithLogs<ISchema>>.Instance,
-                telemetryClient)
+                NullLogger<GraphQLHttpMiddlewareWithLogs<ISchema>>.Instance)
         {
             public Task<ExecutionResult> ExecuteAsync()
             {
                 var context = new DefaultHttpContext();
                 context.Request.Method = HttpMethods.Post;
-                context.Request.Scheme = "https";
-                context.Request.Host = new HostString("localhost");
                 context.Request.Path = "/graphql";
 
                 return ExecuteRequestAsync(context, new GraphQLRequest { OperationName = "Test" }, Mock.Of<IServiceProvider>(), new Dictionary<string, object>());
-            }
-        }
-
-        private sealed class CapturingChannel : ITelemetryChannel
-        {
-            public ConcurrentQueue<ITelemetry> Items { get; } = new();
-
-            public bool? DeveloperMode { get; set; }
-
-            public string EndpointAddress { get; set; }
-
-            public void Send(ITelemetry item) => Items.Enqueue(item);
-
-            public void Flush()
-            {
-            }
-
-            public void Dispose()
-            {
             }
         }
     }

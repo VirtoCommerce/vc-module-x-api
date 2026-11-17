@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
@@ -7,24 +8,24 @@ using GraphQL;
 using GraphQL.Server.Transports.AspNetCore;
 using GraphQL.Transport;
 using GraphQL.Types;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Xapi.Core.Helpers;
 using VirtoCommerce.Xapi.Core.Security.Authorization;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure
 {
+    /// <summary>
+    /// Relies solely on <see cref="System.Diagnostics.Activity"/> telemetry
+    /// instead of direct <c>Microsoft.ApplicationInsights</c> types. Any configured
+    /// OpenTelemetry exporter (Application Insights, OTLP, etc.) picks up the data automatically.
+    /// </summary>
     public class GraphQLHttpMiddlewareWithLogs<TSchema> : GraphQLHttpMiddleware<TSchema>
         where TSchema : ISchema
     {
         private readonly ILogger _logger;
-        private readonly TelemetryClient _telemetryClient;
 
         public GraphQLHttpMiddlewareWithLogs(
             RequestDelegate next,
@@ -33,74 +34,60 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             IServiceScopeFactory serviceScopeFactory,
             GraphQLHttpMiddlewareOptions options,
             IHostApplicationLifetime hostApplicationLifetime,
-            ILogger<GraphQLHttpMiddlewareWithLogs<TSchema>> logger,
-            TelemetryClient telemetryClient = null)
+            ILogger<GraphQLHttpMiddlewareWithLogs<TSchema>> logger)
             : base(next, serializer, documentExecuter, serviceScopeFactory, options, hostApplicationLifetime)
         {
             _logger = logger;
-            _telemetryClient = telemetryClient;
         }
 
-        protected override async Task<ExecutionResult> ExecuteRequestAsync(HttpContext context, GraphQLRequest request, IServiceProvider serviceProvider, IDictionary<string, object> userContext)
+        protected override async Task<ExecutionResult> ExecuteRequestAsync(
+            HttpContext context,
+            GraphQLRequest request,
+            IServiceProvider serviceProvider,
+            IDictionary<string, object> userContext)
         {
-            // process Playground schema introspection queries without AppInsights logging
-            if (_telemetryClient is null || request?.OperationName == "IntrospectionQuery")
+            // skip Playground schema introspection queries
+            if (request?.OperationName == "IntrospectionQuery")
             {
                 return await base.ExecuteRequestAsync(context, request, serviceProvider, userContext);
             }
 
-            // prepare AppInsights telemetry
-            var appInsightsOperationName = $"POST graphql/{request?.OperationName}";
-
-            var requestTelemetry = new RequestTelemetry
+            // enrich the server activity created by AspNetCore OTel instrumentation
+            var activity = Activity.Current;
+            if (activity != null && request?.OperationName.IsNullOrEmpty() == false)
             {
-                Name = appInsightsOperationName,
-                Url = new Uri(context.Request.GetEncodedUrl()),
-            };
+                activity.DisplayName = $"POST graphql/{request.OperationName}";
+                activity.SetTag("http.route", $"graphql/{request.OperationName}");
+                activity.SetTag("graphql.type", "GraphQL");
+            }
 
-            //Replace W3C Trace Context id generation https://www.w3.org/TR/trace-context/ to unique value
-            requestTelemetry.Context.Operation.Id = Guid.NewGuid().ToString("N");
-            requestTelemetry.Context.Operation.Name = appInsightsOperationName;
-            requestTelemetry.Properties["Type"] = "GraphQL";
-
-            using var operation = _telemetryClient.StartOperation(requestTelemetry);
-
-            // execute GraphQL query
             var result = await base.ExecuteRequestAsync(context, request, serviceProvider, userContext);
 
-            requestTelemetry.Success = result.Errors.IsNullOrEmpty();
-            if (requestTelemetry.Success != true)
+            if (!result.Errors.IsNullOrEmpty() && activity != null)
             {
-                TrackFailure(requestTelemetry, result.Errors);
+                TrackErrors(activity, result.Errors);
             }
 
             return result;
         }
 
-        private void TrackFailure(RequestTelemetry requestTelemetry, ExecutionErrors errors)
+        private static void TrackErrors(Activity activity, ExecutionErrors errors)
         {
-            // an authorization outcome is not a server fault: the client gets HTTP 200 with the error code, so no 500 and no exception
+            activity.SetTag("graphql.error.codes", string.Join(",", errors.Select(x => x.Code).Where(x => !x.IsNullOrEmpty()).Distinct()));
+
+            // an authorization outcome is not a server fault: the client gets HTTP 200 with the error code,
+            // so leave the span status unset (as OTel does for 4xx on server spans) and do not record an exception
             if (errors.All(x => x is AuthorizationError))
             {
-                requestTelemetry.ResponseCode = errors.All(x => x.Code == Constants.ForbiddenCode) ? "403" : "401";
-
                 return;
             }
-
-            // pass an error response code to trigger AppInsights operation failure state
-            requestTelemetry.ResponseCode = "500";
 
             Exception exception = errors.Count > 1
                 ? new AggregateException(errors)
                 : errors[0];
 
-            var exceptionTelemetry = new ExceptionTelemetry(exception);
-
-            // link exception with the operation
-            exceptionTelemetry.Context.Operation.ParentId = requestTelemetry.Context.Operation.Id;
-            exceptionTelemetry.Context.Operation.Name = requestTelemetry.Context.Operation.Name;
-
-            _telemetryClient.TrackException(exceptionTelemetry);
+            activity.SetStatus(ActivityStatusCode.Error, exception.Message);
+            activity.AddException(exception);
         }
 
         public override async Task InvokeAsync(HttpContext context)

@@ -46,7 +46,7 @@ namespace VirtoCommerce.Xapi.Data.Services
         {
             var principal = context.GetCurrentPrincipal();
             var userId = principal.GetCurrentUserId();
-            var isExternalSignIn = principal.IsExternalSignIn();
+            var isExternalSignIn = principal != null && !principal.IsPasswordSignIn();
             var isImpersonated = principal.IsImpersonated();
 
             return CheckUserState(userId, allowAnonymous, isExternalSignIn, isImpersonated);
