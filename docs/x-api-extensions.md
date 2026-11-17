@@ -3,18 +3,9 @@ The xAPI provides default GraphQL schemas for types,  queries, and mutations. Ho
 
 At the moment the xAPI project has the following main extensions points in addition to the extension points that platform provides [extensibility overview](https://virtocommerce.com/docs/latest/fundamentals/extensibility/overview/)
 
-Note: *xAPI no longer uses or registers AutoMapper.* Earlier versions of `AddSchema` called `services.AddAutoMapper(...)` on your behalf, which registered `IMapper` and every `Profile` in your assembly. That call has been removed, and `VirtoCommerce.Xapi.Core` / `VirtoCommerce.Xapi.Data` no longer carry AutoMapper as a NuGet dependency, so a module built against them does not inherit it. A module that uses AutoMapper must now reference and register it itself:
+Note: *xAPI no longer uses, registers or ships AutoMapper.* Earlier versions of `AddSchema` called `services.AddAutoMapper(...)` on your behalf, which registered `IMapper` and every `Profile` in your assembly. That call has been removed, `VirtoCommerce.Xapi.Core` / `VirtoCommerce.Xapi.Data` no longer carry AutoMapper as a NuGet dependency (since 3.1028.0), and the x-api module package no longer includes `AutoMapper.dll`. A module that still uses AutoMapper must reference, register and ship it itself.
 
-```xml
-<PackageReference Include="AutoMapper" Version="[12.0.1,15)" />
-<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-```
-
-```csharp
-services.AddAutoMapper(typeof(YourModuleAssemblyMarker));
-```
-
-AutoMapper 15 and later require a paid license for commercial use, hence the upper bound above.
+Prefer replacing AutoMapper with explicit mapping code. AutoMapper 12.0.1 and every other release below 15.1.4 are affected by [GHSA-6vhm-j9h7-f9gh](https://github.com/advisories/GHSA-6vhm-j9h7-f9gh) and [GHSA-gpwp-5797-mjff](https://github.com/advisories/GHSA-gpwp-5797-mjff) (high severity); the patched releases (15.1.4+, 16.3.0+) require a paid license for commercial use.
 
 [Sample code](https://github.com/VirtoCommerce/vc-module-experience-api/tree/dev/samples/VirtoCommerce.Exp.ExtensionSamples)
 
