@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Xapi.Core.Security.Authorization;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure
 {
@@ -64,18 +65,29 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
 
             if (!result.Errors.IsNullOrEmpty() && activity != null)
             {
-                var exception = result.Errors.Count > 1
-                    ? (Exception)new AggregateException(result.Errors)
-                    : result.Errors.FirstOrDefault();
-
-                activity.SetStatus(ActivityStatusCode.Error, exception?.Message);
-                if (exception != null)
-                {
-                    activity.AddException(exception);
-                }
+                TrackErrors(activity, result.Errors);
             }
 
             return result;
+        }
+
+        private static void TrackErrors(Activity activity, ExecutionErrors errors)
+        {
+            activity.SetTag("graphql.error.codes", string.Join(",", errors.Select(x => x.Code).Where(x => !x.IsNullOrEmpty()).Distinct()));
+
+            // an authorization outcome is not a server fault: the client gets HTTP 200 with the error code,
+            // so leave the span status unset (as OTel does for 4xx on server spans) and do not record an exception
+            if (errors.All(x => x is AuthorizationError))
+            {
+                return;
+            }
+
+            Exception exception = errors.Count > 1
+                ? new AggregateException(errors)
+                : errors[0];
+
+            activity.SetStatus(ActivityStatusCode.Error, exception.Message);
+            activity.AddException(exception);
         }
 
         public override async Task InvokeAsync(HttpContext context)
