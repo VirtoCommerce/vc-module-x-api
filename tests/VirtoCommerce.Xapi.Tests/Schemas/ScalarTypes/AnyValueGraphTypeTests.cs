@@ -20,6 +20,9 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
 
         private readonly AnyValueGraphType _anyValueGraphType = new();
 
+        private static decimal ToRuntimeDecimal(float value) => (decimal)value;
+        private static decimal ToRuntimeDecimal(double value) => (decimal)value;
+
         #region Arrange
 
         public static IEnumerable<object[]> CanParseLiteralValidData => ParseLiteralValidData.Select(x => new[] { x.First() }).ToArray();
@@ -40,9 +43,9 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
             new object[] { new GraphQLIntValue(            0),                           0,                     typeof(int)     },
             new object[] { new GraphQLIntValue((BigInteger)decimal.MaxValue),            decimal.MaxValue,      typeof(decimal) },
             // Float
-            new object[] { new GraphQLFloatValue(             _decimalMinAsDouble), (decimal)_decimalMinAsDouble, typeof(decimal) },
+            new object[] { new GraphQLFloatValue(             _decimalMinAsDouble), ToRuntimeDecimal(_decimalMinAsDouble), typeof(decimal) },
             new object[] { new GraphQLFloatValue(             0d),                          0m,                 typeof(decimal) },
-            new object[] { new GraphQLFloatValue(             _decimalMaxAsDouble), (decimal)_decimalMaxAsDouble, typeof(decimal) },
+            new object[] { new GraphQLFloatValue(             _decimalMaxAsDouble), ToRuntimeDecimal(_decimalMaxAsDouble), typeof(decimal) },
             // Decimal
             new object[] { new GraphQLFloatValue(           decimal.MinValue),            decimal.MinValue,   typeof(decimal) },
             new object[] { new GraphQLFloatValue(           0m),                          0m,                 typeof(decimal) },
@@ -101,13 +104,13 @@ namespace VirtoCommerce.Xapi.Tests.Schemas.ScalarTypes
             new object[] {             0,                           0,                  typeof(int)     },
             new object[] { (BigInteger)decimal.MaxValue,            decimal.MaxValue,   typeof(decimal) },
             // float
-            new object[] {             _decimalMinAsFloat,  (decimal)_decimalMinAsFloat,  typeof(decimal) },
+            new object[] {             _decimalMinAsFloat,  ToRuntimeDecimal(_decimalMinAsFloat),  typeof(decimal) },
             new object[] {             0f,                          0m,                 typeof(decimal) },
-            new object[] {             _decimalMaxAsFloat,  (decimal)_decimalMaxAsFloat,  typeof(decimal) },
+            new object[] {             _decimalMaxAsFloat,  ToRuntimeDecimal(_decimalMaxAsFloat),  typeof(decimal) },
             // double
-            new object[] {             _decimalMinAsDouble, (decimal)_decimalMinAsDouble, typeof(decimal) },
+            new object[] {             _decimalMinAsDouble, ToRuntimeDecimal(_decimalMinAsDouble), typeof(decimal) },
             new object[] {             0d,                          0m,                 typeof(decimal) },
-            new object[] {             _decimalMaxAsDouble, (decimal)_decimalMaxAsDouble, typeof(decimal) },
+            new object[] {             _decimalMaxAsDouble, ToRuntimeDecimal(_decimalMaxAsDouble), typeof(decimal) },
             // decimal
             new object[] {             decimal.MinValue,            decimal.MinValue,   typeof(decimal) },
             new object[] {             0m,                          0m,                 typeof(decimal) },
