@@ -73,7 +73,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             return result;
         }
 
-        private void TrackErrors(Activity activity, ExecutionErrors errors)
+        private static void TrackErrors(Activity activity, ExecutionErrors errors)
         {
             activity.SetTag("graphql.error.codes", string.Join(",", errors.Select(x => x.Code).Where(x => !x.IsNullOrEmpty()).Distinct()));
 
