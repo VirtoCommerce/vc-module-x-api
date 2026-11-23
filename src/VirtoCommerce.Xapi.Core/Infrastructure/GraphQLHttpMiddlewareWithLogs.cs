@@ -12,7 +12,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using VirtoCommerce.ApplicationInsights.Core.Telemetry;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Xapi.Core.Helpers;
 using VirtoCommerce.Xapi.Core.Security.Authorization;
 
 namespace VirtoCommerce.Xapi.Core.Infrastructure
@@ -71,7 +73,7 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             return result;
         }
 
-        private static void TrackErrors(Activity activity, ExecutionErrors errors)
+        private void TrackErrors(Activity activity, ExecutionErrors errors)
         {
             activity.SetTag("graphql.error.codes", string.Join(",", errors.Select(x => x.Code).Where(x => !x.IsNullOrEmpty()).Distinct()));
 
@@ -79,8 +81,14 @@ namespace VirtoCommerce.Xapi.Core.Infrastructure
             // so leave the span status unset (as OTel does for 4xx on server spans) and do not record an exception
             if (errors.All(x => x is AuthorizationError))
             {
+                var responseCode = errors.All(x => x.Code == Constants.ForbiddenCode) ? 403 : 401;
+                activity.SetStatus(ActivityStatusCode.Error);
+                activity.SetTag(TelemetryTags.ResponseStatusCodeOverride, responseCode);
+
                 return;
             }
+
+            activity.SetTag(TelemetryTags.ResponseStatusCodeOverride, 500);
 
             Exception exception = errors.Count > 1
                 ? new AggregateException(errors)
