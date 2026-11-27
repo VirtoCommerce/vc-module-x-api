@@ -31,7 +31,8 @@ namespace VirtoCommerce.Xapi.Core.Extensions
                 CustomFormatting = currency.CustomFormatting,
                 RoundingPolicy = currency.RoundingPolicy,
                 RoundingType = currency.RoundingType,
-                MidpointRounding = currency.MidpointRounding
+                MidpointRounding = currency.MidpointRounding,
+                DecimalDigits = currency.DecimalDigits,
             };
         }
     }
